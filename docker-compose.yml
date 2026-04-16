@@ -26,11 +26,11 @@ services:
     ports:
       - "9003:9000"
 
-  graph-service:
+  event-organisation-service:
     build:
-      context: ./GraphDatabaseService
+      context: ./EventOrganisationService
       dockerfile: Dockerfile
-    image: graph-service:latest
+    image: event-organisation-service:latest
     depends_on:
       - eureka-server
       - neo4j
