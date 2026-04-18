@@ -1,0 +1,20 @@
+server:
+  port: 9051
+
+spring:
+  neo4j:
+    uri: bolt://localhost:7689
+    authentication:
+      username: neo4j
+      password: password
+  application:
+    name: dynamic-pricing-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    prefer-ip-address: true
