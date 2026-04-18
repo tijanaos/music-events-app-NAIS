@@ -31,3 +31,6 @@ logs/
 
 # Docker volumes (generated at runtime)
 VectorDatabaseService/volumes/
+
+# Claude Code
+.claude/
