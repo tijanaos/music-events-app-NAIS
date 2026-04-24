@@ -1,0 +1,62 @@
+[
+  {
+    "oglas_id": 101,
+    "naziv": "Letnja promocija patika",
+    "opis": "Veliki popust na novu kolekciju patika za leto i gradske aktivnosti.",
+    "tip_oglasa": "tekstualni",
+    "content_url": "",
+    "status": "aktivan",
+    "kategorija": "moda",
+    "datum_kreiranja": "2026-04-24",
+    "datum_poslednje_izmene": "2026-04-24",
+    "kampanja_id": 1
+  },
+  {
+    "oglas_id": 102,
+    "naziv": "Vizuelni oglas za plave patike",
+    "opis": "Vizuelna kampanja za novu kolekciju plavih patika.",
+    "tip_oglasa": "vizuelni",
+    "content_url": "/app/data/test/blue_shoe.ppm",
+    "status": "aktivan",
+    "kategorija": "moda",
+    "datum_kreiranja": "2026-04-24",
+    "datum_poslednje_izmene": "2026-04-24",
+    "kampanja_id": 1
+  },
+  {
+    "oglas_id": 103,
+    "naziv": "Laptop akcija za studente",
+    "opis": "Popust na lagane laptopove i dodatnu opremu za fakultet i posao.",
+    "tip_oglasa": "tekstualni",
+    "content_url": "",
+    "status": "aktivan",
+    "kategorija": "tehnika",
+    "datum_kreiranja": "2026-04-24",
+    "datum_poslednje_izmene": "2026-04-24",
+    "kampanja_id": 2
+  },
+  {
+    "oglas_id": 104,
+    "naziv": "Stan na izdavanje Liman",
+    "opis": "Dvosoban stan u blizini fakulteta sa terasom i parkingom.",
+    "tip_oglasa": "tekstualni",
+    "content_url": "",
+    "status": "draft",
+    "kategorija": "nekretnine",
+    "datum_kreiranja": "2026-04-24",
+    "datum_poslednje_izmene": "2026-04-24",
+    "kampanja_id": 3
+  },
+  {
+    "oglas_id": 105,
+    "naziv": "Zimska rasprodaja jakni",
+    "opis": "Jakne i duksevi po snizenim cenama za kraj sezone.",
+    "tip_oglasa": "tekstualni",
+    "content_url": "",
+    "status": "istekao",
+    "kategorija": "moda",
+    "datum_kreiranja": "2026-01-10",
+    "datum_poslednje_izmene": "2026-02-15",
+    "kampanja_id": 1
+  }
+]
