@@ -44,6 +44,24 @@ services:
     ports:
       - "9060:9050"
 
+  performer-management-service:
+    build:
+      context: ./PerformerManagementService
+      dockerfile: Dockerfile
+    image: performer-management-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+    ports:
+      - "9071:9070"
+
   neo4j:
     image: neo4j:5
     ports:
