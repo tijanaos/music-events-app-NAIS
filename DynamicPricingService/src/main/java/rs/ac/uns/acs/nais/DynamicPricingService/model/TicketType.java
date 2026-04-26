@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Node("TicketType")
 @Getter
@@ -17,12 +21,9 @@ public class TicketType {
     @Id
     private String ticketTypeId;
     private String name;
-    private Double basePrice;
-    private Double minPrice;
-    private Double currentPrice;
     private Integer maxAvailable;
     private Integer soldCount;
-    private Integer expectedSales;
-    private String periodStart;
-    private String periodEnd;
+
+    @Relationship(type = "HAS_SCHEDULE", direction = Relationship.Direction.OUTGOING)
+    private List<PriceSchedule> schedules = new ArrayList<>();
 }
