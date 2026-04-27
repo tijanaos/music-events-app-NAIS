@@ -14,6 +14,7 @@ import rs.ac.uns.acs.nais.DynamicPricingService.repository.TicketTypeRepository;
 import rs.ac.uns.acs.nais.DynamicPricingService.service.PromoCodeService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Override
     public PromoCodeResponse create(PromoCodeRequest request) {
         PromoCode promoCode = promoCodeMapper.toEntity(request);
+        promoCode.setId(UUID.randomUUID().toString());
         promoCode.setValidForTickets(resolveValidFor(request));
         return promoCodeMapper.toResponse(promoCodeRepository.save(promoCode));
     }
@@ -49,7 +51,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         promoCodeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PromoCode not found: " + id));
         PromoCode updated = promoCodeMapper.toEntity(request);
-        updated.setCode(id);
+        updated.setId(id);
         updated.setValidForTickets(resolveValidFor(request));
         return promoCodeMapper.toResponse(promoCodeRepository.save(updated));
     }

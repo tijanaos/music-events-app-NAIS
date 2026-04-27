@@ -12,7 +12,6 @@ import rs.ac.uns.acs.nais.DynamicPricingService.model.enums.CustomerTier;
 @AllArgsConstructor
 public class CustomerRequest {
 
-    private String customerId;
     private String name;
     private String email;
     private CustomerTier tier;

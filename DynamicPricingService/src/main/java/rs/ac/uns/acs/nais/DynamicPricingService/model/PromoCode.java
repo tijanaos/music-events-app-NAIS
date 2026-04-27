@@ -20,6 +20,7 @@ import java.util.List;
 public class PromoCode {
 
     @Id
+    private String id;
     private String code;
     private Integer discountPercent;
     private String validFrom;

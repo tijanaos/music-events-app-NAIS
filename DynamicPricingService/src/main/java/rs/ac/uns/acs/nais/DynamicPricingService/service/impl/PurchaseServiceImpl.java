@@ -13,6 +13,7 @@ import rs.ac.uns.acs.nais.DynamicPricingService.repository.TicketTypeRepository;
 import rs.ac.uns.acs.nais.DynamicPricingService.service.PurchaseService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public PurchaseResponse create(PurchaseRequest request) {
         Purchase purchase = buildPurchase(request);
+        purchase.setId(UUID.randomUUID().toString());
         return purchaseMapper.toResponse(purchaseRepository.save(purchase));
     }
 
@@ -48,7 +50,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found: " + id));
         Purchase purchase = buildPurchase(request);
-        purchase.setPurchaseId(id);
+        purchase.setId(id);
         return purchaseMapper.toResponse(purchaseRepository.save(purchase));
     }
 
@@ -69,7 +71,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
         if (request.getPromoCode() != null) {
             purchase.setPromoCode(
-                    promoCodeRepository.findById(request.getPromoCode())
+                    promoCodeRepository.findByCode(request.getPromoCode())
                             .orElseThrow(() -> new ResourceNotFoundException("PromoCode not found: " + request.getPromoCode()))
             );
         }

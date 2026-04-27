@@ -11,6 +11,7 @@ import rs.ac.uns.acs.nais.DynamicPricingService.repository.CustomerRepository;
 import rs.ac.uns.acs.nais.DynamicPricingService.service.CustomerService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +36,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse create(CustomerRequest request) {
-        Customer saved = customerRepository.save(customerMapper.toEntity(request));
-        return customerMapper.toResponse(saved);
+        Customer entity = customerMapper.toEntity(request);
+        entity.setId(UUID.randomUUID().toString());
+        return customerMapper.toResponse(customerRepository.save(entity));
     }
 
     @Override
@@ -44,7 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
         Customer existing = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found: " + id));
         Customer updated = customerMapper.toEntity(request);
-        updated.setCustomerId(id);
+        updated.setId(id);
         updated.setPurchases(existing.getPurchases());
         return customerMapper.toResponse(customerRepository.save(updated));
     }

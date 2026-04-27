@@ -4,6 +4,7 @@ import java.util.List;
 
 public record PromoCodeEffectivenessResponse(
         String promoCodeId,
+        String code,
         Long discountPercent,
         String validFrom,
         String validTo,

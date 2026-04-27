@@ -15,25 +15,25 @@ public class AnalyticsQueryRepository {
 
     public List<TicketRecommendationResponse> findTicketRecommendations(String customerId, String today) {
         return neo4jClient.query("""
-                        MATCH (target:Customer {customerId: $customerId})
+                        MATCH (target:Customer {id: $customerId})
                               -[:MADE_PURCHASE]->(:Purchase)-[:FOR_TICKET]->(bought:TicketType)
-                        WITH target, COLLECT(DISTINCT bought.ticketTypeId) AS boughtIds
+                        WITH target, COLLECT(DISTINCT bought.id) AS boughtIds
                         MATCH (other:Customer)-[:MADE_PURCHASE]->(:Purchase)-[:FOR_TICKET]->(shared:TicketType)
                         WHERE other <> target
-                          AND shared.ticketTypeId IN boughtIds
+                          AND shared.id IN boughtIds
                         WITH target, boughtIds, other, COUNT(DISTINCT shared) AS overlap
                         MATCH (other)-[:MADE_PURCHASE]->(:Purchase)-[:FOR_TICKET]->(rec:TicketType)
-                        WHERE NOT rec.ticketTypeId IN boughtIds
+                        WHERE NOT rec.id IN boughtIds
                         WITH rec, COUNT(DISTINCT other) AS recommendedBy, MAX(overlap) AS maxOverlap
                         OPTIONAL MATCH (rec)-[:HAS_SCHEDULE]->(s:PriceSchedule)
                         WHERE s.periodStart <= $today AND $today <= s.periodEnd
-                        RETURN rec.ticketTypeId AS ticketTypeId,
-                               rec.name         AS name,
-                               s.currentPrice   AS currentPrice,
-                               recommendedBy    AS recommendedBy,
-                               maxOverlap       AS maxOverlap
+                        RETURN rec.id        AS ticketTypeId,
+                               rec.name      AS name,
+                               s.currentPrice AS currentPrice,
+                               recommendedBy  AS recommendedBy,
+                               maxOverlap     AS maxOverlap
                         ORDER BY recommendedBy DESC, maxOverlap DESC
-                        """)
+""")
                 .bind(customerId).to("customerId")
                 .bind(today).to("today")
                 .fetchAs(TicketRecommendationResponse.class)
@@ -58,12 +58,12 @@ public class AnalyticsQueryRepository {
                         WITH t, s, recentSales, capacityRatio,
                              toFloat(recentSales) / toFloat(s.expectedSales) AS sellThrough,
                              CASE
-                               WHEN toFloat(t.soldCount) / toFloat(t.maxAvailable) >= 0.9 THEN 'CRITICAL_CAPACITY'
-                               WHEN toFloat(recentSales) / toFloat(s.expectedSales) > 1.2  THEN 'INCREASE'
-                               WHEN toFloat(recentSales) / toFloat(s.expectedSales) < 0.8  THEN 'DECREASE'
+                               WHEN capacityRatio >= 0.9  THEN 'CRITICAL_CAPACITY'
+                               WHEN toFloat(recentSales) / toFloat(s.expectedSales) > 1.2 THEN 'INCREASE'
+                               WHEN toFloat(recentSales) / toFloat(s.expectedSales) < 0.8 THEN 'DECREASE'
                                ELSE 'HOLD'
                              END AS action
-                        RETURN t.ticketTypeId  AS ticketTypeId,
+                        RETURN t.id            AS ticketTypeId,
                                t.name          AS name,
                                s.currentPrice  AS currentPrice,
                                s.basePrice     AS basePrice,
@@ -119,7 +119,8 @@ public class AnalyticsQueryRepository {
                         OPTIONAL MATCH (pc)-[:VALID_FOR]->(tt:TicketType)
                         WITH pc, usageCount, totalDiscount, uniqueBuyers,
                              COLLECT(DISTINCT tt.name) AS validForTickets
-                        RETURN pc.code            AS promoCodeId,
+                        RETURN pc.id              AS promoCodeId,
+                               pc.code            AS code,
                                pc.discountPercent AS discountPercent,
                                pc.validFrom       AS validFrom,
                                pc.validTo         AS validTo,
@@ -136,6 +137,7 @@ public class AnalyticsQueryRepository {
                 .fetchAs(PromoCodeEffectivenessResponse.class)
                 .mappedBy((typeSystem, record) -> new PromoCodeEffectivenessResponse(
                         record.get("promoCodeId").asString(null),
+                        record.get("code").asString(null),
                         record.get("discountPercent").isNull() ? null : record.get("discountPercent").asLong(),
                         record.get("validFrom").asString(null),
                         record.get("validTo").asString(null),
@@ -163,7 +165,7 @@ public class AnalyticsQueryRepository {
                              COLLECT(DISTINCT t.name)        AS ticketTypesBought
                         WITH c, purchaseCount, totalSpent, promosUsed, ticketTypesBought,
                              totalTierDiscount + totalPromoDiscount AS totalDiscount
-                        RETURN c.customerId      AS customerId,
+                        RETURN c.id              AS customerId,
                                c.name            AS name,
                                c.tier            AS tier,
                                purchaseCount     AS purchaseCount,
@@ -197,9 +199,9 @@ public class AnalyticsQueryRepository {
                         OPTIONAL MATCH (p:Purchase)-[:FOR_TICKET]->(t)
                         WHERE p.date >= s.periodStart AND p.date <= s.periodEnd
                         WITH t, s, COUNT(p) AS platformSales
-                        RETURN t.ticketTypeId               AS ticketTypeId,
+                        RETURN t.id                         AS ticketTypeId,
                                t.name                       AS ticketName,
-                               s.scheduleId                 AS scheduleId,
+                               s.id                         AS scheduleId,
                                s.periodStart                AS periodStart,
                                s.periodEnd                  AS periodEnd,
                                s.basePrice                  AS basePrice,
@@ -207,7 +209,7 @@ public class AnalyticsQueryRepository {
                                s.currentPrice - s.basePrice AS priceChange,
                                s.soldInPeriod               AS totalSales,
                                platformSales                AS platformSales
-                        ORDER BY t.ticketTypeId ASC, s.periodStart ASC
+                        ORDER BY t.id ASC, s.periodStart ASC
                         """)
                 .fetchAs(PriceScheduleTrendResponse.class)
                 .mappedBy((typeSystem, record) -> new PriceScheduleTrendResponse(

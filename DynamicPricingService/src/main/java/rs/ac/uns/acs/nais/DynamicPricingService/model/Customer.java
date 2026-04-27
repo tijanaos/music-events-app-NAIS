@@ -21,7 +21,7 @@ import java.util.List;
 public class Customer {
 
     @Id
-    private String customerId;
+    private String id;
     private String name;
     private String email;
     private CustomerTier tier;

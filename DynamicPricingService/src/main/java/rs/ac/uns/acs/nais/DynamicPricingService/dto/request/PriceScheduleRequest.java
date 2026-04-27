@@ -11,7 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PriceScheduleRequest {
 
-    private String scheduleId;
     private String periodStart;
     private String periodEnd;
     private Double basePrice;

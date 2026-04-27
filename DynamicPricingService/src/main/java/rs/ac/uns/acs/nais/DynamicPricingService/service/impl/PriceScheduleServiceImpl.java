@@ -13,6 +13,7 @@ import rs.ac.uns.acs.nais.DynamicPricingService.repository.TicketTypeRepository;
 import rs.ac.uns.acs.nais.DynamicPricingService.service.PriceScheduleService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +43,7 @@ public class PriceScheduleServiceImpl implements PriceScheduleService {
                 .orElseThrow(() -> new ResourceNotFoundException("TicketType not found: " + request.getTicketTypeId()));
 
         PriceSchedule schedule = priceScheduleMapper.toEntity(request);
+        schedule.setId(UUID.randomUUID().toString());
         PriceSchedule saved = priceScheduleRepository.save(schedule);
 
         ticketType.getSchedules().add(saved);
@@ -56,7 +58,7 @@ public class PriceScheduleServiceImpl implements PriceScheduleService {
                 .orElseThrow(() -> new ResourceNotFoundException("PriceSchedule not found: " + id));
 
         PriceSchedule updated = priceScheduleMapper.toEntity(request);
-        updated.setScheduleId(id);
+        updated.setId(id);
         return priceScheduleMapper.toResponse(priceScheduleRepository.save(updated));
     }
 

@@ -4,6 +4,14 @@
     "_postman_id": "dynamic-pricing-collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:9070" },
+    { "key": "ticketTypeId", "value": "<paste UUID from Get All>" },
+    { "key": "scheduleId", "value": "<paste UUID from Get All>" },
+    { "key": "promoCodeId", "value": "<paste UUID from Get All>" },
+    { "key": "purchaseId", "value": "<paste UUID from Get All>" },
+    { "key": "customerId", "value": "<paste UUID from Get All>" }
+  ],
   "item": [
     {
       "name": "Ticket Types",
@@ -14,10 +22,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/ticket-types",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/ticket-types",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "ticket-types"]
             }
           }
@@ -28,11 +34,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/ticket-types/TKT-001",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "ticket-types", "TKT-001"]
+              "raw": "{{baseUrl}}/api/ticket-types/{{ticketTypeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ticket-types", "{{ticketTypeId}}"]
             }
           }
         },
@@ -43,13 +47,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"ticketTypeId\": \"TKT-006\",\n  \"name\": \"Student Pass\",\n  \"maxAvailable\": 3000,\n  \"soldCount\": 0,\n  \"schedules\": [\n    {\n      \"scheduleId\": \"SCH-601\",\n      \"periodStart\": \"2026-04-16\",\n      \"periodEnd\": \"2026-05-31\",\n      \"basePrice\": 2500.0,\n      \"currentPrice\": 2500.0,\n      \"minPrice\": 1500.0,\n      \"expectedSales\": 2,\n      \"soldInPeriod\": 0,\n      \"priceStep\": 100.0\n    }\n  ]\n}"
+              "raw": "{\n  \"name\": \"Student Pass\",\n  \"maxAvailable\": 3000,\n  \"soldCount\": 0,\n  \"schedules\": [\n    {\n      \"periodStart\": \"2026-04-16\",\n      \"periodEnd\": \"2026-05-31\",\n      \"basePrice\": 2500.0,\n      \"currentPrice\": 2500.0,\n      \"minPrice\": 1500.0,\n      \"expectedSales\": 2,\n      \"soldInPeriod\": 0,\n      \"priceStep\": 100.0\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/ticket-types",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/ticket-types",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "ticket-types"]
             }
           }
@@ -61,14 +63,12 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"ticketTypeId\": \"TKT-006\",\n  \"name\": \"Student Pass\",\n  \"maxAvailable\": 3000,\n  \"soldCount\": 5,\n  \"schedules\": [\n    {\n      \"scheduleId\": \"SCH-601\",\n      \"periodStart\": \"2026-04-16\",\n      \"periodEnd\": \"2026-05-31\",\n      \"basePrice\": 2500.0,\n      \"currentPrice\": 2600.0,\n      \"minPrice\": 1500.0,\n      \"expectedSales\": 2,\n      \"soldInPeriod\": 5,\n      \"priceStep\": 100.0\n    }\n  ]\n}"
+              "raw": "{\n  \"name\": \"Student Pass\",\n  \"maxAvailable\": 3000,\n  \"soldCount\": 5,\n  \"schedules\": [\n    {\n      \"periodStart\": \"2026-04-16\",\n      \"periodEnd\": \"2026-05-31\",\n      \"basePrice\": 2500.0,\n      \"currentPrice\": 2600.0,\n      \"minPrice\": 1500.0,\n      \"expectedSales\": 2,\n      \"soldInPeriod\": 5,\n      \"priceStep\": 100.0\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/ticket-types/TKT-006",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "ticket-types", "TKT-006"]
+              "raw": "{{baseUrl}}/api/ticket-types/{{ticketTypeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ticket-types", "{{ticketTypeId}}"]
             }
           }
         },
@@ -78,11 +78,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/ticket-types/TKT-006",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "ticket-types", "TKT-006"]
+              "raw": "{{baseUrl}}/api/ticket-types/{{ticketTypeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ticket-types", "{{ticketTypeId}}"]
             }
           }
         }
@@ -97,10 +95,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/price-schedules",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/price-schedules",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "price-schedules"]
             }
           }
@@ -111,11 +107,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/price-schedules/SCH-103",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "price-schedules", "SCH-103"]
+              "raw": "{{baseUrl}}/api/price-schedules/{{scheduleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "price-schedules", "{{scheduleId}}"]
             }
           }
         },
@@ -126,13 +120,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"scheduleId\": \"SCH-602\",\n  \"periodStart\": \"2026-06-01\",\n  \"periodEnd\": \"2026-06-30\",\n  \"basePrice\": 2800.0,\n  \"currentPrice\": 2800.0,\n  \"minPrice\": 1500.0,\n  \"expectedSales\": 3,\n  \"soldInPeriod\": 0,\n  \"priceStep\": 100.0,\n  \"ticketTypeId\": \"TKT-001\"\n}"
+              "raw": "{\n  \"periodStart\": \"2026-06-01\",\n  \"periodEnd\": \"2026-06-30\",\n  \"basePrice\": 2800.0,\n  \"currentPrice\": 2800.0,\n  \"minPrice\": 1500.0,\n  \"expectedSales\": 3,\n  \"soldInPeriod\": 0,\n  \"priceStep\": 100.0,\n  \"ticketTypeId\": \"{{ticketTypeId}}\"\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/price-schedules",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/price-schedules",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "price-schedules"]
             }
           }
@@ -144,14 +136,12 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"scheduleId\": \"SCH-103\",\n  \"periodStart\": \"2026-04-16\",\n  \"periodEnd\": \"2026-05-31\",\n  \"basePrice\": 15000.0,\n  \"currentPrice\": 15500.0,\n  \"minPrice\": 10000.0,\n  \"expectedSales\": 1,\n  \"soldInPeriod\": 14,\n  \"priceStep\": 500.0,\n  \"ticketTypeId\": \"TKT-001\"\n}"
+              "raw": "{\n  \"periodStart\": \"2026-04-16\",\n  \"periodEnd\": \"2026-05-31\",\n  \"basePrice\": 15000.0,\n  \"currentPrice\": 15500.0,\n  \"minPrice\": 10000.0,\n  \"expectedSales\": 1,\n  \"soldInPeriod\": 14,\n  \"priceStep\": 500.0,\n  \"ticketTypeId\": \"{{ticketTypeId}}\"\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/price-schedules/SCH-103",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "price-schedules", "SCH-103"]
+              "raw": "{{baseUrl}}/api/price-schedules/{{scheduleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "price-schedules", "{{scheduleId}}"]
             }
           }
         },
@@ -161,11 +151,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/price-schedules/SCH-602",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "price-schedules", "SCH-602"]
+              "raw": "{{baseUrl}}/api/price-schedules/{{scheduleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "price-schedules", "{{scheduleId}}"]
             }
           }
         }
@@ -180,10 +168,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/promo-codes",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/promo-codes",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "promo-codes"]
             }
           }
@@ -194,11 +180,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/promo-codes/STUDENT10",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "promo-codes", "STUDENT10"]
+              "raw": "{{baseUrl}}/api/promo-codes/{{promoCodeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "promo-codes", "{{promoCodeId}}"]
             }
           }
         },
@@ -209,13 +193,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"code\": \"FESTIVAL15\",\n  \"discountPercent\": 15,\n  \"validFrom\": \"2026-04-20\",\n  \"validTo\": \"2026-05-31\",\n  \"maxUses\": 200,\n  \"currentUses\": 0,\n  \"validForTickets\": [\n    { \"minQuantity\": 1, \"ticketTypeId\": \"TKT-002\" },\n    { \"minQuantity\": 1, \"ticketTypeId\": \"TKT-005\" }\n  ]\n}"
+              "raw": "{\n  \"code\": \"FESTIVAL15\",\n  \"discountPercent\": 15,\n  \"validFrom\": \"2026-04-20\",\n  \"validTo\": \"2026-05-31\",\n  \"maxUses\": 200,\n  \"currentUses\": 0,\n  \"validForTickets\": [\n    { \"minQuantity\": 1, \"ticketTypeId\": \"{{ticketTypeId}}\" }\n  ]\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/promo-codes",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/promo-codes",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "promo-codes"]
             }
           }
@@ -227,14 +209,12 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"code\": \"FESTIVAL15\",\n  \"discountPercent\": 15,\n  \"validFrom\": \"2026-04-20\",\n  \"validTo\": \"2026-06-15\",\n  \"maxUses\": 300,\n  \"currentUses\": 0,\n  \"validForTickets\": [\n    { \"minQuantity\": 1, \"ticketTypeId\": \"TKT-002\" },\n    { \"minQuantity\": 1, \"ticketTypeId\": \"TKT-005\" }\n  ]\n}"
+              "raw": "{\n  \"code\": \"FESTIVAL15\",\n  \"discountPercent\": 15,\n  \"validFrom\": \"2026-04-20\",\n  \"validTo\": \"2026-06-15\",\n  \"maxUses\": 300,\n  \"currentUses\": 0,\n  \"validForTickets\": [\n    { \"minQuantity\": 1, \"ticketTypeId\": \"{{ticketTypeId}}\" }\n  ]\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/promo-codes/FESTIVAL15",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "promo-codes", "FESTIVAL15"]
+              "raw": "{{baseUrl}}/api/promo-codes/{{promoCodeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "promo-codes", "{{promoCodeId}}"]
             }
           }
         },
@@ -244,11 +224,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/promo-codes/FESTIVAL15",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "promo-codes", "FESTIVAL15"]
+              "raw": "{{baseUrl}}/api/promo-codes/{{promoCodeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "promo-codes", "{{promoCodeId}}"]
             }
           }
         }
@@ -263,10 +241,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/purchases",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/purchases",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "purchases"]
             }
           }
@@ -277,11 +253,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/purchases/PUR-001",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "purchases", "PUR-001"]
+              "raw": "{{baseUrl}}/api/purchases/{{purchaseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchases", "{{purchaseId}}"]
             }
           }
         },
@@ -292,13 +266,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"purchaseId\": \"PUR-023\",\n  \"date\": \"2026-04-26\",\n  \"quantity\": 2,\n  \"unitPrice\": 5000.0,\n  \"tierDiscountApplied\": 500.0,\n  \"promoDiscountApplied\": 0.0,\n  \"finalPrice\": 9500.0,\n  \"ticketTypeId\": \"TKT-002\",\n  \"promoCode\": null\n}"
+              "raw": "{\n  \"date\": \"2026-04-27\",\n  \"quantity\": 2,\n  \"unitPrice\": 5000.0,\n  \"tierDiscountApplied\": 500.0,\n  \"promoDiscountApplied\": 0.0,\n  \"finalPrice\": 9500.0,\n  \"ticketTypeId\": \"{{ticketTypeId}}\",\n  \"promoCode\": null\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/purchases",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/purchases",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "purchases"]
             }
           }
@@ -310,13 +282,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"purchaseId\": \"PUR-024\",\n  \"date\": \"2026-04-26\",\n  \"quantity\": 1,\n  \"unitPrice\": 5000.0,\n  \"tierDiscountApplied\": 250.0,\n  \"promoDiscountApplied\": 475.0,\n  \"finalPrice\": 4275.0,\n  \"ticketTypeId\": \"TKT-002\",\n  \"promoCode\": \"STUDENT10\"\n}"
+              "raw": "{\n  \"date\": \"2026-04-27\",\n  \"quantity\": 1,\n  \"unitPrice\": 5000.0,\n  \"tierDiscountApplied\": 250.0,\n  \"promoDiscountApplied\": 475.0,\n  \"finalPrice\": 4275.0,\n  \"ticketTypeId\": \"{{ticketTypeId}}\",\n  \"promoCode\": \"STUDENT10\"\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/purchases",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/purchases",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "purchases"]
             }
           }
@@ -328,14 +298,12 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"purchaseId\": \"PUR-023\",\n  \"date\": \"2026-04-26\",\n  \"quantity\": 3,\n  \"unitPrice\": 5000.0,\n  \"tierDiscountApplied\": 750.0,\n  \"promoDiscountApplied\": 0.0,\n  \"finalPrice\": 14250.0,\n  \"ticketTypeId\": \"TKT-002\",\n  \"promoCode\": null\n}"
+              "raw": "{\n  \"date\": \"2026-04-27\",\n  \"quantity\": 3,\n  \"unitPrice\": 5000.0,\n  \"tierDiscountApplied\": 750.0,\n  \"promoDiscountApplied\": 0.0,\n  \"finalPrice\": 14250.0,\n  \"ticketTypeId\": \"{{ticketTypeId}}\",\n  \"promoCode\": null\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/purchases/PUR-023",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "purchases", "PUR-023"]
+              "raw": "{{baseUrl}}/api/purchases/{{purchaseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchases", "{{purchaseId}}"]
             }
           }
         },
@@ -345,11 +313,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/purchases/PUR-023",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "purchases", "PUR-023"]
+              "raw": "{{baseUrl}}/api/purchases/{{purchaseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "purchases", "{{purchaseId}}"]
             }
           }
         }
@@ -364,10 +330,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/customers",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/customers",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "customers"]
             }
           }
@@ -378,11 +342,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/customers/CUS-001",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "customers", "CUS-001"]
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
             }
           }
         },
@@ -393,13 +355,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"customerId\": \"CUS-013\",\n  \"name\": \"Teodora Lazić\",\n  \"email\": \"teodora@email.com\",\n  \"tier\": \"SILVER\"\n}"
+              "raw": "{\n  \"name\": \"Teodora Lazić\",\n  \"email\": \"teodora@email.com\",\n  \"tier\": \"SILVER\"\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/customers",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/customers",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "customers"]
             }
           }
@@ -411,14 +371,12 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"customerId\": \"CUS-013\",\n  \"name\": \"Teodora Lazić\",\n  \"email\": \"teodora.lazic@email.com\",\n  \"tier\": \"GOLD\"\n}"
+              "raw": "{\n  \"name\": \"Teodora Lazić\",\n  \"email\": \"teodora.lazic@email.com\",\n  \"tier\": \"GOLD\"\n}"
             },
             "url": {
-              "raw": "http://localhost:9051/api/customers/CUS-013",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "customers", "CUS-013"]
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
             }
           }
         },
@@ -428,11 +386,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/customers/CUS-013",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "customers", "CUS-013"]
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
             }
           }
         }
@@ -447,25 +403,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/analytics/recommendations/CUS-001",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "analytics", "recommendations", "CUS-001"]
-            }
-          }
-        },
-        {
-          "name": "Upit 1 - Preporuke karata (drugi kupac)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:9051/api/analytics/recommendations/CUS-006",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
-              "path": ["api", "analytics", "recommendations", "CUS-006"]
+              "raw": "{{baseUrl}}/api/analytics/recommendations/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "recommendations", "{{customerId}}"]
             }
           }
         },
@@ -475,10 +415,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/analytics/pricing-recommendations?hours=48",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/analytics/pricing-recommendations?hours=48",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "analytics", "pricing-recommendations"],
               "query": [{ "key": "hours", "value": "48" }]
             }
@@ -490,10 +428,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/analytics/pricing-recommendations?hours=72",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/analytics/pricing-recommendations?hours=72",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "analytics", "pricing-recommendations"],
               "query": [{ "key": "hours", "value": "72" }]
             }
@@ -505,10 +441,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/analytics/promo-effectiveness",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/analytics/promo-effectiveness",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "analytics", "promo-effectiveness"]
             }
           }
@@ -519,10 +453,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/analytics/customer-spending",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/analytics/customer-spending",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "analytics", "customer-spending"]
             }
           }
@@ -533,10 +465,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9051/api/analytics/price-trend",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9070",
+              "raw": "{{baseUrl}}/api/analytics/price-trend",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "analytics", "price-trend"]
             }
           }

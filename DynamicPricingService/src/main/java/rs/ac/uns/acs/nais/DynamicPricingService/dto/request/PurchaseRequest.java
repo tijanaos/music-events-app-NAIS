@@ -11,7 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PurchaseRequest {
 
-    private String purchaseId;
     private String date;
     private Integer quantity;
     private Double unitPrice;

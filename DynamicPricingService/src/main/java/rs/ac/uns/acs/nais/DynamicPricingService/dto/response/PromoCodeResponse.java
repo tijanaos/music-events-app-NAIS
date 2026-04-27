@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PromoCodeResponse {
 
+    private String promoCodeId;
     private String code;
     private Integer discountPercent;
     private String validFrom;
