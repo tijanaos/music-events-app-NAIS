@@ -43,7 +43,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public List<PriceScheduleTrendResponse> getPriceScheduleTrend() {
-        return analyticsQueryRepository.findPriceScheduleTrend();
+    public List<TierUpgradeResponse> upgradeTiers(double silverThreshold, double goldThreshold) {
+        return analyticsQueryRepository.upgradeTiers(silverThreshold, goldThreshold);
     }
 }

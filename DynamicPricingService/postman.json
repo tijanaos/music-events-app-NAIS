@@ -460,14 +460,18 @@
           }
         },
         {
-          "name": "Upit 5 - Trend cena po periodima",
+          "name": "Upit 5 - Batch tier upgrade kupaca",
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/analytics/price-trend",
+              "raw": "{{baseUrl}}/api/analytics/upgrade-tiers?silverThreshold=10000&goldThreshold=30000",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "price-trend"]
+              "path": ["api", "analytics", "upgrade-tiers"],
+              "query": [
+                { "key": "silverThreshold", "value": "10000" },
+                { "key": "goldThreshold",   "value": "30000" }
+              ]
             }
           }
         }
