@@ -288,7 +288,7 @@ public class DataSeeder implements CommandLineRunner {
                 .note("Indie rock headliner - main stage opening act")
                 .performanceDetails("{\"setLength\":90,\"bandMembers\":4,\"requiresSoundcheck\":true}")
                 .createdBy("manager_sara")
-                .stage(OnStage.builder().confirmed(true).stage(mainStage).build())
+                .stage(OnStage.builder().confirmed(false).stage(mainStage).build())
                 .timeSlot(OccupiesSlot.builder()
                         .reservationDate(LocalDate.of(2026, 3, 20)).systemSuggestion(false)
                         .timeSlot(slot9).build())
@@ -309,7 +309,7 @@ public class DataSeeder implements CommandLineRunner {
                 .note("Electronic headline DJ set")
                 .performanceDetails("{\"setLength\":80,\"djSetup\":true,\"requiresLasers\":true}")
                 .createdBy("manager_alex")
-                .stage(OnStage.builder().confirmed(true).stage(rockStage).build())
+                .stage(OnStage.builder().confirmed(false).stage(rockStage).build())
                 .timeSlot(OccupiesSlot.builder()
                         .reservationDate(LocalDate.of(2026, 3, 25)).systemSuggestion(true)
                         .timeSlot(slot10).build())
@@ -346,8 +346,7 @@ public class DataSeeder implements CommandLineRunner {
                                 .existsInSystem(true).resource(soundSystem).build(),
                         RequiresResource.builder().requestedQuantity(5)
                                 .status(ResourceRequestStatus.PENDING)
-                                .existsInSystem(false)
-                                .managerNote("Need external smoke machines")
+                                .existsInSystem(true)
                                 .resource(cameras).build()
                 ))
                 .build());
