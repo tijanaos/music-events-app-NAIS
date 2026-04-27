@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rs.ac.uns.acs.nais.DynamicPricingService.dto.response.analytics.CustomerSpendingResponse;
-import rs.ac.uns.acs.nais.DynamicPricingService.dto.response.analytics.PriceScheduleTrendResponse;
 import rs.ac.uns.acs.nais.DynamicPricingService.dto.response.analytics.PromoCodeEffectivenessResponse;
 import rs.ac.uns.acs.nais.DynamicPricingService.dto.response.analytics.TicketPricingRecommendationResponse;
 import rs.ac.uns.acs.nais.DynamicPricingService.dto.response.analytics.TicketRecommendationResponse;
+import rs.ac.uns.acs.nais.DynamicPricingService.dto.response.analytics.TierUpgradeResponse;
 import rs.ac.uns.acs.nais.DynamicPricingService.service.AnalyticsService;
 
 import java.util.List;
@@ -41,8 +41,10 @@ public class AnalyticsController {
         return ResponseEntity.ok(analyticsService.getCustomerSpendingProfiles());
     }
 
-    @GetMapping("/price-trend")
-    public ResponseEntity<List<PriceScheduleTrendResponse>> getPriceScheduleTrend() {
-        return ResponseEntity.ok(analyticsService.getPriceScheduleTrend());
+    @PostMapping("/upgrade-tiers")
+    public ResponseEntity<List<TierUpgradeResponse>> upgradeTiers(
+            @RequestParam(defaultValue = "10000") double silverThreshold,
+            @RequestParam(defaultValue = "30000") double goldThreshold) {
+        return ResponseEntity.ok(analyticsService.upgradeTiers(silverThreshold, goldThreshold));
     }
 }

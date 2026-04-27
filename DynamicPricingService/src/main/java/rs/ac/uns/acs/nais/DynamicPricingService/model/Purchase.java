@@ -16,7 +16,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 public class Purchase {
 
     @Id
-    private String purchaseId;
+    private String id;
     private String date;
     private Integer quantity;
     private Double unitPrice;

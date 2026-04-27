@@ -19,7 +19,7 @@ import java.util.List;
 public class TicketType {
 
     @Id
-    private String ticketTypeId;
+    private String id;
     private String name;
     private Integer maxAvailable;
     private Integer soldCount;

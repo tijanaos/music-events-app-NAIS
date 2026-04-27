@@ -15,7 +15,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 public class PriceSchedule {
 
     @Id
-    private String scheduleId;
+    private String id;
     private String periodStart;
     private String periodEnd;
     private Double basePrice;

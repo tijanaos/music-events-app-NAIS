@@ -11,12 +11,14 @@ import rs.ac.uns.acs.nais.DynamicPricingService.model.relationship.ValidFor;
 @Mapper(componentModel = "spring")
 public interface PromoCodeMapper {
 
-    @Mapping(target = "ticketTypeId",   source = "ticketType.ticketTypeId")
+    @Mapping(target = "ticketTypeId",   source = "ticketType.id")
     @Mapping(target = "ticketTypeName", source = "ticketType.name")
     ValidForResponse toValidForResponse(ValidFor validFor);
 
+    @Mapping(target = "promoCodeId", source = "id")
     PromoCodeResponse toResponse(PromoCode promoCode);
 
+    @Mapping(target = "id",              ignore = true)
     @Mapping(target = "validForTickets", ignore = true)
     PromoCode toEntity(PromoCodeRequest request);
 }

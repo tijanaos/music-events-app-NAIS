@@ -11,6 +11,7 @@ import rs.ac.uns.acs.nais.DynamicPricingService.repository.TicketTypeRepository;
 import rs.ac.uns.acs.nais.DynamicPricingService.service.TicketTypeService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +36,9 @@ public class TicketTypeServiceImpl implements TicketTypeService {
 
     @Override
     public TicketTypeResponse create(TicketTypeRequest request) {
-        TicketType saved = ticketTypeRepository.save(ticketTypeMapper.toEntity(request));
-        return ticketTypeMapper.toResponse(saved);
+        TicketType entity = ticketTypeMapper.toEntity(request);
+        entity.setId(UUID.randomUUID().toString());
+        return ticketTypeMapper.toResponse(ticketTypeRepository.save(entity));
     }
 
     @Override
@@ -44,7 +46,7 @@ public class TicketTypeServiceImpl implements TicketTypeService {
         ticketTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("TicketType not found: " + id));
         TicketType updated = ticketTypeMapper.toEntity(request);
-        updated.setTicketTypeId(id);
+        updated.setId(id);
         return ticketTypeMapper.toResponse(ticketTypeRepository.save(updated));
     }
 

@@ -13,7 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class TicketTypeRequest {
 
-    private String ticketTypeId;
     private String name;
     private Integer maxAvailable;
     private Integer soldCount;
