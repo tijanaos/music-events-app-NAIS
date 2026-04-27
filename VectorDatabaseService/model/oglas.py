@@ -38,6 +38,7 @@ class Oglas(OglasBase):
 
 
 class OglasSearchResult(BaseModel):
+    id: int | None = None
     oglas_id: int
     score: float = Field(..., description="Score iz vector search-a")
     naziv: str = ""
@@ -60,6 +61,19 @@ class OglasHybridSearchRequest(BaseModel):
     kategorija: Optional[str] = None
     top_k: int = Field(10, ge=1, le=100)
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "text_query": "letnja promocija patika",
+                "image_base64": "<base64-encoded-image>",
+                "tip_oglasa": "vizuelni",
+                "status": "aktivan",
+                "kategorija": "moda",
+                "top_k": 5,
+            }
+        }
+    }
+
 
 class OglasSemanticFilterRequest(BaseModel):
     query: str = Field(..., description="Semantički tekstualni upit")
@@ -67,3 +81,15 @@ class OglasSemanticFilterRequest(BaseModel):
     status: str = Field(..., description="status oglasa")
     kategorija: str = Field(..., description="kategorija oglasa")
     top_k: int = Field(10, ge=1, le=100)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "query": "letnja promocija patika",
+                "tip_oglasa": "tekstualni",
+                "status": "aktivan",
+                "kategorija": "moda",
+                "top_k": 5,
+            }
+        }
+    }

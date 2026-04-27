@@ -5,6 +5,7 @@ from schema.kampanja_schema import (
     kampanja_index_params,
 )
 from config import KAMPANJE_COLLECTION, HNSW_EF_SEARCH
+from pymilvus.exceptions import MilvusException
 
 
 class KampanjaRepository:
@@ -199,7 +200,15 @@ class KampanjaRepository:
             index_params=index_params,
         )
 
-        self._client.load_collection(self._collection)
+        try:
+            self._client.load_collection(self._collection)
+        except MilvusException:
+            milvus_service.drop_and_recreate(
+                name=self._collection,
+                schema=schema,
+                index_params=index_params,
+            )
+            self._client.load_collection(self._collection)
 
     def reset_collection(self) -> None:
         schema = kampanja_schema(self._client)

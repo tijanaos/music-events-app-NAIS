@@ -6,6 +6,8 @@ import os
 MILVUS_HOST = os.getenv("MILVUS_HOST", "standalone")
 MILVUS_PORT = int(os.getenv("MILVUS_PORT", "19530"))
 MILVUS_URI = f"http://{MILVUS_HOST}:{MILVUS_PORT}"
+MILVUS_CONNECT_RETRIES = int(os.getenv("MILVUS_CONNECT_RETRIES", "12"))
+MILVUS_CONNECT_DELAY = float(os.getenv("MILVUS_CONNECT_DELAY", "5"))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Embedding model

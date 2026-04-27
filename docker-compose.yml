@@ -141,6 +141,19 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     ports:
       - "8000:8000"
+    volumes:
+      - ./VectorDatabaseService/data:/app/data:ro
+
+  attu:
+    image: zilliz/attu:v2.4
+    container_name: attu
+    environment:
+      MILVUS_URL: standalone:19530
+    ports:
+      - "8090:3000"
+    depends_on:
+      standalone:
+        condition: service_healthy
 
 volumes:
   neo4j_data: {}

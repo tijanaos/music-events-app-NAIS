@@ -36,6 +36,7 @@ class Kampanja(KampanjaBase):
 
 
 class KampanjaSearchResult(BaseModel):
+    id: int | None = None
     kampanja_id: int
     score: float = Field(..., description="Score iz vector search-a")
     naziv_kampanje: str = ""
@@ -55,3 +56,16 @@ class KampanjaIteratorSearchRequest(BaseModel):
     max_budzet: Optional[float] = None
     batch_size: int = Field(20, ge=1, le=100)
     limit: int = Field(100, ge=1, le=1000)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "query": "digitalna kampanja za tehnologiju",
+                "kanal": "google_ads",
+                "min_budzet": 3000,
+                "max_budzet": 6000,
+                "batch_size": 2,
+                "limit": 10,
+            }
+        }
+    }

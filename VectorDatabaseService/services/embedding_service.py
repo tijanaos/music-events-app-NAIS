@@ -62,6 +62,14 @@ class EmbeddingService:
         image = self._load_image(path_or_url)
         return self.encode_image(image)
 
+    def encode_image_bytes(self, image_bytes: bytes) -> List[float]:
+        try:
+            image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        except Exception as e:
+            raise ValueError(f"Neispravni image bytes: {e}")
+
+        return self.encode_image(image)
+
     def encode_image_base64(self, image_base64: str) -> List[float]:
         try:
             image_bytes = base64.b64decode(image_base64)

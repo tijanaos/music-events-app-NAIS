@@ -5,8 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import py_eureka_client.eureka_client as eureka_client
 
 from config import APP_INSTANCE_HOST, APP_NAME, APP_PORT, EUREKA_ENABLED, EUREKA_SERVER
+from controller.health_controller import router as health_router
 from controller.oglas_controller import router as oglas_router
 from controller.kampanja_controller import router as kampanja_router
+from model.common import RootResponse
 from service.impl.oglas_service import oglas_service
 from service.impl.kampanja_service import kampanja_service
 
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=APP_NAME,
-    description="Mikroservis za upravljanje oglasima i kampanjama u vektorskoj bazi.",
+    description="Mikroservis za upravljanje oglasima i kampanjama u vektorskoj bazi. Swagger dokumentacija je dostupna na /docs.",
     version="1.0.0",
 )
 
@@ -61,21 +63,18 @@ async def shutdown():
     logger.info("Unregistered %s from Eureka", APP_NAME)
 
 
-@app.get("/")
+@app.get(
+    "/",
+    response_model=RootResponse,
+    summary="Osnovne informacije o servisu",
+    description="Vraća naziv servisa, status i listu podržanih kolekcija.",
+)
 def root():
     return {
         "service": APP_NAME,
         "status": "running",
         "collections": ["oglasi", "kampanje"],
     }
-
-
-@app.get("/health")
-def health():
-    return {
-        "status": "ok",
-    }
-
-
+app.include_router(health_router)
 app.include_router(oglas_router)
 app.include_router(kampanja_router)

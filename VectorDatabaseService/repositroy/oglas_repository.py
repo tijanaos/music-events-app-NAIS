@@ -1,4 +1,5 @@
 from pymilvus import AnnSearchRequest, WeightedRanker
+from pymilvus.exceptions import MilvusException
 
 from services.milvus_service import milvus_service
 from schema.oglas_schema import (
@@ -226,7 +227,15 @@ class OglasRepository:
             index_params=index_params,
         )
 
-        self._client.load_collection(self._collection)
+        try:
+            self._client.load_collection(self._collection)
+        except MilvusException:
+            milvus_service.drop_and_recreate(
+                name=self._collection,
+                schema=schema,
+                index_params=index_params,
+            )
+            self._client.load_collection(self._collection)
 
     def reset_collection(self) -> None:
         schema = oglas_schema(self._client)

@@ -277,6 +277,33 @@ class OglasService:
             media_weight=0.4,
         )
 
+    def hybrid_search_from_image_bytes(
+        self,
+        text_query: str,
+        image_bytes: bytes,
+        tip_oglasa: Optional[str] = None,
+        status: Optional[str] = None,
+        kategorija: Optional[str] = None,
+        top_k: int = 10,
+    ) -> list[dict]:
+        text_vector = embedding_service.encode_text_one(text_query)
+        media_vector = embedding_service.encode_image_bytes(image_bytes)
+
+        filter_expr = self._build_filter(
+            tip_oglasa=tip_oglasa,
+            status=status,
+            kategorija=kategorija,
+        )
+
+        return oglas_repository.hybrid_search(
+            text_vector=text_vector,
+            media_vector=media_vector,
+            filter_expr=filter_expr,
+            top_k=top_k,
+            text_weight=0.6,
+            media_weight=0.4,
+        )
+
     # ─────────────────────────────────────────────────────────────────────────
     # COLLECTION MANAGEMENT
     # ─────────────────────────────────────────────────────────────────────────
