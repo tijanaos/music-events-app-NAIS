@@ -30,13 +30,13 @@ public interface StageRepository extends Neo4jRepository<Stage, String> {
            "ORDER BY totalResources DESC")
     List<StageResourceSummary> findStageResourceSummary();
 
-    // Query 5: Find stages that have enough available quantity of a specific resource type
+    // Query 5: For each stage, aggregate available quantity of a specific resource type
     @Query("MATCH (s:Stage)-[r:HAS_RESOURCE]->(res:Resource) " +
-           "WHERE r.availableQuantity >= $minQuantity AND res.type = $resourceType " +
-           "RETURN s.id AS stageId, s.name AS stageName, " +
-           "res.id AS resourceId, res.name AS resourceName, " +
-           "r.availableQuantity AS availableQuantity " +
-           "ORDER BY r.availableQuantity DESC")
+           "WHERE res.type = $resourceType AND r.availableQuantity >= $minQuantity " +
+           "WITH s, count(res) AS resourceCount, sum(r.availableQuantity) AS totalAvailable " +
+           "RETURN s.id AS stageId, s.name AS stageName, s.type AS stageType, " +
+           "resourceCount, totalAvailable " +
+           "ORDER BY totalAvailable DESC")
     List<StageAvailableResource> findStagesWithAvailableResource(
             @Param("minQuantity") Integer minQuantity,
             @Param("resourceType") String resourceType);

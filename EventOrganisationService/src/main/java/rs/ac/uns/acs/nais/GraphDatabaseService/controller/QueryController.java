@@ -38,13 +38,13 @@ public class QueryController {
     }
 
     @GetMapping("/missing-resources")
-    @Operation(summary = "Query 4: Reservations that require resources not available in the system")
+    @Operation(summary = "Query 4: Per reservation - count of missing resources and total requested quantity aggregated")
     public ResponseEntity<List<ReservationMissingResource>> getMissingResources() {
         return ResponseEntity.ok(queryService.getReservationsWithMissingResources());
     }
 
     @GetMapping("/stage-available-resources")
-    @Operation(summary = "Query 5: Stages that have at least the requested quantity of a given resource type")
+    @Operation(summary = "Query 5: Per stage - aggregated count and total available quantity of a given resource type")
     public ResponseEntity<List<StageAvailableResource>> getStagesWithAvailableResource(
             @RequestParam Integer minQuantity,
             @RequestParam ResourceType resourceType) {

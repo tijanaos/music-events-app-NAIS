@@ -36,11 +36,12 @@ public interface ReservationRepository extends Neo4jRepository<Reservation, Stri
            "ORDER BY reservationCount DESC")
     List<GenreReservationStats> findGenreReservationStats();
 
-    // Query 4: Reservations that require resources not present in the system
+    // Query 4: For each reservation, count missing resources and total requested quantity
     @Query("MATCH (r:Reservation)-[rr:REQUIRES_RESOURCE]->(res:Resource) " +
            "WHERE rr.existsInSystem = false " +
+           "WITH r, count(res) AS missingCount, sum(rr.requestedQuantity) AS totalRequestedQuantity " +
            "RETURN r.id AS reservationId, r.status AS reservationStatus, " +
-           "r.createdBy AS createdBy, res.name AS resourceName, " +
-           "res.type AS resourceType, rr.requestedQuantity AS requestedQuantity")
+           "r.createdBy AS createdBy, missingCount, totalRequestedQuantity " +
+           "ORDER BY missingCount DESC")
     List<ReservationMissingResource> findReservationsWithMissingResources();
 }

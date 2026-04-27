@@ -4,7 +4,6 @@ public interface ReservationMissingResource {
     String getReservationId();
     String getReservationStatus();
     String getCreatedBy();
-    String getResourceName();
-    String getResourceType();
-    Long getRequestedQuantity();
+    Long getMissingCount();
+    Long getTotalRequestedQuantity();
 }
