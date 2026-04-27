@@ -42,6 +42,24 @@ services:
     ports:
       - "9060:9050"
 
+  performer-management-service:
+    build:
+      context: ./PerformerManagementService
+      dockerfile: Dockerfile
+    image: performer-management-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+    ports:
+      - "9071:9070"
+
   neo4j:
     image: neo4j:5
     ports:
@@ -56,7 +74,6 @@ services:
       interval: 20s
       timeout: 10s
       retries: 5
-
 
   etcd:
     image: quay.io/coreos/etcd:v3.5.25
@@ -155,8 +172,43 @@ services:
       standalone:
         condition: service_healthy
 
+  neo4j-pricing:
+    image: neo4j:5
+    ports:
+      - "7475:7474"
+      - "7689:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+      - neo4j_pricing_data:/data
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "password", "RETURN 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  dynamic-pricing-service:
+    build:
+      context: ./DynamicPricingService
+      dockerfile: Dockerfile
+    image: dynamic-pricing-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      neo4j-pricing:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_NEO4J_URI: bolt://neo4j-pricing:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+    ports:
+      - "9070:9051"
+
 volumes:
   neo4j_data: {}
+  neo4j_pricing_data: {}
   etcd_data: {}
   minio_data: {}
   milvus_data: {}
+

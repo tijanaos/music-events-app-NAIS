@@ -6,6 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ForPerformerUpdateDTO;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.OccupiesSlotUpdateDTO;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.OnStageUpdateDTO;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.RequiresResourceDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ReservationDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.Reservation;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.enums.ReservationStatus;
@@ -70,5 +74,42 @@ public class ReservationController {
             @PathVariable String id,
             @RequestParam ReservationStatus status) {
         return ResponseEntity.ok(reservationService.updateStatus(id, status));
+    }
+
+    @PostMapping("/{reservationId}/resources")
+    @Operation(summary = "Add a required resource to a reservation (REQUIRES_RESOURCE)")
+    public ResponseEntity<Reservation> addResource(@PathVariable String reservationId, @RequestBody RequiresResourceDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservationService.addResource(reservationId, dto));
+    }
+
+    @PutMapping("/{reservationId}/resources/{resourceId}")
+    @Operation(summary = "Update a required resource relation on a reservation (REQUIRES_RESOURCE)")
+    public ResponseEntity<Reservation> updateResource(@PathVariable String reservationId, @PathVariable String resourceId, @RequestBody RequiresResourceDTO dto) {
+        return ResponseEntity.ok(reservationService.updateResource(reservationId, resourceId, dto));
+    }
+
+    @DeleteMapping("/{reservationId}/resources/{resourceId}")
+    @Operation(summary = "Remove a required resource from a reservation (REQUIRES_RESOURCE)")
+    public ResponseEntity<Void> removeResource(@PathVariable String reservationId, @PathVariable String resourceId) {
+        reservationService.removeResource(reservationId, resourceId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/stage")
+    @Operation(summary = "Update ON_STAGE relationship properties (confirmed)")
+    public ResponseEntity<Reservation> updateStageRelation(@PathVariable String id, @RequestBody OnStageUpdateDTO dto) {
+        return ResponseEntity.ok(reservationService.updateStageRelation(id, dto));
+    }
+
+    @PatchMapping("/{id}/slot")
+    @Operation(summary = "Update OCCUPIES_SLOT relationship properties (reservationDate, systemSuggestion)")
+    public ResponseEntity<Reservation> updateSlotRelation(@PathVariable String id, @RequestBody OccupiesSlotUpdateDTO dto) {
+        return ResponseEntity.ok(reservationService.updateSlotRelation(id, dto));
+    }
+
+    @PatchMapping("/{id}/performer")
+    @Operation(summary = "Update FOR_PERFORMER relationship properties (managerUsername, agreedFee)")
+    public ResponseEntity<Reservation> updatePerformerRelation(@PathVariable String id, @RequestBody ForPerformerUpdateDTO dto) {
+        return ResponseEntity.ok(reservationService.updatePerformerRelation(id, dto));
     }
 }

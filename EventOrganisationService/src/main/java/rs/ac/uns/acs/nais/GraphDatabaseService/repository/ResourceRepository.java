@@ -13,6 +13,4 @@ public interface ResourceRepository extends Neo4jRepository<Resource, String> {
     List<Resource> findByType(ResourceType type);
 
     List<Resource> findByPortable(Boolean portable);
-
-    List<Resource> findByNameContainingIgnoreCase(String name);
 }

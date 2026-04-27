@@ -82,11 +82,23 @@ public class DataSeeder implements CommandLineRunner {
                 .name("Zeds Dead").genre("Electronic").popularity(7.8)
                 .averagePerformanceDuration(75).countryOfOrigin("Canada").build());
 
-        performerRepository.save(Performer.builder()
+        Performer parcels = performerRepository.save(Performer.builder()
                 .name("Parcels").genre("Indie Pop").popularity(7.2)
                 .averagePerformanceDuration(60).countryOfOrigin("Australia").build());
 
-        log.info("Saved 5 performers.");
+        Performer foals = performerRepository.save(Performer.builder()
+                .name("Foals").genre("Indie Rock").popularity(8.1)
+                .averagePerformanceDuration(90).countryOfOrigin("United Kingdom").build());
+
+        Performer bicepBand = performerRepository.save(Performer.builder()
+                .name("Bicep").genre("Electronic").popularity(8.6)
+                .averagePerformanceDuration(80).countryOfOrigin("United Kingdom").build());
+
+        Performer portishead = performerRepository.save(Performer.builder()
+                .name("Portishead").genre("Trip-Hop").popularity(9.0)
+                .averagePerformanceDuration(110).countryOfOrigin("United Kingdom").build());
+
+        log.info("Saved 8 performers.");
 
         // ── Time slots ────────────────────────────────────────────────────────
         LocalDate day1 = LocalDate.of(2026, 6, 20);
@@ -125,7 +137,23 @@ public class DataSeeder implements CommandLineRunner {
                 .date(day3).startTime(day3.atTime(21, 0)).endTime(day3.atTime(23, 30))
                 .durationMin(150).status(TimeSlotStatus.RESERVED).slotType(SlotType.EVENING).build());
 
-        log.info("Saved 8 time slots.");
+        TimeSlot slot9 = timeSlotRepository.save(TimeSlot.builder()
+                .date(day1).startTime(day1.atTime(16, 0)).endTime(day1.atTime(18, 0))
+                .durationMin(120).status(TimeSlotStatus.RESERVED).slotType(SlotType.AFTERNOON).build());
+
+        TimeSlot slot10 = timeSlotRepository.save(TimeSlot.builder()
+                .date(day2).startTime(day2.atTime(18, 0)).endTime(day2.atTime(20, 0))
+                .durationMin(120).status(TimeSlotStatus.RESERVED).slotType(SlotType.EVENING).build());
+
+        TimeSlot slot11 = timeSlotRepository.save(TimeSlot.builder()
+                .date(day3).startTime(day3.atTime(18, 0)).endTime(day3.atTime(19, 30))
+                .durationMin(90).status(TimeSlotStatus.RESERVED).slotType(SlotType.EVENING).build());
+
+        TimeSlot slot12 = timeSlotRepository.save(TimeSlot.builder()
+                .date(day1).startTime(day1.atTime(12, 0)).endTime(day1.atTime(14, 0))
+                .durationMin(120).status(TimeSlotStatus.RESERVED).slotType(SlotType.AFTERNOON).build());
+
+        log.info("Saved 12 time slots.");
 
         // ── Stages with HAS_RESOURCE relationships ────────────────────────────
         Stage mainStage = stageRepository.save(Stage.builder()
@@ -253,7 +281,100 @@ public class DataSeeder implements CommandLineRunner {
                 ))
                 .build());
 
-        log.info("Saved 3 reservations.");
-        log.info("Database seed completed: 3 stages, 6 resources, 5 performers, 8 time slots, 3 reservations.");
+        reservationRepository.save(Reservation.builder()
+                .status(ReservationStatus.APPROVED)
+                .createdAt(LocalDateTime.of(2026, 3, 20, 9, 0))
+                .updatedAt(LocalDateTime.of(2026, 3, 22, 11, 0))
+                .note("Indie rock headliner - main stage opening act")
+                .performanceDetails("{\"setLength\":90,\"bandMembers\":4,\"requiresSoundcheck\":true}")
+                .createdBy("manager_sara")
+                .stage(OnStage.builder().confirmed(false).stage(mainStage).build())
+                .timeSlot(OccupiesSlot.builder()
+                        .reservationDate(LocalDate.of(2026, 3, 20)).systemSuggestion(false)
+                        .timeSlot(slot9).build())
+                .performer(ForPerformer.builder()
+                        .managerUsername("manager_sara").agreedFee(22000.0)
+                        .performer(foals).build())
+                .resources(List.of(
+                        RequiresResource.builder().requestedQuantity(4)
+                                .status(ResourceRequestStatus.APPROVED)
+                                .existsInSystem(true).resource(techCrew).build()
+                ))
+                .build());
+
+        reservationRepository.save(Reservation.builder()
+                .status(ReservationStatus.APPROVED)
+                .createdAt(LocalDateTime.of(2026, 3, 25, 14, 0))
+                .updatedAt(LocalDateTime.of(2026, 3, 26, 10, 0))
+                .note("Electronic headline DJ set")
+                .performanceDetails("{\"setLength\":80,\"djSetup\":true,\"requiresLasers\":true}")
+                .createdBy("manager_alex")
+                .stage(OnStage.builder().confirmed(false).stage(rockStage).build())
+                .timeSlot(OccupiesSlot.builder()
+                        .reservationDate(LocalDate.of(2026, 3, 25)).systemSuggestion(true)
+                        .timeSlot(slot10).build())
+                .performer(ForPerformer.builder()
+                        .managerUsername("manager_alex").agreedFee(30000.0)
+                        .performer(bicepBand).build())
+                .resources(List.of(
+                        RequiresResource.builder().requestedQuantity(3)
+                                .status(ResourceRequestStatus.APPROVED)
+                                .existsInSystem(true).resource(laserUnit).build(),
+                        RequiresResource.builder().requestedQuantity(3)
+                                .status(ResourceRequestStatus.APPROVED)
+                                .existsInSystem(true).resource(ledScreens).build()
+                ))
+                .build());
+
+        reservationRepository.save(Reservation.builder()
+                .status(ReservationStatus.APPROVED)
+                .createdAt(LocalDateTime.of(2026, 4, 2, 10, 0))
+                .updatedAt(LocalDateTime.of(2026, 4, 3, 16, 0))
+                .note("Trip-hop legends closing the festival")
+                .performanceDetails("{\"setLength\":110,\"requiresSmokeMachine\":true,\"requiresSoundcheck\":true}")
+                .createdBy("manager_john")
+                .stage(OnStage.builder().confirmed(true).stage(mainStage).build())
+                .timeSlot(OccupiesSlot.builder()
+                        .reservationDate(LocalDate.of(2026, 4, 2)).systemSuggestion(false)
+                        .timeSlot(slot11).build())
+                .performer(ForPerformer.builder()
+                        .managerUsername("manager_john").agreedFee(60000.0)
+                        .performer(portishead).build())
+                .resources(List.of(
+                        RequiresResource.builder().requestedQuantity(2)
+                                .status(ResourceRequestStatus.APPROVED)
+                                .existsInSystem(true).resource(soundSystem).build(),
+                        RequiresResource.builder().requestedQuantity(5)
+                                .status(ResourceRequestStatus.PENDING)
+                                .existsInSystem(true)
+                                .resource(cameras).build()
+                ))
+                .build());
+
+        reservationRepository.save(Reservation.builder()
+                .status(ReservationStatus.CANCELLED)
+                .createdAt(LocalDateTime.of(2026, 3, 10, 8, 0))
+                .updatedAt(LocalDateTime.of(2026, 3, 15, 12, 0))
+                .note("Indie pop act - cancelled due to scheduling conflict")
+                .performanceDetails("{\"setLength\":60,\"bandMembers\":5}")
+                .createdBy("manager_sara")
+                .stage(OnStage.builder().confirmed(false).stage(rockStage).build())
+                .timeSlot(OccupiesSlot.builder()
+                        .reservationDate(LocalDate.of(2026, 3, 10)).systemSuggestion(true)
+                        .timeSlot(slot12).build())
+                .performer(ForPerformer.builder()
+                        .managerUsername("manager_sara").agreedFee(8000.0)
+                        .performer(parcels).build())
+                .resources(List.of(
+                        RequiresResource.builder().requestedQuantity(2)
+                                .status(ResourceRequestStatus.REJECTED)
+                                .existsInSystem(false)
+                                .rejectionReason("Budget constraints")
+                                .resource(designTeam).build()
+                ))
+                .build());
+
+        log.info("Saved 7 reservations.");
+        log.info("Database seed completed: 3 stages, 6 resources, 8 performers, 12 time slots, 7 reservations.");
     }
 }
