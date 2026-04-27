@@ -8,7 +8,6 @@ import rs.ac.uns.acs.nais.GraphDatabaseService.model.Stage;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.enums.StageType;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface StageRepository extends Neo4jRepository<Stage, String> {
@@ -16,8 +15,6 @@ public interface StageRepository extends Neo4jRepository<Stage, String> {
     List<Stage> findByType(StageType type);
 
     List<Stage> findByActive(Boolean active);
-
-    Optional<Stage> findByName(String name);
 
     // Query 1: For each active stage, count assigned resources and sum available quantity
     @Query("MATCH (s:Stage)-[r:HAS_RESOURCE]->(res:Resource) " +
