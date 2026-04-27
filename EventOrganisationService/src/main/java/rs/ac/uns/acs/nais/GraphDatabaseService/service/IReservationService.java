@@ -1,5 +1,8 @@
 package rs.ac.uns.acs.nais.GraphDatabaseService.service;
 
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ForPerformerUpdateDTO;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.OccupiesSlotUpdateDTO;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.OnStageUpdateDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.RequiresResourceDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ReservationDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.Reservation;
@@ -30,4 +33,10 @@ public interface IReservationService {
     Reservation updateResource(String reservationId, String resourceId, RequiresResourceDTO dto);
 
     Reservation removeResource(String reservationId, String resourceId);
+
+    Reservation updateStageRelation(String reservationId, OnStageUpdateDTO dto);
+
+    Reservation updateSlotRelation(String reservationId, OccupiesSlotUpdateDTO dto);
+
+    Reservation updatePerformerRelation(String reservationId, ForPerformerUpdateDTO dto);
 }

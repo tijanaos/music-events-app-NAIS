@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ForPerformerUpdateDTO;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.OccupiesSlotUpdateDTO;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.OnStageUpdateDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.RequiresResourceDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ReservationDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.*;
@@ -175,5 +178,40 @@ public class ReservationService implements IReservationService {
         existing.setStatus(status);
         existing.setUpdatedAt(LocalDateTime.now());
         return reservationRepository.save(existing);
+    }
+
+    @Override
+    public Reservation updateStageRelation(String reservationId, OnStageUpdateDTO dto) {
+        Reservation reservation = findById(reservationId);
+        if (reservation.getStage() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ON_STAGE relation not found for reservation: " + reservationId);
+        }
+        reservation.getStage().setConfirmed(dto.getConfirmed());
+        reservation.setUpdatedAt(LocalDateTime.now());
+        return reservationRepository.save(reservation);
+    }
+
+    @Override
+    public Reservation updateSlotRelation(String reservationId, OccupiesSlotUpdateDTO dto) {
+        Reservation reservation = findById(reservationId);
+        if (reservation.getTimeSlot() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "OCCUPIES_SLOT relation not found for reservation: " + reservationId);
+        }
+        reservation.getTimeSlot().setReservationDate(dto.getReservationDate());
+        reservation.getTimeSlot().setSystemSuggestion(dto.getSystemSuggestion());
+        reservation.setUpdatedAt(LocalDateTime.now());
+        return reservationRepository.save(reservation);
+    }
+
+    @Override
+    public Reservation updatePerformerRelation(String reservationId, ForPerformerUpdateDTO dto) {
+        Reservation reservation = findById(reservationId);
+        if (reservation.getPerformer() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FOR_PERFORMER relation not found for reservation: " + reservationId);
+        }
+        reservation.getPerformer().setManagerUsername(dto.getManagerUsername());
+        reservation.getPerformer().setAgreedFee(dto.getAgreedFee());
+        reservation.setUpdatedAt(LocalDateTime.now());
+        return reservationRepository.save(reservation);
     }
 }
