@@ -98,8 +98,10 @@ services:
       dockerfile: Dockerfile
     image: dynamic-pricing-service:latest
     depends_on:
-      - eureka-server
-      - neo4j-pricing
+      eureka-server:
+        condition: service_healthy
+      neo4j-pricing:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j-pricing:7687

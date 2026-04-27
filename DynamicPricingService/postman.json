@@ -17,7 +17,7 @@
               "raw": "http://localhost:9051/api/ticket-types",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "ticket-types"]
             }
           }
@@ -31,7 +31,7 @@
               "raw": "http://localhost:9051/api/ticket-types/TKT-001",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "ticket-types", "TKT-001"]
             }
           }
@@ -49,7 +49,7 @@
               "raw": "http://localhost:9051/api/ticket-types",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "ticket-types"]
             }
           }
@@ -67,7 +67,7 @@
               "raw": "http://localhost:9051/api/ticket-types/TKT-006",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "ticket-types", "TKT-006"]
             }
           }
@@ -81,7 +81,7 @@
               "raw": "http://localhost:9051/api/ticket-types/TKT-006",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "ticket-types", "TKT-006"]
             }
           }
@@ -100,7 +100,7 @@
               "raw": "http://localhost:9051/api/price-schedules",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "price-schedules"]
             }
           }
@@ -114,7 +114,7 @@
               "raw": "http://localhost:9051/api/price-schedules/SCH-103",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "price-schedules", "SCH-103"]
             }
           }
@@ -132,7 +132,7 @@
               "raw": "http://localhost:9051/api/price-schedules",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "price-schedules"]
             }
           }
@@ -150,7 +150,7 @@
               "raw": "http://localhost:9051/api/price-schedules/SCH-103",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "price-schedules", "SCH-103"]
             }
           }
@@ -164,7 +164,7 @@
               "raw": "http://localhost:9051/api/price-schedules/SCH-602",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "price-schedules", "SCH-602"]
             }
           }
@@ -183,7 +183,7 @@
               "raw": "http://localhost:9051/api/promo-codes",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "promo-codes"]
             }
           }
@@ -197,7 +197,7 @@
               "raw": "http://localhost:9051/api/promo-codes/STUDENT10",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "promo-codes", "STUDENT10"]
             }
           }
@@ -215,7 +215,7 @@
               "raw": "http://localhost:9051/api/promo-codes",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "promo-codes"]
             }
           }
@@ -233,7 +233,7 @@
               "raw": "http://localhost:9051/api/promo-codes/FESTIVAL15",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "promo-codes", "FESTIVAL15"]
             }
           }
@@ -247,7 +247,7 @@
               "raw": "http://localhost:9051/api/promo-codes/FESTIVAL15",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "promo-codes", "FESTIVAL15"]
             }
           }
@@ -266,7 +266,7 @@
               "raw": "http://localhost:9051/api/purchases",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "purchases"]
             }
           }
@@ -280,7 +280,7 @@
               "raw": "http://localhost:9051/api/purchases/PUR-001",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "purchases", "PUR-001"]
             }
           }
@@ -298,7 +298,7 @@
               "raw": "http://localhost:9051/api/purchases",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "purchases"]
             }
           }
@@ -316,7 +316,7 @@
               "raw": "http://localhost:9051/api/purchases",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "purchases"]
             }
           }
@@ -334,7 +334,7 @@
               "raw": "http://localhost:9051/api/purchases/PUR-023",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "purchases", "PUR-023"]
             }
           }
@@ -348,7 +348,7 @@
               "raw": "http://localhost:9051/api/purchases/PUR-023",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "purchases", "PUR-023"]
             }
           }
@@ -367,7 +367,7 @@
               "raw": "http://localhost:9051/api/customers",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "customers"]
             }
           }
@@ -381,7 +381,7 @@
               "raw": "http://localhost:9051/api/customers/CUS-001",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "customers", "CUS-001"]
             }
           }
@@ -399,7 +399,7 @@
               "raw": "http://localhost:9051/api/customers",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "customers"]
             }
           }
@@ -417,7 +417,7 @@
               "raw": "http://localhost:9051/api/customers/CUS-013",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "customers", "CUS-013"]
             }
           }
@@ -431,7 +431,7 @@
               "raw": "http://localhost:9051/api/customers/CUS-013",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "customers", "CUS-013"]
             }
           }
@@ -450,7 +450,7 @@
               "raw": "http://localhost:9051/api/analytics/recommendations/CUS-001",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "analytics", "recommendations", "CUS-001"]
             }
           }
@@ -464,7 +464,7 @@
               "raw": "http://localhost:9051/api/analytics/recommendations/CUS-006",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "analytics", "recommendations", "CUS-006"]
             }
           }
@@ -478,7 +478,7 @@
               "raw": "http://localhost:9051/api/analytics/pricing-recommendations?hours=48",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "analytics", "pricing-recommendations"],
               "query": [{ "key": "hours", "value": "48" }]
             }
@@ -493,7 +493,7 @@
               "raw": "http://localhost:9051/api/analytics/pricing-recommendations?hours=72",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "analytics", "pricing-recommendations"],
               "query": [{ "key": "hours", "value": "72" }]
             }
@@ -508,7 +508,7 @@
               "raw": "http://localhost:9051/api/analytics/promo-effectiveness",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "analytics", "promo-effectiveness"]
             }
           }
@@ -522,7 +522,7 @@
               "raw": "http://localhost:9051/api/analytics/customer-spending",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "analytics", "customer-spending"]
             }
           }
@@ -536,7 +536,7 @@
               "raw": "http://localhost:9051/api/analytics/price-trend",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "9051",
+              "port": "9070",
               "path": ["api", "analytics", "price-trend"]
             }
           }
