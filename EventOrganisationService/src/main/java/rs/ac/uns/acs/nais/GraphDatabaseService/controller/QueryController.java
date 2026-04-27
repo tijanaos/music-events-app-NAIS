@@ -5,8 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.*;
-import rs.ac.uns.acs.nais.GraphDatabaseService.model.enums.ResourceType;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.GenreReservationStats;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.PerformerBookingStats;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.ResourceApprovalResult;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageConfirmationResult;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageResourceSummary;
 import rs.ac.uns.acs.nais.GraphDatabaseService.service.IQueryService;
 
 import java.util.List;
@@ -37,17 +40,15 @@ public class QueryController {
         return ResponseEntity.ok(queryService.getGenreReservationStats());
     }
 
-    @GetMapping("/missing-resources")
-    @Operation(summary = "Query 4: Per reservation - count of missing resources and total requested quantity aggregated")
-    public ResponseEntity<List<ReservationMissingResource>> getMissingResources() {
-        return ResponseEntity.ok(queryService.getReservationsWithMissingResources());
+    @PatchMapping("/confirm-stages")
+    @Operation(summary = "Query 4 (CRUD): Set ON_STAGE.confirmed = true for all APPROVED reservations where stage is unconfirmed")
+    public ResponseEntity<List<StageConfirmationResult>> confirmStages() {
+        return ResponseEntity.ok(queryService.confirmStageForApprovedReservations());
     }
 
-    @GetMapping("/stage-available-resources")
-    @Operation(summary = "Query 5: Per stage - aggregated count and total available quantity of a given resource type")
-    public ResponseEntity<List<StageAvailableResource>> getStagesWithAvailableResource(
-            @RequestParam Integer minQuantity,
-            @RequestParam ResourceType resourceType) {
-        return ResponseEntity.ok(queryService.getStagesWithAvailableResource(minQuantity, resourceType));
+    @PatchMapping("/approve-resources")
+    @Operation(summary = "Query 5 (CRUD): Set REQUIRES_RESOURCE.status = APPROVED for existing resources on APPROVED reservations")
+    public ResponseEntity<List<ResourceApprovalResult>> approveResources() {
+        return ResponseEntity.ok(queryService.approveExistingResourceRequests());
     }
 }

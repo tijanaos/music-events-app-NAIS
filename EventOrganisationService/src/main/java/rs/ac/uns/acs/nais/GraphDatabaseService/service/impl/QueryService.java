@@ -2,8 +2,11 @@ package rs.ac.uns.acs.nais.GraphDatabaseService.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.*;
-import rs.ac.uns.acs.nais.GraphDatabaseService.model.enums.ResourceType;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.GenreReservationStats;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.PerformerBookingStats;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.ResourceApprovalResult;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageConfirmationResult;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageResourceSummary;
 import rs.ac.uns.acs.nais.GraphDatabaseService.repository.ReservationRepository;
 import rs.ac.uns.acs.nais.GraphDatabaseService.repository.StageRepository;
 import rs.ac.uns.acs.nais.GraphDatabaseService.service.IQueryService;
@@ -33,12 +36,12 @@ public class QueryService implements IQueryService {
     }
 
     @Override
-    public List<ReservationMissingResource> getReservationsWithMissingResources() {
-        return reservationRepository.findReservationsWithMissingResources();
+    public List<StageConfirmationResult> confirmStageForApprovedReservations() {
+        return reservationRepository.confirmStageForApprovedReservations();
     }
 
     @Override
-    public List<StageAvailableResource> getStagesWithAvailableResource(Integer minQuantity, ResourceType resourceType) {
-        return stageRepository.findStagesWithAvailableResource(minQuantity, resourceType.name());
+    public List<ResourceApprovalResult> approveExistingResourceRequests() {
+        return reservationRepository.approveExistingResourceRequests();
     }
 }

@@ -5,7 +5,8 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.GenreReservationStats;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.PerformerBookingStats;
-import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.ReservationMissingResource;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.ResourceApprovalResult;
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageConfirmationResult;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.Reservation;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.enums.ReservationStatus;
 
@@ -36,12 +37,19 @@ public interface ReservationRepository extends Neo4jRepository<Reservation, Stri
            "ORDER BY reservationCount DESC")
     List<GenreReservationStats> findGenreReservationStats();
 
-    // Query 4: For each reservation, count missing resources and total requested quantity
+    // Query 4 (CRUD): Confirm ON_STAGE for all APPROVED reservations where stage is not yet confirmed
+    @Query("MATCH (r:Reservation)-[os:ON_STAGE]->(s:Stage) " +
+           "WHERE r.status = 'APPROVED' AND os.confirmed = false " +
+           "WITH r, os, s " +
+           "SET os.confirmed = true " +
+           "RETURN r.id AS reservationId, s.name AS stageName, os.confirmed AS confirmed")
+    List<StageConfirmationResult> confirmStageForApprovedReservations();
+
+    // Query 5 (CRUD): Set REQUIRES_RESOURCE.status = APPROVED for existing resources on APPROVED reservations
     @Query("MATCH (r:Reservation)-[rr:REQUIRES_RESOURCE]->(res:Resource) " +
-           "WHERE rr.existsInSystem = false " +
-           "WITH r, count(res) AS missingCount, sum(rr.requestedQuantity) AS totalRequestedQuantity " +
-           "RETURN r.id AS reservationId, r.status AS reservationStatus, " +
-           "r.createdBy AS createdBy, missingCount, totalRequestedQuantity " +
-           "ORDER BY missingCount DESC")
-    List<ReservationMissingResource> findReservationsWithMissingResources();
+           "WHERE r.status = 'APPROVED' AND rr.existsInSystem = true AND rr.status = 'PENDING' " +
+           "WITH r, rr, res " +
+           "SET rr.status = 'APPROVED' " +
+           "RETURN r.id AS reservationId, res.name AS resourceName, rr.status AS updatedStatus")
+    List<ResourceApprovalResult> approveExistingResourceRequests();
 }
