@@ -77,5 +77,39 @@ services:
       timeout: 10s
       retries: 5
 
+  neo4j-pricing:
+    image: neo4j:5
+    ports:
+      - "7475:7474"
+      - "7689:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+      - neo4j_pricing_data:/data
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "password", "RETURN 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  dynamic-pricing-service:
+    build:
+      context: ./DynamicPricingService
+      dockerfile: Dockerfile
+    image: dynamic-pricing-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      neo4j-pricing:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_NEO4J_URI: bolt://neo4j-pricing:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+    ports:
+      - "9070:9051"
+
 volumes:
   neo4j_data: {}
+  neo4j_pricing_data: {}
