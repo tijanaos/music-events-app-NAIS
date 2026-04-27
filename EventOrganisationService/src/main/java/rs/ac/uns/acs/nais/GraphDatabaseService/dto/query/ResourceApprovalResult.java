@@ -1,7 +1,14 @@
 package rs.ac.uns.acs.nais.GraphDatabaseService.dto.query;
 
-public interface ResourceApprovalResult {
-    String getReservationId();
-    String getResourceName();
-    String getUpdatedStatus();
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ResourceApprovalResult {
+    private String reservationId;
+    private String resourceName;
+    private String updatedStatus;
 }

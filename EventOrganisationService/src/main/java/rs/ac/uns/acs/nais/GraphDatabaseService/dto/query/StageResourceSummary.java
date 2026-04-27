@@ -1,9 +1,16 @@
 package rs.ac.uns.acs.nais.GraphDatabaseService.dto.query;
 
-public interface StageResourceSummary {
-    String getStageId();
-    String getStageName();
-    String getStageType();
-    Long getTotalResources();
-    Long getTotalAvailableQuantity();
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class StageResourceSummary {
+    private String stageId;
+    private String stageName;
+    private String stageType;
+    private Long totalResources;
+    private Long totalAvailableQuantity;
 }
