@@ -1,5 +1,6 @@
 package rs.ac.uns.acs.nais.GraphDatabaseService.service;
 
+import rs.ac.uns.acs.nais.GraphDatabaseService.dto.RequiresResourceDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ReservationDTO;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.Reservation;
 import rs.ac.uns.acs.nais.GraphDatabaseService.model.enums.ReservationStatus;
@@ -23,4 +24,10 @@ public interface IReservationService {
     List<Reservation> findByCreatedBy(String createdBy);
 
     Reservation updateStatus(String id, ReservationStatus status);
+
+    Reservation addResource(String reservationId, RequiresResourceDTO dto);
+
+    Reservation updateResource(String reservationId, String resourceId, RequiresResourceDTO dto);
+
+    Reservation removeResource(String reservationId, String resourceId);
 }
