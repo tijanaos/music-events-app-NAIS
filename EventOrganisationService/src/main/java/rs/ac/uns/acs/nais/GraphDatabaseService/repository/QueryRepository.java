@@ -1,25 +1,23 @@
-package rs.ac.uns.acs.nais.GraphDatabaseService.service.impl;
+package rs.ac.uns.acs.nais.GraphDatabaseService.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.GenreReservationStats;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.PerformerBookingStats;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.ResourceApprovalResult;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageConfirmationResult;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageResourceSummary;
-import rs.ac.uns.acs.nais.GraphDatabaseService.service.IQueryService;
 
 import java.util.List;
 
-@Service
+@Repository
 @RequiredArgsConstructor
-public class QueryService implements IQueryService {
+public class QueryRepository {
 
     private final Neo4jClient neo4jClient;
 
-    @Override
     public List<StageResourceSummary> getStageResourceSummary() {
         return neo4jClient.query(
                 "MATCH (s:Stage)-[r:HAS_RESOURCE]->(res:Resource) " +
@@ -40,7 +38,6 @@ public class QueryService implements IQueryService {
                 .stream().toList();
     }
 
-    @Override
     public List<PerformerBookingStats> getPerformerBookingStats() {
         return neo4jClient.query(
                 "MATCH (r:Reservation)-[fp:FOR_PERFORMER]->(p:Performer) " +
@@ -61,7 +58,6 @@ public class QueryService implements IQueryService {
                 .stream().toList();
     }
 
-    @Override
     public List<GenreReservationStats> getGenreReservationStats() {
         return neo4jClient.query(
                 "MATCH (r:Reservation)-[fp:FOR_PERFORMER]->(p:Performer) " +
@@ -81,7 +77,6 @@ public class QueryService implements IQueryService {
                 .stream().toList();
     }
 
-    @Override
     @Transactional
     public List<StageConfirmationResult> confirmStageForApprovedReservations() {
         return neo4jClient.query(
@@ -99,7 +94,6 @@ public class QueryService implements IQueryService {
                 .stream().toList();
     }
 
-    @Override
     @Transactional
     public List<ResourceApprovalResult> approveExistingResourceRequests() {
         return neo4jClient.query(

@@ -10,7 +10,7 @@ import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.PerformerBookingStats;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.ResourceApprovalResult;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageConfirmationResult;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.query.StageResourceSummary;
-import rs.ac.uns.acs.nais.GraphDatabaseService.service.IQueryService;
+import rs.ac.uns.acs.nais.GraphDatabaseService.repository.QueryRepository;
 
 import java.util.List;
 
@@ -20,35 +20,35 @@ import java.util.List;
 @Tag(name = "Complex Queries", description = "Advanced graph queries with aggregation")
 public class QueryController {
 
-    private final IQueryService queryService;
+    private final QueryRepository queryRepository;
 
     @GetMapping("/stage-resources")
     @Operation(summary = "Query 1: Active stages with total resource count and available quantity")
     public ResponseEntity<List<StageResourceSummary>> getStageResourceSummary() {
-        return ResponseEntity.ok(queryService.getStageResourceSummary());
+        return ResponseEntity.ok(queryRepository.getStageResourceSummary());
     }
 
     @GetMapping("/performer-bookings")
     @Operation(summary = "Query 2: Performers with approved reservation count and average fee")
     public ResponseEntity<List<PerformerBookingStats>> getPerformerBookingStats() {
-        return ResponseEntity.ok(queryService.getPerformerBookingStats());
+        return ResponseEntity.ok(queryRepository.getPerformerBookingStats());
     }
 
     @GetMapping("/genre-stats")
     @Operation(summary = "Query 3: Reservation count, average fee and average popularity grouped by genre")
     public ResponseEntity<List<GenreReservationStats>> getGenreReservationStats() {
-        return ResponseEntity.ok(queryService.getGenreReservationStats());
+        return ResponseEntity.ok(queryRepository.getGenreReservationStats());
     }
 
     @PatchMapping("/confirm-stages")
     @Operation(summary = "Query 4 (CRUD): Set ON_STAGE.confirmed = true for all APPROVED reservations where stage is unconfirmed")
     public ResponseEntity<List<StageConfirmationResult>> confirmStages() {
-        return ResponseEntity.ok(queryService.confirmStageForApprovedReservations());
+        return ResponseEntity.ok(queryRepository.confirmStageForApprovedReservations());
     }
 
     @PatchMapping("/approve-resources")
     @Operation(summary = "Query 5 (CRUD): Set REQUIRES_RESOURCE.status = APPROVED for existing resources on APPROVED reservations")
     public ResponseEntity<List<ResourceApprovalResult>> approveResources() {
-        return ResponseEntity.ok(queryService.approveExistingResourceRequests());
+        return ResponseEntity.ok(queryRepository.approveExistingResourceRequests());
     }
 }
