@@ -87,7 +87,6 @@ public class QueryService implements IQueryService {
         return neo4jClient.query(
                 "MATCH (r:Reservation)-[os:ON_STAGE]->(s:Stage) " +
                 "WHERE r.status = 'APPROVED' AND os.confirmed = false " +
-                "WITH r, os, s " +
                 "SET os.confirmed = true " +
                 "RETURN r.id AS reservationId, s.name AS stageName, os.confirmed AS confirmed")
                 .fetchAs(StageConfirmationResult.class)
@@ -106,7 +105,6 @@ public class QueryService implements IQueryService {
         return neo4jClient.query(
                 "MATCH (r:Reservation)-[rr:REQUIRES_RESOURCE]->(res:Resource) " +
                 "WHERE r.status = 'APPROVED' AND rr.existsInSystem = true AND rr.status = 'PENDING' " +
-                "WITH r, rr, res " +
                 "SET rr.status = 'APPROVED' " +
                 "RETURN r.id AS reservationId, res.name AS resourceName, rr.status AS updatedStatus")
                 .fetchAs(ResourceApprovalResult.class)
