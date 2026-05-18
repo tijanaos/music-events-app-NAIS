@@ -8,5 +8,6 @@ sentence-transformers
 
 Pillow
 requests
+redis
 
 python-multipart

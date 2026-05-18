@@ -1,0 +1,23 @@
+server:
+  port: 9080
+
+spring:
+  application:
+    name: advertising-search-service
+  elasticsearch:
+    uris: http://localhost:9200
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

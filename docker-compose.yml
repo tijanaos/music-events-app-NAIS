@@ -24,6 +24,32 @@ services:
     ports:
       - "9003:9000"
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.14.3
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
   event-organisation-service:
     build:
       context: ./EventOrganisationService
@@ -155,6 +181,18 @@ services:
       timeout: 20s
       retries: 3
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
   vector-database-service:
     build:
       context: ./VectorDatabaseService
@@ -166,10 +204,16 @@ services:
         condition: service_healthy
       standalone:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       MILVUS_HOST: standalone
       MILVUS_PORT: 19530
       APP_PORT: 8000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_EMBEDDING_TTL_SECONDS: 3600
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     ports:
       - "8000:8000"
@@ -220,6 +264,22 @@ services:
     ports:
       - "9070:9051"
 
+  advertising-search-service:
+    build:
+      context: ./AdvertisingSearchService
+      dockerfile: Dockerfile
+    image: advertising-search-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+    ports:
+      - "9080:9080"
+
 volumes:
   neo4j_data: {}
   neo4j_pricing_data: {}
@@ -227,4 +287,5 @@ volumes:
   etcd_data: {}
   minio_data: {}
   milvus_data: {}
-
+  elasticsearch_data: {}
+  redis_data: {}

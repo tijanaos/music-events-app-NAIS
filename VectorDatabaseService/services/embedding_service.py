@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import io
 import requests
 from typing import List
@@ -7,6 +8,7 @@ import threading
 from PIL import Image
 from sentence_transformers import SentenceTransformer
 from config import EMBEDDING_MODEL_NAME, IMAGE_DOWNLOAD_TIMEOUT
+from services.redis_service import redis_service
 
 
 class EmbeddingService:
@@ -25,6 +27,9 @@ class EmbeddingService:
         self.model = None
         self._model_lock = threading.Lock()
 
+    def _hash_key(self, value: str) -> str:
+        return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
     def _get_model(self) -> SentenceTransformer:
         if self.model is None:
             with self._model_lock:
@@ -42,9 +47,17 @@ class EmbeddingService:
         if not text or not text.strip():
             raise ValueError("Tekst za embedding je prazan.")
 
-        embedding = self._get_model().encode(text, normalize_embeddings=True)
+        normalized_text = text.strip()
+        cache_key = self._hash_key(normalized_text)
+        cached_embedding = redis_service.get_json("text", cache_key)
+        if cached_embedding is not None:
+            return cached_embedding
 
-        return embedding.tolist()
+        embedding = self._get_model().encode(normalized_text, normalize_embeddings=True)
+        embedding_list = embedding.tolist()
+        redis_service.set_json("text", cache_key, embedding_list)
+
+        return embedding_list
 
     def encode_text_batch(self, texts: List[str]) -> List[List[float]]:
         embeddings = self._get_model().encode(texts, normalize_embeddings=True)
@@ -59,8 +72,15 @@ class EmbeddingService:
         return embedding.tolist()
 
     def encode_image_from_path_or_url(self, path_or_url: str) -> List[float]:
+        cache_key = self._hash_key(path_or_url)
+        cached_embedding = redis_service.get_json("image-source", cache_key)
+        if cached_embedding is not None:
+            return cached_embedding
+
         image = self._load_image(path_or_url)
-        return self.encode_image(image)
+        embedding = self.encode_image(image)
+        redis_service.set_json("image-source", cache_key, embedding)
+        return embedding
 
     def encode_image_bytes(self, image_bytes: bytes) -> List[float]:
         try:

@@ -59,3 +59,12 @@ MAX_TOP_K = 100
 # ─────────────────────────────────────────────────────────────────────────────
 IMAGE_DOWNLOAD_TIMEOUT = 10
 MAX_IMAGE_SIZE_PX = 1024
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Redis cache
+# ─────────────────────────────────────────────────────────────────────────────
+REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_DB = int(os.getenv("REDIS_DB", "0"))
+REDIS_EMBEDDING_TTL_SECONDS = int(os.getenv("REDIS_EMBEDDING_TTL_SECONDS", "3600"))
+REDIS_EMBEDDING_KEY_PREFIX = os.getenv("REDIS_EMBEDDING_KEY_PREFIX", "embedding-cache")

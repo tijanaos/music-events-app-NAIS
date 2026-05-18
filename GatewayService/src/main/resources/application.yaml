@@ -28,5 +28,10 @@ spring:
             - Path=/vector-database-service/**
           filters:
             - StripPrefix=1
+        - id: advertising-search-service
+          uri: lb://advertising-search-service
+          predicates:
+            - Path=/advertising-search-service/**
+          filters:
+            - StripPrefix=1
         
-
