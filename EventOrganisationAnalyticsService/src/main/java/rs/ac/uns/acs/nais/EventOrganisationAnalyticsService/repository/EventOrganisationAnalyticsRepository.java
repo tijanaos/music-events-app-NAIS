@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
+import co.elastic.clients.util.NamedValue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.AggregationBucketResponse;
@@ -186,7 +187,7 @@ public class EventOrganisationAnalyticsRepository {
                                 .terms(terms -> terms
                                         .field("naziv_bine")
                                         .size(20)
-                                        .order(List.of(Map.of("_count", SortOrder.Desc))))
+                                        .order(NamedValue.of("_count", SortOrder.Desc)))
                                 .aggregations("avg_taskova", sub -> sub
                                         .avg(avg -> avg.field("broj_taskova")))),
                 ReservationRequestDocument.class);
