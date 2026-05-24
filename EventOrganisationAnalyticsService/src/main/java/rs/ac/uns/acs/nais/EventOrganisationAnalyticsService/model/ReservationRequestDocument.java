@@ -43,7 +43,7 @@ public class ReservationRequestDocument {
     @Field(name = "stage_id", type = FieldType.Keyword)
     private String stageId;
 
-    @Field(name = "stage_name", type = FieldType.Text)
+    @Field(name = "stage_name", type = FieldType.Keyword)
     private String stageName;
 
     @Field(name = "stage_type", type = FieldType.Keyword)
