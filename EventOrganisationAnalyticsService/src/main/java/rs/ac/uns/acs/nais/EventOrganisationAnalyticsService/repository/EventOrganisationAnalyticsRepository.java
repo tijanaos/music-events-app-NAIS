@@ -14,7 +14,6 @@ import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.Aggrega
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ReservationRequestResponse;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ReservationSearchQueryResponse;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ResourceUsageByStageResponse;
-import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ResourceUsageResponse;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ResourceUtilizationReportResponse;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.ReservationRequestDocument;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.ResourceUsageDocument;
@@ -42,30 +41,30 @@ public class EventOrganisationAnalyticsRepository {
     // uz opcioni filter po statusu i zanru, sortiranje po popularnosti,
     // i agregaciju koja broji zahteve po statusu.
     public ReservationSearchQueryResponse searchReservationsByPerformerText(
-            String searchText, String status, String zanr) throws IOException {
+            String searchText, String status, String genre) throws IOException {
 
         SearchResponse<ReservationRequestDocument> response = elasticsearchClient.search(search -> search
                         .index(RESERVATION_REQUESTS_INDEX)
                         .size(50)
                         .query(query -> query.bool(bool -> {
                             bool.must(Query.of(inner -> inner.bool(innerBool -> innerBool
-                                    .should(matchQuery("ime_izvodjaca", searchText))
-                                    .should(matchQuery("prezime_izvodjaca", searchText))
-                                    .should(matchQuery("napomena", searchText))
+                                    .should(matchQuery("performer_first_name", searchText))
+                                    .should(matchQuery("performer_last_name", searchText))
+                                    .should(matchQuery("note", searchText))
                                     .minimumShouldMatch("1"))));
                             if (status != null && !status.isBlank()) {
-                                bool.filter(termQuery("status_zahteva", status));
+                                bool.filter(termQuery("request_status", status));
                             }
-                            if (zanr != null && !zanr.isBlank()) {
-                                bool.filter(termQuery("zanr", zanr));
+                            if (genre != null && !genre.isBlank()) {
+                                bool.filter(termQuery("genre", genre));
                             }
                             return bool;
                         }))
                         .sort(sort -> sort.field(field -> field
-                                .field("popularnost")
+                                .field("popularity")
                                 .order(SortOrder.Desc)))
                         .aggregations("by_status", agg -> agg
-                                .terms(terms -> terms.field("status_zahteva"))),
+                                .terms(terms -> terms.field("request_status"))),
                 ReservationRequestDocument.class);
 
         Map<String, Long> groupedByStatus = new HashMap<>();
@@ -82,7 +81,7 @@ public class EventOrganisationAnalyticsRepository {
     }
 
     // Upit 2:
-    // Najkorisceniji resursi po bini — terms agregacija po nazivu bine,
+    // Najkorisceniji resursi po bini - terms agregacija po nazivu bine,
     // sa sub-agregacijom koja broji top 5 resursa po bini i sumira dodeljenu kolicinu.
     public List<ResourceUsageByStageResponse> getMostUsedResourcesByStage() throws IOException {
 
@@ -90,11 +89,11 @@ public class EventOrganisationAnalyticsRepository {
                         .index(RESOURCE_USAGE_INDEX)
                         .size(0)
                         .aggregations("by_stage", agg -> agg
-                                .terms(terms -> terms.field("naziv_bine").size(20))
+                                .terms(terms -> terms.field("stage_name").size(20))
                                 .aggregations("top_resources", sub -> sub
-                                        .terms(terms -> terms.field("naziv_resursa").size(5))
-                                        .aggregations("total_kolicina", kol -> kol
-                                                .sum(sum -> sum.field("dodeljena_kolicina"))))),
+                                        .terms(terms -> terms.field("resource_name").size(5))
+                                        .aggregations("total_quantity", quantity -> quantity
+                                                .sum(sum -> sum.field("allocated_quantity"))))),
                 ResourceUsageDocument.class);
 
         if (response.aggregations() == null || !response.aggregations().containsKey("by_stage")) {
@@ -107,30 +106,30 @@ public class EventOrganisationAnalyticsRepository {
                     if (stageBucket.aggregations() != null && stageBucket.aggregations().containsKey("top_resources")) {
                         resources = stageBucket.aggregations().get("top_resources").sterms().buckets().array().stream()
                                 .map(resBucket -> {
-                                    Double totalKol = null;
-                                    if (resBucket.aggregations() != null && resBucket.aggregations().containsKey("total_kolicina")) {
-                                        double val = resBucket.aggregations().get("total_kolicina").sum().value();
-                                        totalKol = Double.isNaN(val) ? null : val;
+                                    Double totalQuantity = null;
+                                    if (resBucket.aggregations() != null && resBucket.aggregations().containsKey("total_quantity")) {
+                                        double val = resBucket.aggregations().get("total_quantity").sum().value();
+                                        totalQuantity = Double.isNaN(val) ? null : val;
                                     }
                                     return AggregationBucketResponse.builder()
                                             .key(resBucket.key().stringValue())
                                             .count(resBucket.docCount())
-                                            .numericValue(totalKol)
+                                            .numericValue(totalQuantity)
                                             .build();
                                 })
                                 .toList();
                     }
                     return ResourceUsageByStageResponse.builder()
-                            .nazivBine(stageBucket.key().stringValue())
-                            .ukupnoKoriscenja(stageBucket.docCount())
-                            .najkoriscenijiResursi(resources)
+                            .stageName(stageBucket.key().stringValue())
+                            .totalUsageCount(stageBucket.docCount())
+                            .mostUsedResources(resources)
                             .build();
                 })
                 .toList();
     }
 
     // Upit 3:
-    // Termini sa najvecim brojem resursa — date histogram po datumu koriscenja
+    // Termini sa najvecim brojem resursa - date histogram po datumu koriscenja
     // u zadatom periodu, sa sum agregacijom dodeljene kolicine,
     // sortirani opadajuce po ukupnoj kolicini resursa.
     public List<AggregationBucketResponse> getTimeSlotsWithMostResources(
@@ -140,15 +139,15 @@ public class EventOrganisationAnalyticsRepository {
                         .index(RESOURCE_USAGE_INDEX)
                         .size(0)
                         .query(query -> query.range(range -> range
-                                .field("datum")
+                                .field("date")
                                 .gte(JsonData.of(from.toString()))
                                 .lte(JsonData.of(to.toString()))))
                         .aggregations("by_date", agg -> agg
                                 .dateHistogram(dh -> dh
-                                        .field("datum")
+                                        .field("date")
                                         .calendarInterval(CalendarInterval.Day))
-                                .aggregations("total_kolicina", sub -> sub
-                                        .sum(sum -> sum.field("dodeljena_kolicina")))),
+                                .aggregations("total_quantity", sub -> sub
+                                        .sum(sum -> sum.field("allocated_quantity")))),
                 ResourceUsageDocument.class);
 
         if (response.aggregations() == null || !response.aggregations().containsKey("by_date")) {
@@ -158,8 +157,8 @@ public class EventOrganisationAnalyticsRepository {
         return response.aggregations().get("by_date").dateHistogram().buckets().array().stream()
                 .filter(bucket -> bucket.docCount() > 0)
                 .map(bucket -> {
-                    double sumVal = bucket.aggregations() != null && bucket.aggregations().containsKey("total_kolicina")
-                            ? bucket.aggregations().get("total_kolicina").sum().value() : 0.0;
+                    double sumVal = bucket.aggregations() != null && bucket.aggregations().containsKey("total_quantity")
+                            ? bucket.aggregations().get("total_quantity").sum().value() : 0.0;
                     return AggregationBucketResponse.builder()
                             .key(bucket.keyAsString())
                             .count(bucket.docCount())
@@ -182,14 +181,14 @@ public class EventOrganisationAnalyticsRepository {
                         .index(RESERVATION_REQUESTS_INDEX)
                         .size(0)
                         .query(query -> query.bool(bool -> bool
-                                .filter(termQuery("ima_taskove", true))))
+                                .filter(termQuery("has_tasks", true))))
                         .aggregations("by_stage", agg -> agg
                                 .terms(terms -> terms
-                                        .field("naziv_bine")
+                                        .field("stage_name")
                                         .size(20)
                                         .order(NamedValue.of("_count", SortOrder.Desc)))
-                                .aggregations("avg_taskova", sub -> sub
-                                        .avg(avg -> avg.field("broj_taskova")))),
+                                .aggregations("avg_tasks", sub -> sub
+                                        .avg(avg -> avg.field("task_count")))),
                 ReservationRequestDocument.class);
 
         if (response.aggregations() == null || !response.aggregations().containsKey("by_stage")) {
@@ -198,15 +197,15 @@ public class EventOrganisationAnalyticsRepository {
 
         return response.aggregations().get("by_stage").sterms().buckets().array().stream()
                 .map(bucket -> {
-                    Double avgTaskova = null;
-                    if (bucket.aggregations() != null && bucket.aggregations().containsKey("avg_taskova")) {
-                        double val = bucket.aggregations().get("avg_taskova").avg().value();
-                        avgTaskova = Double.isNaN(val) ? null : val;
+                    Double avgTasks = null;
+                    if (bucket.aggregations() != null && bucket.aggregations().containsKey("avg_tasks")) {
+                        double val = bucket.aggregations().get("avg_tasks").avg().value();
+                        avgTasks = Double.isNaN(val) ? null : val;
                     }
                     return AggregationBucketResponse.builder()
                             .key(bucket.key().stringValue())
                             .count(bucket.docCount())
-                            .numericValue(avgTaskova)
+                            .numericValue(avgTasks)
                             .build();
                 })
                 .toList();
@@ -217,47 +216,47 @@ public class EventOrganisationAnalyticsRepository {
     // Kombinuje dva upita: resource-usage (top resursi po frekvenciji i kolicini,
     // date histogram zauzetosti) i reservation-requests (broj rezervacija sa taskovima u periodu).
     public ResourceUtilizationReportResponse getResourceUtilizationReport(
-            LocalDate from, LocalDate to, String binaId) throws IOException {
+            LocalDate from, LocalDate to, String stageId) throws IOException {
 
         SearchResponse<ResourceUsageDocument> usageResponse = elasticsearchClient.search(search -> search
                         .index(RESOURCE_USAGE_INDEX)
                         .size(0)
                         .query(query -> query.bool(bool -> {
-                            bool.filter(dateRangeQuery("datum", from, to));
-                            if (binaId != null && !binaId.isBlank()) {
-                                bool.filter(termQuery("bina_id", binaId));
+                            bool.filter(dateRangeQuery("date", from, to));
+                            if (stageId != null && !stageId.isBlank()) {
+                                bool.filter(termQuery("stage_id", stageId));
                             }
                             return bool;
                         }))
                         .aggregations("by_resource", agg -> agg
-                                .terms(terms -> terms.field("naziv_resursa").size(10))
-                                .aggregations("total_kolicina", sub -> sub
-                                        .sum(sum -> sum.field("dodeljena_kolicina"))))
+                                .terms(terms -> terms.field("resource_name").size(10))
+                                .aggregations("total_quantity", sub -> sub
+                                        .sum(sum -> sum.field("allocated_quantity"))))
                         .aggregations("by_date", agg -> agg
                                 .dateHistogram(dh -> dh
-                                        .field("datum")
+                                        .field("date")
                                         .calendarInterval(CalendarInterval.Day))
-                                .aggregations("total_kolicina", sub -> sub
-                                        .sum(sum -> sum.field("dodeljena_kolicina")))),
+                                .aggregations("total_quantity", sub -> sub
+                                        .sum(sum -> sum.field("allocated_quantity")))),
                 ResourceUsageDocument.class);
 
         SearchResponse<ReservationRequestDocument> reservationResponse = elasticsearchClient.search(search -> search
                         .index(RESERVATION_REQUESTS_INDEX)
                         .size(0)
                         .query(query -> query.bool(bool -> bool
-                                .filter(termQuery("ima_taskove", true))
-                                .filter(dateRangeQuery("datum_nastupa", from, to)))),
+                                .filter(termQuery("has_tasks", true))
+                                .filter(dateRangeQuery("performance_date", from, to)))),
                 ReservationRequestDocument.class);
 
-        List<AggregationBucketResponse> resursiPoFrekvenciji = Collections.emptyList();
-        List<AggregationBucketResponse> terminiBrojResursa = Collections.emptyList();
+        List<AggregationBucketResponse> resourcesByFrequency = Collections.emptyList();
+        List<AggregationBucketResponse> timeSlotsResourceCount = Collections.emptyList();
 
         if (usageResponse.aggregations() != null) {
             if (usageResponse.aggregations().containsKey("by_resource")) {
-                resursiPoFrekvenciji = usageResponse.aggregations().get("by_resource").sterms().buckets().array().stream()
+                resourcesByFrequency = usageResponse.aggregations().get("by_resource").sterms().buckets().array().stream()
                         .map(bucket -> {
-                            double sumVal = bucket.aggregations() != null && bucket.aggregations().containsKey("total_kolicina")
-                                    ? bucket.aggregations().get("total_kolicina").sum().value() : 0.0;
+                            double sumVal = bucket.aggregations() != null && bucket.aggregations().containsKey("total_quantity")
+                                    ? bucket.aggregations().get("total_quantity").sum().value() : 0.0;
                             return AggregationBucketResponse.builder()
                                     .key(bucket.key().stringValue())
                                     .count(bucket.docCount())
@@ -267,7 +266,7 @@ public class EventOrganisationAnalyticsRepository {
                         .toList();
             }
             if (usageResponse.aggregations().containsKey("by_date")) {
-                terminiBrojResursa = usageResponse.aggregations().get("by_date").dateHistogram().buckets().array().stream()
+                timeSlotsResourceCount = usageResponse.aggregations().get("by_date").dateHistogram().buckets().array().stream()
                         .filter(bucket -> bucket.docCount() > 0)
                         .map(bucket -> AggregationBucketResponse.builder()
                                 .key(bucket.keyAsString())
@@ -279,9 +278,9 @@ public class EventOrganisationAnalyticsRepository {
 
         return ResourceUtilizationReportResponse.builder()
                 .totalHits(totalHits(usageResponse))
-                .resursiPoFrekvenciji(resursiPoFrekvenciji)
-                .terminiBrojResursa(terminiBrojResursa)
-                .rezervacijeSaTaskovima(totalHits(reservationResponse))
+                .resourcesByFrequency(resourcesByFrequency)
+                .timeSlotsResourceCount(timeSlotsResourceCount)
+                .reservationsWithTasks(totalHits(reservationResponse))
                 .build();
     }
 
@@ -320,26 +319,26 @@ public class EventOrganisationAnalyticsRepository {
                 .filter(Objects::nonNull)
                 .map(doc -> ReservationRequestResponse.builder()
                         .id(doc.getId())
-                        .statusZahteva(doc.getStatusZahteva())
-                        .datumSlanja(doc.getDatumSlanja())
-                        .datumAzuriranja(doc.getDatumAzuriranja())
-                        .napomena(doc.getNapomena())
-                        .binaId(doc.getBinaId())
-                        .nazivBine(doc.getNazivBine())
-                        .tipBine(doc.getTipBine())
-                        .kapacitetBine(doc.getKapacitetBine())
-                        .izvodjacId(doc.getIzvodjacId())
-                        .imeIzvodjaca(doc.getImeIzvodjaca())
-                        .prezimeIzvodjaca(doc.getPrezimeIzvodjaca())
-                        .zanr(doc.getZanr())
-                        .popularnost(doc.getPopularnost())
-                        .datumNastupa(doc.getDatumNastupa())
-                        .vremePocetka(doc.getVremePocetka())
-                        .vremeKraja(doc.getVremeKraja())
-                        .zahtevanihResursa(doc.getZahtevanihResursa())
-                        .imaTaskove(doc.getImaTaskove())
-                        .brojTaskova(doc.getBrojTaskova())
-                        .detaljiNastupa(doc.getDetaljiNastupa())
+                        .requestStatus(doc.getRequestStatus())
+                        .sentDate(doc.getSentDate())
+                        .updatedDate(doc.getUpdatedDate())
+                        .note(doc.getNote())
+                        .stageId(doc.getStageId())
+                        .stageName(doc.getStageName())
+                        .stageType(doc.getStageType())
+                        .stageCapacity(doc.getStageCapacity())
+                        .performerId(doc.getPerformerId())
+                        .performerFirstName(doc.getPerformerFirstName())
+                        .performerLastName(doc.getPerformerLastName())
+                        .genre(doc.getGenre())
+                        .popularity(doc.getPopularity())
+                        .performanceDate(doc.getPerformanceDate())
+                        .startTime(doc.getStartTime())
+                        .endTime(doc.getEndTime())
+                        .requestedResources(doc.getRequestedResources())
+                        .hasTasks(doc.getHasTasks())
+                        .taskCount(doc.getTaskCount())
+                        .performanceDetails(doc.getPerformanceDetails())
                         .build())
                 .toList();
     }

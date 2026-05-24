@@ -16,19 +16,19 @@ import java.time.LocalDate;
 public class ResourceUsageResponse {
 
     private String id;
-    private String resursId;
-    private String nazivResursa;
-    private String tipResursa;
-    private Boolean prenosiv;
-    private Integer dodeljenaKolicina;
-    private String binaId;
-    private String nazivBine;
-    private String tipBine;
-    private String terminId;
-    private LocalDate datum;
-    private Integer vremePocetka;
-    private Integer vremeKraja;
-    private Boolean pozajmljenoSaBine;
-    private String nazivBinePozajmice;
-    private String rezervacijaId;
+    private String resourceId;
+    private String resourceName;
+    private String resourceType;
+    private Boolean portable;
+    private Integer allocatedQuantity;
+    private String stageId;
+    private String stageName;
+    private String stageType;
+    private String timeSlotId;
+    private LocalDate date;
+    private Integer startTime;
+    private Integer endTime;
+    private Boolean borrowedFromStage;
+    private String borrowingStageName;
+    private String reservationId;
 }

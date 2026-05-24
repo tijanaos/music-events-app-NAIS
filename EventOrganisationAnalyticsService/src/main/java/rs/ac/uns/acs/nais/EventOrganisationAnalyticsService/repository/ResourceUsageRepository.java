@@ -10,15 +10,15 @@ import java.util.List;
 @Repository
 public interface ResourceUsageRepository extends ElasticsearchRepository<ResourceUsageDocument, String> {
 
-    List<ResourceUsageDocument> findByBinaId(String binaId);
+    List<ResourceUsageDocument> findByStageId(String stageId);
 
-    List<ResourceUsageDocument> findByResursId(String resursId);
+    List<ResourceUsageDocument> findByResourceId(String resourceId);
 
-    List<ResourceUsageDocument> findByTipResursa(String tipResursa);
+    List<ResourceUsageDocument> findByResourceType(String resourceType);
 
-    List<ResourceUsageDocument> findByDatumBetween(LocalDate from, LocalDate to);
+    List<ResourceUsageDocument> findByDateBetween(LocalDate from, LocalDate to);
 
-    List<ResourceUsageDocument> findByPozajmljenoSaBineTrue();
+    List<ResourceUsageDocument> findByBorrowedFromStageTrue();
 
-    List<ResourceUsageDocument> findByRezervacijaId(String rezervacijaId);
+    List<ResourceUsageDocument> findByReservationId(String reservationId);
 }

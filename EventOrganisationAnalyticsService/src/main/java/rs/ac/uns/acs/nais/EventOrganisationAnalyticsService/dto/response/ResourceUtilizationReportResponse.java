@@ -16,7 +16,7 @@ import java.util.List;
 public class ResourceUtilizationReportResponse {
 
     private Long totalHits;
-    private List<AggregationBucketResponse> resursiPoFrekvenciji;
-    private List<AggregationBucketResponse> terminiBrojResursa;
-    private Long rezervacijeSaTaskovima;
+    private List<AggregationBucketResponse> resourcesByFrequency;
+    private List<AggregationBucketResponse> timeSlotsResourceCount;
+    private Long reservationsWithTasks;
 }

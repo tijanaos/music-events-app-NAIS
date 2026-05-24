@@ -24,24 +24,19 @@ public class EventOrganisationAnalyticsController {
 
     private final EventOrganisationAnalyticsService analyticsService;
 
-    // Upit 1 — text search po imenu/prezimenu izvodjaca i napomeni,
-    // filter po statusu i zanru, agg po statusu
     @GetMapping("/search-reservations")
     public ResponseEntity<ReservationSearchQueryResponse> searchReservations(
             @RequestParam String searchText,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String zanr) throws IOException {
-        return ResponseEntity.ok(analyticsService.searchReservationsByPerformerText(searchText, status, zanr));
+            @RequestParam(required = false) String genre) throws IOException {
+        return ResponseEntity.ok(analyticsService.searchReservationsByPerformerText(searchText, status, genre));
     }
 
-    // Upit 2 — najkorisceniji resursi po bini sa ukupnom dodeljenom kolicinom
     @GetMapping("/most-used-resources-by-stage")
     public ResponseEntity<List<ResourceUsageByStageResponse>> getMostUsedResourcesByStage() throws IOException {
         return ResponseEntity.ok(analyticsService.getMostUsedResourcesByStage());
     }
 
-    // Upit 3 — termini sa najvecim brojem resursa u zadatom periodu,
-    // sortirani opadajuce po ukupnoj kolicini
     @GetMapping("/time-slots-with-most-resources")
     public ResponseEntity<List<AggregationBucketResponse>> getTimeSlotsWithMostResources(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -49,20 +44,16 @@ public class EventOrganisationAnalyticsController {
         return ResponseEntity.ok(analyticsService.getTimeSlotsWithMostResources(from, to));
     }
 
-    // Upit 4 — rezervacije koje su zahtevale resurse kojih nema u sistemu,
-    // grupisane po bini sa prosecnim brojem taskova
     @GetMapping("/reservations-with-missing-resources")
     public ResponseEntity<List<AggregationBucketResponse>> getReservationsWithMissingResources() throws IOException {
         return ResponseEntity.ok(analyticsService.getReservationsWithMissingResourcesByStage());
     }
 
-    // Upit 5 — izvestaj iskorisenosti resursa za vremenski period,
-    // opciono filtriran po bini; kombinuje oba indeksa
     @GetMapping("/resource-utilization-report")
     public ResponseEntity<ResourceUtilizationReportResponse> getResourceUtilizationReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(required = false) String binaId) throws IOException {
-        return ResponseEntity.ok(analyticsService.getResourceUtilizationReport(from, to, binaId));
+            @RequestParam(required = false) String stageId) throws IOException {
+        return ResponseEntity.ok(analyticsService.getResourceUtilizationReport(from, to, stageId));
     }
 }

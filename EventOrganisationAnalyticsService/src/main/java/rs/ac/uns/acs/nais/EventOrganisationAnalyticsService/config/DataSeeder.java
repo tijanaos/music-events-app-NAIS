@@ -6,7 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.ReservationRequestDocument;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.ResourceUsageDocument;
-import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.ZahtevaniResursItem;
+import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.RequestedResourceItem;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.repository.ReservationRequestRepository;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.repository.ResourceUsageRepository;
 
@@ -26,94 +26,94 @@ public class DataSeeder implements CommandLineRunner {
 
     private final Random random = new Random(42);
 
-    private static final String[][] BINE = {
-            {"bina-1", "Velika bina", "ZATVORENA"},
-            {"bina-2", "Mala bina", "ZATVORENA"},
-            {"bina-3", "Akustična bina", "ZATVORENA"},
-            {"bina-4", "Open Air bina", "OTVORENA"},
-            {"bina-5", "Jazz bina", "ZATVORENA"}
+    private static final String[][] STAGES = {
+            {"stage-1", "Main Stage", "INDOOR"},
+            {"stage-2", "Small Stage", "INDOOR"},
+            {"stage-3", "Acoustic Stage", "INDOOR"},
+            {"stage-4", "Open Air Stage", "OUTDOOR"},
+            {"stage-5", "Jazz Stage", "INDOOR"}
     };
 
-    private static final int[] KAPACITETI = {1000, 300, 150, 2000, 200};
+    private static final int[] STAGE_CAPACITIES = {1000, 300, 150, 2000, 200};
 
-    private static final String[] IMENA = {
-            "Ana", "Marko", "Jovana", "Stefan", "Milica",
-            "Nikola", "Tamara", "Ivan", "Bojana", "Luka",
-            "Jelena", "Petar", "Sandra", "Aleksandar", "Katarina",
-            "Dragana", "Vladimir", "Nevena", "Miloš", "Tijana"
+    private static final String[] FIRST_NAMES = {
+            "Ana", "Mark", "Jane", "Stephen", "Mila",
+            "Nick", "Tara", "Ian", "Bonnie", "Luke",
+            "Helen", "Peter", "Sandra", "Alex", "Kate",
+            "Diana", "Victor", "Nina", "Miles", "Tina"
     };
 
-    private static final String[] PREZIMENA = {
-            "Jović", "Petrović", "Nikolić", "Marković", "Đorđević",
-            "Stanković", "Ilić", "Popović", "Lazić", "Stojanović",
-            "Vasić", "Simić", "Pavlović", "Ristić", "Kovačević",
-            "Tadić", "Đukić", "Milošević", "Savić", "Tomić"
+    private static final String[] LAST_NAMES = {
+            "Johnson", "Peterson", "Nichols", "Marks", "George",
+            "Stone", "Hill", "Pope", "Lane", "Stewart",
+            "Vance", "Simon", "Paulson", "Reed", "Cooper",
+            "Tate", "Duke", "Miller", "Swift", "Thomas"
     };
 
-    private static final String[] ZANROVI = {
+    private static final String[] GENRES = {
             "Rock", "Pop", "Jazz", "Folk", "Electronic",
             "Classical", "R&B", "Hip-hop", "Metal", "Blues"
     };
 
-    private static final String[] STATUSI = {"CEKANJE", "ODOBREN", "ODBIJEN"};
+    private static final String[] REQUEST_STATUSES = {"PENDING", "APPROVED", "REJECTED"};
 
-    private static final String[][] RESURSI = {
-            {"resurs-1",  "Ozvučenje",          "AUDIO",   "false"},
-            {"resurs-2",  "Bežični mikrofon",    "AUDIO",   "true"},
-            {"resurs-3",  "Mixeta",              "AUDIO",   "true"},
-            {"resurs-4",  "LED ekran",           "VIDEO",   "false"},
-            {"resurs-5",  "Kamera",              "VIDEO",   "true"},
-            {"resurs-6",  "Projektor",           "VIDEO",   "false"},
-            {"resurs-7",  "Reflektor",           "RASVETA", "true"},
-            {"resurs-8",  "Moving head",         "RASVETA", "true"},
-            {"resurs-9",  "Par svetlo",          "RASVETA", "true"},
-            {"resurs-10", "Dimni top",           "EFEKTI",  "true"},
-            {"resurs-11", "Konfeti top",         "EFEKTI",  "true"},
-            {"resurs-12", "CO2 efekat",          "EFEKTI",  "true"},
-            {"resurs-13", "Subwoofer",           "AUDIO",   "false"},
-            {"resurs-14", "Monitor zvučnik",     "AUDIO",   "true"},
-            {"resurs-15", "Hazer",               "EFEKTI",  "true"},
-            {"resurs-16", "LED traka",           "RASVETA", "true"},
-            {"resurs-17", "Studijsko svetlo",    "RASVETA", "false"},
-            {"resurs-18", "Stativ za kameru",    "VIDEO",   "true"},
-            {"resurs-19", "Žičani mikrofon",     "AUDIO",   "true"},
-            {"resurs-20", "DJ kontroler",        "AUDIO",   "true"}
+    private static final String[][] RESOURCES = {
+            {"resource-1", "Sound System", "AUDIO", "false"},
+            {"resource-2", "Wireless Microphone", "AUDIO", "true"},
+            {"resource-3", "Mixer", "AUDIO", "true"},
+            {"resource-4", "LED Screen", "VIDEO", "false"},
+            {"resource-5", "Camera", "VIDEO", "true"},
+            {"resource-6", "Projector", "VIDEO", "false"},
+            {"resource-7", "Spotlight", "LIGHTING", "true"},
+            {"resource-8", "Moving Head", "LIGHTING", "true"},
+            {"resource-9", "Par Light", "LIGHTING", "true"},
+            {"resource-10", "Smoke Machine", "EFFECTS", "true"},
+            {"resource-11", "Confetti Cannon", "EFFECTS", "true"},
+            {"resource-12", "CO2 Effect", "EFFECTS", "true"},
+            {"resource-13", "Subwoofer", "AUDIO", "false"},
+            {"resource-14", "Stage Monitor", "AUDIO", "true"},
+            {"resource-15", "Hazer", "EFFECTS", "true"},
+            {"resource-16", "LED Strip", "LIGHTING", "true"},
+            {"resource-17", "Studio Light", "LIGHTING", "false"},
+            {"resource-18", "Camera Tripod", "VIDEO", "true"},
+            {"resource-19", "Wired Microphone", "AUDIO", "true"},
+            {"resource-20", "DJ Controller", "AUDIO", "true"}
     };
 
-    private static final String[] STATUS_RESURSA = {"DOSTUPAN", "REZERVISAN"};
+    private static final String[] RESOURCE_STATUSES = {"AVAILABLE", "RESERVED"};
 
-    private static final String[] RAZLOZI_ODBIJANJA = {
-            "Resurs nije dostupan u zadatom periodu",
-            "Kapacitet bine ne podržava ovaj resurs",
-            "Resurs je rezervisan za drugi event"
+    private static final String[] REJECTION_REASONS = {
+            "Resource is not available in the requested period",
+            "Stage capacity does not support this resource",
+            "Resource is reserved for another event"
     };
 
-    private static final String[] NAPOMENE = {
-            "Molimo obezbediti tehničku podršku tokom nastupa",
-            "Izvođač dolazi sa sopstvenim instrumentima",
-            "Potrebna je garderoba sa ogledalom",
-            "Posebni zahtevi u pogledu ozvučenja",
-            "Nastup uključuje specijalne vizuelne efekte",
-            "Bend ima 5 članova",
-            "Gostovanje inostranog izvođača",
-            "Festival nastup sa više izvođača",
-            "Akustični nastup bez pojačanja",
+    private static final String[] NOTES = {
+            "Please provide technical support during the performance",
+            "Performer brings their own instruments",
+            "Dressing room with mirror is required",
+            "Special sound system requirements",
+            "Performance includes special visual effects",
+            "Band has five members",
+            "International guest performance",
+            "Festival performance with multiple performers",
+            "Acoustic performance without amplification",
             null, null
     };
 
-    private static final String[] DETALJI_NASTUPA = {
-            "Elektro-pop nastup sa svetlosnim šooom",
-            "Akustični recital uz klavir",
-            "Rock bend - puna produkcija",
-            "Jazz kvartet - intimni nastup",
-            "DJ set - elektronska muzika",
-            "Folklorna grupa - tradicionalni show",
-            "Klasični orkestar - simfonijski koncert",
-            "Metal bend - heavy produkcija",
-            "R&B solist - soul nastup",
-            "Hip-hop kolektiv - live performance",
-            "Indie bend - alternativni zvuk",
-            "Blues trio - retro atmosfera"
+    private static final String[] PERFORMANCE_DETAILS = {
+            "Electro-pop performance with light show",
+            "Acoustic piano recital",
+            "Rock band with full production",
+            "Intimate jazz quartet performance",
+            "Electronic DJ set",
+            "Traditional folk group show",
+            "Classical orchestra concert",
+            "Heavy metal production",
+            "Soulful R&B solo performance",
+            "Live hip-hop collective performance",
+            "Alternative indie band sound",
+            "Retro blues trio atmosphere"
     };
 
     @Override
@@ -124,7 +124,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedReservationRequests() {
         if (reservationRequestRepository.count() > 0) {
-            log.info("reservation-requests index vec sadrzi podatke, preskacam seed.");
+            log.info("reservation-requests index already contains data, skipping seed.");
             return;
         }
 
@@ -133,72 +133,72 @@ public class DataSeeder implements CommandLineRunner {
         LocalDate base = LocalDate.of(2024, 1, 1);
 
         for (int i = 0; i < 1100; i++) {
-            int binaIdx = random.nextInt(5);
-            String[] bina = BINE[binaIdx];
-            String status = STATUSI[random.nextInt(3)];
-            boolean imaTaskove = random.nextInt(3) > 0; // ~67% ima taskove
-            int brojTaskova = imaTaskove ? (1 + random.nextInt(7)) : 0;
+            int stageIdx = random.nextInt(5);
+            String[] stage = STAGES[stageIdx];
+            String status = REQUEST_STATUSES[random.nextInt(3)];
+            boolean hasTasks = random.nextInt(3) > 0;
+            int taskCount = hasTasks ? (1 + random.nextInt(7)) : 0;
 
-            LocalDate datumSlanja = base.plusDays(random.nextInt(548));
-            LocalDate datumNastupa = datumSlanja.plusDays(5 + random.nextInt(60));
-            int pocetakH = 17 + random.nextInt(5);
-            int krajH = pocetakH + 1 + random.nextInt(3);
+            LocalDate sentDate = base.plusDays(random.nextInt(548));
+            LocalDate performanceDate = sentDate.plusDays(5 + random.nextInt(60));
+            int startHour = 17 + random.nextInt(5);
+            int endHour = startHour + 1 + random.nextInt(3);
 
             docs.add(ReservationRequestDocument.builder()
                     .id(UUID.randomUUID().toString())
-                    .statusZahteva(status)
-                    .datumSlanja(datumSlanja)
-                    .datumAzuriranja(datumSlanja.plusDays(random.nextInt(10)))
-                    .napomena(pick(NAPOMENE))
-                    .binaId(bina[0])
-                    .nazivBine(bina[1])
-                    .tipBine(bina[2])
-                    .kapacitetBine(KAPACITETI[binaIdx])
-                    .izvodjacId("izvodjac-" + (random.nextInt(50) + 1))
-                    .imeIzvodjaca(pick(IMENA))
-                    .prezimeIzvodjaca(pick(PREZIMENA))
-                    .zanr(pick(ZANROVI))
-                    .popularnost(Math.round((1.0 + random.nextDouble() * 9.0) * 10.0) / 10.0)
-                    .datumNastupa(datumNastupa)
-                    .vremePocetka(pocetakH)
-                    .vremeKraja(krajH)
-                    .zahtevanihResursa(buildZahtevanrResursi(imaTaskove))
-                    .imaTaskove(imaTaskove)
-                    .brojTaskova(brojTaskova)
-                    .detaljiNastupa(pick(DETALJI_NASTUPA))
+                    .requestStatus(status)
+                    .sentDate(sentDate)
+                    .updatedDate(sentDate.plusDays(random.nextInt(10)))
+                    .note(pick(NOTES))
+                    .stageId(stage[0])
+                    .stageName(stage[1])
+                    .stageType(stage[2])
+                    .stageCapacity(STAGE_CAPACITIES[stageIdx])
+                    .performerId("performer-" + (random.nextInt(50) + 1))
+                    .performerFirstName(pick(FIRST_NAMES))
+                    .performerLastName(pick(LAST_NAMES))
+                    .genre(pick(GENRES))
+                    .popularity(Math.round((1.0 + random.nextDouble() * 9.0) * 10.0) / 10.0)
+                    .performanceDate(performanceDate)
+                    .startTime(startHour)
+                    .endTime(endHour)
+                    .requestedResources(buildRequestedResources(hasTasks))
+                    .hasTasks(hasTasks)
+                    .taskCount(taskCount)
+                    .performanceDetails(pick(PERFORMANCE_DETAILS))
                     .build());
         }
 
         reservationRequestRepository.saveAll(docs);
-        log.info("Upisano {} reservation-requests dokumenata.", docs.size());
+        log.info("Inserted {} reservation-requests documents.", docs.size());
     }
 
-    private List<ZahtevaniResursItem> buildZahtevanrResursi(boolean imaTaskove) {
+    private List<RequestedResourceItem> buildRequestedResources(boolean hasTasks) {
         int count = 1 + random.nextInt(4);
-        List<ZahtevaniResursItem> list = new ArrayList<>();
+        List<RequestedResourceItem> list = new ArrayList<>();
         boolean forcedNonExistentAdded = false;
 
         for (int i = 0; i < count; i++) {
-            String[] resurs = RESURSI[random.nextInt(RESURSI.length)];
+            String[] resource = RESOURCES[random.nextInt(RESOURCES.length)];
 
-            boolean postojiUSistemu;
-            if (imaTaskove && !forcedNonExistentAdded && i == count - 1) {
-                postojiUSistemu = false;
+            boolean existsInSystem;
+            if (hasTasks && !forcedNonExistentAdded && i == count - 1) {
+                existsInSystem = false;
             } else {
-                postojiUSistemu = !imaTaskove || random.nextBoolean();
+                existsInSystem = !hasTasks || random.nextBoolean();
             }
 
-            if (!postojiUSistemu) {
+            if (!existsInSystem) {
                 forcedNonExistentAdded = true;
             }
 
-            list.add(ZahtevaniResursItem.builder()
-                    .nazivResursa(resurs[1])
-                    .tipResursa(resurs[2])
-                    .zahtevanrKolicina(1 + random.nextInt(5))
-                    .postojiUSistemu(postojiUSistemu)
-                    .statusResursa(postojiUSistemu ? STATUS_RESURSA[random.nextInt(2)] : "NEDOSTUPAN")
-                    .razlogOdbijanja(!postojiUSistemu ? pick(RAZLOZI_ODBIJANJA) : null)
+            list.add(RequestedResourceItem.builder()
+                    .resourceName(resource[1])
+                    .resourceType(resource[2])
+                    .requestedQuantity(1 + random.nextInt(5))
+                    .existsInSystem(existsInSystem)
+                    .resourceStatus(existsInSystem ? RESOURCE_STATUSES[random.nextInt(2)] : "UNAVAILABLE")
+                    .rejectionReason(!existsInSystem ? pick(REJECTION_REASONS) : null)
                     .build());
         }
 
@@ -207,7 +207,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedResourceUsage() {
         if (resourceUsageRepository.count() > 0) {
-            log.info("resource-usage index vec sadrzi podatke, preskacam seed.");
+            log.info("resource-usage index already contains data, skipping seed.");
             return;
         }
 
@@ -216,44 +216,44 @@ public class DataSeeder implements CommandLineRunner {
         LocalDate base = LocalDate.of(2024, 1, 1);
 
         for (int i = 0; i < 1200; i++) {
-            int binaIdx = random.nextInt(5);
-            String[] bina = BINE[binaIdx];
-            int resursIdx = random.nextInt(RESURSI.length);
-            String[] resurs = RESURSI[resursIdx];
+            int stageIdx = random.nextInt(5);
+            String[] stage = STAGES[stageIdx];
+            int resourceIdx = random.nextInt(RESOURCES.length);
+            String[] resource = RESOURCES[resourceIdx];
 
-            LocalDate datum = base.plusDays(random.nextInt(548));
-            int pocetakH = 17 + random.nextInt(5);
-            int krajH = pocetakH + 1 + random.nextInt(3);
+            LocalDate date = base.plusDays(random.nextInt(548));
+            int startHour = 17 + random.nextInt(5);
+            int endHour = startHour + 1 + random.nextInt(3);
 
-            boolean pozajmljeno = random.nextInt(5) == 0; // ~20% pozajmice
-            String nazivBinePozajmice = null;
-            if (pozajmljeno) {
-                int otherIdx = (binaIdx + 1 + random.nextInt(4)) % 5;
-                nazivBinePozajmice = BINE[otherIdx][1];
+            boolean borrowed = random.nextInt(5) == 0;
+            String borrowingStageName = null;
+            if (borrowed) {
+                int otherIdx = (stageIdx + 1 + random.nextInt(4)) % 5;
+                borrowingStageName = STAGES[otherIdx][1];
             }
 
             docs.add(ResourceUsageDocument.builder()
                     .id(UUID.randomUUID().toString())
-                    .resursId(resurs[0])
-                    .nazivResursa(resurs[1])
-                    .tipResursa(resurs[2])
-                    .prenosiv(Boolean.parseBoolean(resurs[3]))
-                    .dodeljenaKolicina(1 + random.nextInt(15))
-                    .binaId(bina[0])
-                    .nazivBine(bina[1])
-                    .tipBine(bina[2])
-                    .terminId("termin-" + (random.nextInt(200) + 1))
-                    .datum(datum)
-                    .vremePocetka(pocetakH)
-                    .vremeKraja(krajH)
-                    .pozajmljenoSaBine(pozajmljeno)
-                    .nazivBinePozajmice(nazivBinePozajmice)
-                    .rezervacijaId("rezervacija-" + (random.nextInt(500) + 1))
+                    .resourceId(resource[0])
+                    .resourceName(resource[1])
+                    .resourceType(resource[2])
+                    .portable(Boolean.parseBoolean(resource[3]))
+                    .allocatedQuantity(1 + random.nextInt(15))
+                    .stageId(stage[0])
+                    .stageName(stage[1])
+                    .stageType(stage[2])
+                    .timeSlotId("time-slot-" + (random.nextInt(200) + 1))
+                    .date(date)
+                    .startTime(startHour)
+                    .endTime(endHour)
+                    .borrowedFromStage(borrowed)
+                    .borrowingStageName(borrowingStageName)
+                    .reservationId("reservation-" + (random.nextInt(500) + 1))
                     .build());
         }
 
         resourceUsageRepository.saveAll(docs);
-        log.info("Upisano {} resource-usage dokumenata.", docs.size());
+        log.info("Inserted {} resource-usage documents.", docs.size());
     }
 
     private <T> T pick(T[] arr) {

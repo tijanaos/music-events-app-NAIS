@@ -19,56 +19,56 @@ import java.util.List;
 public class ReservationRequestDto {
 
     @NotBlank
-    private String statusZahteva;
+    private String requestStatus;
 
     @NotNull
-    private LocalDate datumSlanja;
+    private LocalDate sentDate;
 
-    private LocalDate datumAzuriranja;
+    private LocalDate updatedDate;
 
-    private String napomena;
-
-    @NotBlank
-    private String binaId;
+    private String note;
 
     @NotBlank
-    private String nazivBine;
+    private String stageId;
 
     @NotBlank
-    private String tipBine;
+    private String stageName;
+
+    @NotBlank
+    private String stageType;
 
     @NotNull
-    private Integer kapacitetBine;
+    private Integer stageCapacity;
 
     @NotBlank
-    private String izvodjacId;
+    private String performerId;
 
     @NotBlank
-    private String imeIzvodjaca;
+    private String performerFirstName;
 
     @NotBlank
-    private String prezimeIzvodjaca;
+    private String performerLastName;
 
     @NotBlank
-    private String zanr;
+    private String genre;
 
     @NotNull
-    private Double popularnost;
+    private Double popularity;
 
     @NotNull
-    private LocalDate datumNastupa;
+    private LocalDate performanceDate;
 
     @NotNull
-    private Integer vremePocetka;
+    private Integer startTime;
 
     @NotNull
-    private Integer vremeKraja;
+    private Integer endTime;
 
-    private List<ZahtevaniResursItemRequest> zahtevanihResursa;
+    private List<RequestedResourceItemRequest> requestedResources;
 
-    private Boolean imaTaskove;
+    private Boolean hasTasks;
 
-    private Integer brojTaskova;
+    private Integer taskCount;
 
-    private String detaljiNastupa;
+    private String performanceDetails;
 }

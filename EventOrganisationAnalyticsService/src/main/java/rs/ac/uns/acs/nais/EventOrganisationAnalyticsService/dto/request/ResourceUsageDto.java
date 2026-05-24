@@ -19,47 +19,47 @@ import java.time.LocalDate;
 public class ResourceUsageDto {
 
     @NotBlank
-    private String resursId;
+    private String resourceId;
 
     @NotBlank
-    private String nazivResursa;
+    private String resourceName;
 
     @NotBlank
-    private String tipResursa;
+    private String resourceType;
 
     @NotNull
-    private Boolean prenosiv;
+    private Boolean portable;
 
     @NotNull
     @Min(1)
-    private Integer dodeljenaKolicina;
+    private Integer allocatedQuantity;
 
     @NotBlank
-    private String binaId;
+    private String stageId;
 
     @NotBlank
-    private String nazivBine;
+    private String stageName;
 
     @NotBlank
-    private String tipBine;
+    private String stageType;
 
     @NotBlank
-    private String terminId;
+    private String timeSlotId;
 
     @NotNull
-    private LocalDate datum;
+    private LocalDate date;
 
     @NotNull
-    private Integer vremePocetka;
+    private Integer startTime;
 
     @NotNull
-    private Integer vremeKraja;
+    private Integer endTime;
 
     @NotNull
-    private Boolean pozajmljenoSaBine;
+    private Boolean borrowedFromStage;
 
-    private String nazivBinePozajmice;
+    private String borrowingStageName;
 
     @NotBlank
-    private String rezervacijaId;
+    private String reservationId;
 }

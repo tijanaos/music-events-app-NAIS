@@ -14,22 +14,22 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ZahtevaniResursItemRequest {
+public class RequestedResourceItemRequest {
 
     @NotBlank
-    private String nazivResursa;
+    private String resourceName;
 
     @NotBlank
-    private String tipResursa;
+    private String resourceType;
 
     @NotNull
     @Min(1)
-    private Integer zahtevanrKolicina;
+    private Integer requestedQuantity;
 
     @NotNull
-    private Boolean postojiUSistemu;
+    private Boolean existsInSystem;
 
-    private String statusResursa;
+    private String resourceStatus;
 
-    private String razlogOdbijanja;
+    private String rejectionReason;
 }

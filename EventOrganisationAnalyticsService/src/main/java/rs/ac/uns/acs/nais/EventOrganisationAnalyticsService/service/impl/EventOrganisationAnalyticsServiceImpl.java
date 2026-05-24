@@ -21,8 +21,8 @@ public class EventOrganisationAnalyticsServiceImpl implements EventOrganisationA
 
     @Override
     public ReservationSearchQueryResponse searchReservationsByPerformerText(
-            String searchText, String status, String zanr) throws IOException {
-        return analyticsRepository.searchReservationsByPerformerText(searchText, status, zanr);
+            String searchText, String status, String genre) throws IOException {
+        return analyticsRepository.searchReservationsByPerformerText(searchText, status, genre);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class EventOrganisationAnalyticsServiceImpl implements EventOrganisationA
 
     @Override
     public ResourceUtilizationReportResponse getResourceUtilizationReport(
-            LocalDate from, LocalDate to, String binaId) throws IOException {
-        return analyticsRepository.getResourceUtilizationReport(from, to, binaId);
+            LocalDate from, LocalDate to, String stageId) throws IOException {
+        return analyticsRepository.getResourceUtilizationReport(from, to, stageId);
     }
 }

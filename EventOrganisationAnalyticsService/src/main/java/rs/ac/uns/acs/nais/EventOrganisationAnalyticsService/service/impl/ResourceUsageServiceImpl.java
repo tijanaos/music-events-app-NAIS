@@ -41,43 +41,43 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     }
 
     @Override
-    public List<ResourceUsageResponse> findByBinaId(String binaId) {
-        return repository.findByBinaId(binaId).stream()
+    public List<ResourceUsageResponse> findByStageId(String stageId) {
+        return repository.findByStageId(stageId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ResourceUsageResponse> findByResursId(String resursId) {
-        return repository.findByResursId(resursId).stream()
+    public List<ResourceUsageResponse> findByResourceId(String resourceId) {
+        return repository.findByResourceId(resourceId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ResourceUsageResponse> findByTipResursa(String tipResursa) {
-        return repository.findByTipResursa(tipResursa).stream()
+    public List<ResourceUsageResponse> findByResourceType(String resourceType) {
+        return repository.findByResourceType(resourceType).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ResourceUsageResponse> findByPeriod(LocalDate from, LocalDate to) {
-        return repository.findByDatumBetween(from, to).stream()
+        return repository.findByDateBetween(from, to).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ResourceUsageResponse> findPozajmice() {
-        return repository.findByPozajmljenoSaBineTrue().stream()
+    public List<ResourceUsageResponse> findBorrowedResources() {
+        return repository.findByBorrowedFromStageTrue().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ResourceUsageResponse> findByRezervacijaId(String rezervacijaId) {
-        return repository.findByRezervacijaId(rezervacijaId).stream()
+    public List<ResourceUsageResponse> findByReservationId(String reservationId) {
+        return repository.findByReservationId(reservationId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -98,47 +98,47 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
 
     private ResourceUsageDocument getOrThrow(String id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Koriscenje resursa nije pronadjeno: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource usage not found: " + id));
     }
 
     private ResourceUsageDocument toDocument(ResourceUsageDto dto) {
         return ResourceUsageDocument.builder()
-                .resursId(dto.getResursId())
-                .nazivResursa(dto.getNazivResursa())
-                .tipResursa(dto.getTipResursa())
-                .prenosiv(dto.getPrenosiv())
-                .dodeljenaKolicina(dto.getDodeljenaKolicina())
-                .binaId(dto.getBinaId())
-                .nazivBine(dto.getNazivBine())
-                .tipBine(dto.getTipBine())
-                .terminId(dto.getTerminId())
-                .datum(dto.getDatum())
-                .vremePocetka(dto.getVremePocetka())
-                .vremeKraja(dto.getVremeKraja())
-                .pozajmljenoSaBine(dto.getPozajmljenoSaBine())
-                .nazivBinePozajmice(dto.getNazivBinePozajmice())
-                .rezervacijaId(dto.getRezervacijaId())
+                .resourceId(dto.getResourceId())
+                .resourceName(dto.getResourceName())
+                .resourceType(dto.getResourceType())
+                .portable(dto.getPortable())
+                .allocatedQuantity(dto.getAllocatedQuantity())
+                .stageId(dto.getStageId())
+                .stageName(dto.getStageName())
+                .stageType(dto.getStageType())
+                .timeSlotId(dto.getTimeSlotId())
+                .date(dto.getDate())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .borrowedFromStage(dto.getBorrowedFromStage())
+                .borrowingStageName(dto.getBorrowingStageName())
+                .reservationId(dto.getReservationId())
                 .build();
     }
 
     private ResourceUsageResponse toResponse(ResourceUsageDocument doc) {
         return ResourceUsageResponse.builder()
                 .id(doc.getId())
-                .resursId(doc.getResursId())
-                .nazivResursa(doc.getNazivResursa())
-                .tipResursa(doc.getTipResursa())
-                .prenosiv(doc.getPrenosiv())
-                .dodeljenaKolicina(doc.getDodeljenaKolicina())
-                .binaId(doc.getBinaId())
-                .nazivBine(doc.getNazivBine())
-                .tipBine(doc.getTipBine())
-                .terminId(doc.getTerminId())
-                .datum(doc.getDatum())
-                .vremePocetka(doc.getVremePocetka())
-                .vremeKraja(doc.getVremeKraja())
-                .pozajmljenoSaBine(doc.getPozajmljenoSaBine())
-                .nazivBinePozajmice(doc.getNazivBinePozajmice())
-                .rezervacijaId(doc.getRezervacijaId())
+                .resourceId(doc.getResourceId())
+                .resourceName(doc.getResourceName())
+                .resourceType(doc.getResourceType())
+                .portable(doc.getPortable())
+                .allocatedQuantity(doc.getAllocatedQuantity())
+                .stageId(doc.getStageId())
+                .stageName(doc.getStageName())
+                .stageType(doc.getStageType())
+                .timeSlotId(doc.getTimeSlotId())
+                .date(doc.getDate())
+                .startTime(doc.getStartTime())
+                .endTime(doc.getEndTime())
+                .borrowedFromStage(doc.getBorrowedFromStage())
+                .borrowingStageName(doc.getBorrowingStageName())
+                .reservationId(doc.getReservationId())
                 .build();
     }
 }

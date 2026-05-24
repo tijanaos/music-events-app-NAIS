@@ -41,9 +41,9 @@ public class ReservationRequestController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/by-bina/{binaId}")
-    public ResponseEntity<List<ReservationRequestResponse>> findByBina(@PathVariable String binaId) {
-        return ResponseEntity.ok(service.findByBinaId(binaId));
+    @GetMapping("/by-stage/{stageId}")
+    public ResponseEntity<List<ReservationRequestResponse>> findByStage(@PathVariable String stageId) {
+        return ResponseEntity.ok(service.findByStageId(stageId));
     }
 
     @GetMapping("/by-status")
@@ -51,9 +51,9 @@ public class ReservationRequestController {
         return ResponseEntity.ok(service.findByStatus(status));
     }
 
-    @GetMapping("/by-izvodjac/{izvodjacId}")
-    public ResponseEntity<List<ReservationRequestResponse>> findByIzvodjac(@PathVariable String izvodjacId) {
-        return ResponseEntity.ok(service.findByIzvodjacId(izvodjacId));
+    @GetMapping("/by-performer/{performerId}")
+    public ResponseEntity<List<ReservationRequestResponse>> findByPerformer(@PathVariable String performerId) {
+        return ResponseEntity.ok(service.findByPerformerId(performerId));
     }
 
     @GetMapping("/with-tasks")

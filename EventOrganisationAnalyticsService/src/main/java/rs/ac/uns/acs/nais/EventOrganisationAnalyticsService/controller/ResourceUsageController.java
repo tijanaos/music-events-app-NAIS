@@ -43,19 +43,19 @@ public class ResourceUsageController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @GetMapping("/by-bina/{binaId}")
-    public ResponseEntity<List<ResourceUsageResponse>> findByBina(@PathVariable String binaId) {
-        return ResponseEntity.ok(service.findByBinaId(binaId));
+    @GetMapping("/by-stage/{stageId}")
+    public ResponseEntity<List<ResourceUsageResponse>> findByStage(@PathVariable String stageId) {
+        return ResponseEntity.ok(service.findByStageId(stageId));
     }
 
-    @GetMapping("/by-resurs/{resursId}")
-    public ResponseEntity<List<ResourceUsageResponse>> findByResurs(@PathVariable String resursId) {
-        return ResponseEntity.ok(service.findByResursId(resursId));
+    @GetMapping("/by-resource/{resourceId}")
+    public ResponseEntity<List<ResourceUsageResponse>> findByResource(@PathVariable String resourceId) {
+        return ResponseEntity.ok(service.findByResourceId(resourceId));
     }
 
-    @GetMapping("/by-tip")
-    public ResponseEntity<List<ResourceUsageResponse>> findByTip(@RequestParam String tip) {
-        return ResponseEntity.ok(service.findByTipResursa(tip));
+    @GetMapping("/by-type")
+    public ResponseEntity<List<ResourceUsageResponse>> findByType(@RequestParam String type) {
+        return ResponseEntity.ok(service.findByResourceType(type));
     }
 
     @GetMapping("/by-period")
@@ -65,14 +65,14 @@ public class ResourceUsageController {
         return ResponseEntity.ok(service.findByPeriod(from, to));
     }
 
-    @GetMapping("/pozajmice")
-    public ResponseEntity<List<ResourceUsageResponse>> findPozajmice() {
-        return ResponseEntity.ok(service.findPozajmice());
+    @GetMapping("/borrowed")
+    public ResponseEntity<List<ResourceUsageResponse>> findBorrowedResources() {
+        return ResponseEntity.ok(service.findBorrowedResources());
     }
 
-    @GetMapping("/by-rezervacija/{rezervacijaId}")
-    public ResponseEntity<List<ResourceUsageResponse>> findByRezervacija(@PathVariable String rezervacijaId) {
-        return ResponseEntity.ok(service.findByRezervacijaId(rezervacijaId));
+    @GetMapping("/by-reservation/{reservationId}")
+    public ResponseEntity<List<ResourceUsageResponse>> findByReservation(@PathVariable String reservationId) {
+        return ResponseEntity.ok(service.findByReservationId(reservationId));
     }
 
     @PutMapping("/{id}")

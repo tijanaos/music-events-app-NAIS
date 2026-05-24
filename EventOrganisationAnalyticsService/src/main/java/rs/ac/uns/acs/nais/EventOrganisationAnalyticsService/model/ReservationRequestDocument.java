@@ -14,7 +14,6 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Document(indexName = "reservation-requests")
@@ -29,68 +28,63 @@ public class ReservationRequestDocument {
     @Id
     private String id;
 
-    // Zahtev za rezervaciju
-    @Field(name = "status_zahteva", type = FieldType.Keyword)
-    private String statusZahteva;
+    @Field(name = "request_status", type = FieldType.Keyword)
+    private String requestStatus;
 
-    @Field(name = "datum_slanja", type = FieldType.Date, format = DateFormat.date)
-    private LocalDate datumSlanja;
+    @Field(name = "sent_date", type = FieldType.Date, format = DateFormat.date)
+    private LocalDate sentDate;
 
-    @Field(name = "datum_azuriranja", type = FieldType.Date, format = DateFormat.date)
-    private LocalDate datumAzuriranja;
+    @Field(name = "updated_date", type = FieldType.Date, format = DateFormat.date)
+    private LocalDate updatedDate;
 
-    @Field(name = "napomena", type = FieldType.Text)
-    private String napomena;
+    @Field(name = "note", type = FieldType.Text)
+    private String note;
 
-    // Denormalizovani podaci o bini
-    @Field(name = "bina_id", type = FieldType.Keyword)
-    private String binaId;
+    @Field(name = "stage_id", type = FieldType.Keyword)
+    private String stageId;
 
-    @Field(name = "naziv_bine", type = FieldType.Text)
-    private String nazivBine;
+    @Field(name = "stage_name", type = FieldType.Text)
+    private String stageName;
 
-    @Field(name = "tip_bine", type = FieldType.Keyword)
-    private String tipBine;
+    @Field(name = "stage_type", type = FieldType.Keyword)
+    private String stageType;
 
-    @Field(name = "kapacitet_bine", type = FieldType.Integer)
-    private Integer kapacitetBine;
+    @Field(name = "stage_capacity", type = FieldType.Integer)
+    private Integer stageCapacity;
 
-    // Denormalizovani podaci o izvodjaci
-    @Field(name = "izvodjac_id", type = FieldType.Keyword)
-    private String izvodjacId;
+    @Field(name = "performer_id", type = FieldType.Keyword)
+    private String performerId;
 
-    @Field(name = "ime_izvodjaca", type = FieldType.Text)
-    private String imeIzvodjaca;
+    @Field(name = "performer_first_name", type = FieldType.Text)
+    private String performerFirstName;
 
-    @Field(name = "prezime_izvodjaca", type = FieldType.Text)
-    private String prezimeIzvodjaca;
+    @Field(name = "performer_last_name", type = FieldType.Text)
+    private String performerLastName;
 
-    @Field(name = "zanr", type = FieldType.Keyword)
-    private String zanr;
+    @Field(name = "genre", type = FieldType.Keyword)
+    private String genre;
 
-    @Field(name = "popularnost", type = FieldType.Double)
-    private Double popularnost;
+    @Field(name = "popularity", type = FieldType.Double)
+    private Double popularity;
 
-    // Denormalizovani podaci o terminu
-    @Field(name = "datum_nastupa", type = FieldType.Date, format = DateFormat.date)
-    private LocalDate datumNastupa;
+    @Field(name = "performance_date", type = FieldType.Date, format = DateFormat.date)
+    private LocalDate performanceDate;
 
-    @Field(name = "vreme_pocetka", type = FieldType.Integer)
-    private Integer vremePocetka;
+    @Field(name = "start_time", type = FieldType.Integer)
+    private Integer startTime;
 
-    @Field(name = "vreme_kraja", type = FieldType.Integer)
-    private Integer vremeKraja;
+    @Field(name = "end_time", type = FieldType.Integer)
+    private Integer endTime;
 
-    // Resursi iz zahteva
-    @Field(name = "zahtevani_resursi", type = FieldType.Nested)
-    private List<ZahtevaniResursItem> zahtevanihResursa;
+    @Field(name = "requested_resources", type = FieldType.Nested)
+    private List<RequestedResourceItem> requestedResources;
 
-    @Field(name = "ima_taskove", type = FieldType.Boolean)
-    private Boolean imaTaskove;
+    @Field(name = "has_tasks", type = FieldType.Boolean)
+    private Boolean hasTasks;
 
-    @Field(name = "broj_taskova", type = FieldType.Integer)
-    private Integer brojTaskova;
+    @Field(name = "task_count", type = FieldType.Integer)
+    private Integer taskCount;
 
-    @Field(name = "detalji_nastupa", type = FieldType.Text)
-    private String detaljiNastupa;
+    @Field(name = "performance_details", type = FieldType.Text)
+    private String performanceDetails;
 }

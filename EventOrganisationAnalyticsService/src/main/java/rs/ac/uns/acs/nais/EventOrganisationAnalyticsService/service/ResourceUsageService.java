@@ -14,17 +14,17 @@ public interface ResourceUsageService {
 
     List<ResourceUsageResponse> findAll();
 
-    List<ResourceUsageResponse> findByBinaId(String binaId);
+    List<ResourceUsageResponse> findByStageId(String stageId);
 
-    List<ResourceUsageResponse> findByResursId(String resursId);
+    List<ResourceUsageResponse> findByResourceId(String resourceId);
 
-    List<ResourceUsageResponse> findByTipResursa(String tipResursa);
+    List<ResourceUsageResponse> findByResourceType(String resourceType);
 
     List<ResourceUsageResponse> findByPeriod(LocalDate from, LocalDate to);
 
-    List<ResourceUsageResponse> findPozajmice();
+    List<ResourceUsageResponse> findBorrowedResources();
 
-    List<ResourceUsageResponse> findByRezervacijaId(String rezervacijaId);
+    List<ResourceUsageResponse> findByReservationId(String reservationId);
 
     ResourceUsageResponse update(String id, ResourceUsageDto dto);
 

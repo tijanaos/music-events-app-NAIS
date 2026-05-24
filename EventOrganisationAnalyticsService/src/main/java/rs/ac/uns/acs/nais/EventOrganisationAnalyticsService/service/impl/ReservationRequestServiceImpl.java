@@ -3,11 +3,11 @@ package rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.request.ReservationRequestDto;
-import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.request.ZahtevaniResursItemRequest;
+import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.request.RequestedResourceItemRequest;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ReservationRequestResponse;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.exception.ResourceNotFoundException;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.ReservationRequestDocument;
-import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.ZahtevaniResursItem;
+import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.model.RequestedResourceItem;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.repository.ReservationRequestRepository;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.service.ReservationRequestService;
 
@@ -42,29 +42,29 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
     }
 
     @Override
-    public List<ReservationRequestResponse> findByBinaId(String binaId) {
-        return repository.findByBinaId(binaId).stream()
+    public List<ReservationRequestResponse> findByStageId(String stageId) {
+        return repository.findByStageId(stageId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ReservationRequestResponse> findByStatus(String status) {
-        return repository.findByStatusZahteva(status).stream()
+        return repository.findByRequestStatus(status).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ReservationRequestResponse> findByIzvodjacId(String izvodjacId) {
-        return repository.findByIzvodjacId(izvodjacId).stream()
+    public List<ReservationRequestResponse> findByPerformerId(String performerId) {
+        return repository.findByPerformerId(performerId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ReservationRequestResponse> findWithTasks() {
-        return repository.findByImaTaskoveTrue().stream()
+        return repository.findByHasTasksTrue().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -85,73 +85,73 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
 
     private ReservationRequestDocument getOrThrow(String id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Zahtev za rezervaciju nije pronadjen: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation request not found: " + id));
     }
 
     private ReservationRequestDocument toDocument(ReservationRequestDto dto) {
-        List<ZahtevaniResursItem> resursi = dto.getZahtevanihResursa() == null ? List.of() :
-                dto.getZahtevanihResursa().stream()
-                        .map(this::toResursItem)
+        List<RequestedResourceItem> resources = dto.getRequestedResources() == null ? List.of() :
+                dto.getRequestedResources().stream()
+                        .map(this::toResourceItem)
                         .collect(Collectors.toList());
 
         return ReservationRequestDocument.builder()
-                .statusZahteva(dto.getStatusZahteva())
-                .datumSlanja(dto.getDatumSlanja())
-                .datumAzuriranja(dto.getDatumAzuriranja())
-                .napomena(dto.getNapomena())
-                .binaId(dto.getBinaId())
-                .nazivBine(dto.getNazivBine())
-                .tipBine(dto.getTipBine())
-                .kapacitetBine(dto.getKapacitetBine())
-                .izvodjacId(dto.getIzvodjacId())
-                .imeIzvodjaca(dto.getImeIzvodjaca())
-                .prezimeIzvodjaca(dto.getPrezimeIzvodjaca())
-                .zanr(dto.getZanr())
-                .popularnost(dto.getPopularnost())
-                .datumNastupa(dto.getDatumNastupa())
-                .vremePocetka(dto.getVremePocetka())
-                .vremeKraja(dto.getVremeKraja())
-                .zahtevanihResursa(resursi)
-                .imaTaskove(dto.getImaTaskove())
-                .brojTaskova(dto.getBrojTaskova())
-                .detaljiNastupa(dto.getDetaljiNastupa())
+                .requestStatus(dto.getRequestStatus())
+                .sentDate(dto.getSentDate())
+                .updatedDate(dto.getUpdatedDate())
+                .note(dto.getNote())
+                .stageId(dto.getStageId())
+                .stageName(dto.getStageName())
+                .stageType(dto.getStageType())
+                .stageCapacity(dto.getStageCapacity())
+                .performerId(dto.getPerformerId())
+                .performerFirstName(dto.getPerformerFirstName())
+                .performerLastName(dto.getPerformerLastName())
+                .genre(dto.getGenre())
+                .popularity(dto.getPopularity())
+                .performanceDate(dto.getPerformanceDate())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .requestedResources(resources)
+                .hasTasks(dto.getHasTasks())
+                .taskCount(dto.getTaskCount())
+                .performanceDetails(dto.getPerformanceDetails())
                 .build();
     }
 
-    private ZahtevaniResursItem toResursItem(ZahtevaniResursItemRequest req) {
-        return ZahtevaniResursItem.builder()
-                .nazivResursa(req.getNazivResursa())
-                .tipResursa(req.getTipResursa())
-                .zahtevanrKolicina(req.getZahtevanrKolicina())
-                .postojiUSistemu(req.getPostojiUSistemu())
-                .statusResursa(req.getStatusResursa())
-                .razlogOdbijanja(req.getRazlogOdbijanja())
+    private RequestedResourceItem toResourceItem(RequestedResourceItemRequest req) {
+        return RequestedResourceItem.builder()
+                .resourceName(req.getResourceName())
+                .resourceType(req.getResourceType())
+                .requestedQuantity(req.getRequestedQuantity())
+                .existsInSystem(req.getExistsInSystem())
+                .resourceStatus(req.getResourceStatus())
+                .rejectionReason(req.getRejectionReason())
                 .build();
     }
 
     private ReservationRequestResponse toResponse(ReservationRequestDocument doc) {
         return ReservationRequestResponse.builder()
                 .id(doc.getId())
-                .statusZahteva(doc.getStatusZahteva())
-                .datumSlanja(doc.getDatumSlanja())
-                .datumAzuriranja(doc.getDatumAzuriranja())
-                .napomena(doc.getNapomena())
-                .binaId(doc.getBinaId())
-                .nazivBine(doc.getNazivBine())
-                .tipBine(doc.getTipBine())
-                .kapacitetBine(doc.getKapacitetBine())
-                .izvodjacId(doc.getIzvodjacId())
-                .imeIzvodjaca(doc.getImeIzvodjaca())
-                .prezimeIzvodjaca(doc.getPrezimeIzvodjaca())
-                .zanr(doc.getZanr())
-                .popularnost(doc.getPopularnost())
-                .datumNastupa(doc.getDatumNastupa())
-                .vremePocetka(doc.getVremePocetka())
-                .vremeKraja(doc.getVremeKraja())
-                .zahtevanihResursa(doc.getZahtevanihResursa())
-                .imaTaskove(doc.getImaTaskove())
-                .brojTaskova(doc.getBrojTaskova())
-                .detaljiNastupa(doc.getDetaljiNastupa())
+                .requestStatus(doc.getRequestStatus())
+                .sentDate(doc.getSentDate())
+                .updatedDate(doc.getUpdatedDate())
+                .note(doc.getNote())
+                .stageId(doc.getStageId())
+                .stageName(doc.getStageName())
+                .stageType(doc.getStageType())
+                .stageCapacity(doc.getStageCapacity())
+                .performerId(doc.getPerformerId())
+                .performerFirstName(doc.getPerformerFirstName())
+                .performerLastName(doc.getPerformerLastName())
+                .genre(doc.getGenre())
+                .popularity(doc.getPopularity())
+                .performanceDate(doc.getPerformanceDate())
+                .startTime(doc.getStartTime())
+                .endTime(doc.getEndTime())
+                .requestedResources(doc.getRequestedResources())
+                .hasTasks(doc.getHasTasks())
+                .taskCount(doc.getTaskCount())
+                .performanceDetails(doc.getPerformanceDetails())
                 .build();
     }
 }

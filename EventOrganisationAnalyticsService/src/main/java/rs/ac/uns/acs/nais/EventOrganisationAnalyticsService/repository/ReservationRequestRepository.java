@@ -9,11 +9,11 @@ import java.util.List;
 @Repository
 public interface ReservationRequestRepository extends ElasticsearchRepository<ReservationRequestDocument, String> {
 
-    List<ReservationRequestDocument> findByBinaId(String binaId);
+    List<ReservationRequestDocument> findByStageId(String stageId);
 
-    List<ReservationRequestDocument> findByStatusZahteva(String statusZahteva);
+    List<ReservationRequestDocument> findByRequestStatus(String requestStatus);
 
-    List<ReservationRequestDocument> findByIzvodjacId(String izvodjacId);
+    List<ReservationRequestDocument> findByPerformerId(String performerId);
 
-    List<ReservationRequestDocument> findByImaTaskoveTrue();
+    List<ReservationRequestDocument> findByHasTasksTrue();
 }

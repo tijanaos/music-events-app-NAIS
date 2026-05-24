@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ResourceUsageByStageResponse {
 
-    private String nazivBine;
-    private Long ukupnoKoriscenja;
-    private List<AggregationBucketResponse> najkoriscenijiResursi;
+    private String stageName;
+    private Long totalUsageCount;
+    private List<AggregationBucketResponse> mostUsedResources;
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public interface EventOrganisationAnalyticsService {
 
     ReservationSearchQueryResponse searchReservationsByPerformerText(
-            String searchText, String status, String zanr) throws IOException;
+            String searchText, String status, String genre) throws IOException;
 
     List<ResourceUsageByStageResponse> getMostUsedResourcesByStage() throws IOException;
 
@@ -22,5 +22,5 @@ public interface EventOrganisationAnalyticsService {
     List<AggregationBucketResponse> getReservationsWithMissingResourcesByStage() throws IOException;
 
     ResourceUtilizationReportResponse getResourceUtilizationReport(
-            LocalDate from, LocalDate to, String binaId) throws IOException;
+            LocalDate from, LocalDate to, String stageId) throws IOException;
 }

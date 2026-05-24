@@ -28,52 +28,52 @@ public class ResourceUsageDocument {
     private String id;
 
     // Resurs
-    @Field(name = "resurs_id", type = FieldType.Keyword)
-    private String resursId;
+    @Field(name = "resource_id", type = FieldType.Keyword)
+    private String resourceId;
 
-    @Field(name = "naziv_resursa", type = FieldType.Text)
-    private String nazivResursa;
+    @Field(name = "resource_name", type = FieldType.Text)
+    private String resourceName;
 
-    @Field(name = "tip_resursa", type = FieldType.Keyword)
-    private String tipResursa;
+    @Field(name = "resource_type", type = FieldType.Keyword)
+    private String resourceType;
 
-    @Field(name = "prenosiv", type = FieldType.Boolean)
-    private Boolean prenosiv;
+    @Field(name = "portable", type = FieldType.Boolean)
+    private Boolean portable;
 
-    @Field(name = "dodeljena_kolicina", type = FieldType.Integer)
-    private Integer dodeljenaKolicina;
+    @Field(name = "allocated_quantity", type = FieldType.Integer)
+    private Integer allocatedQuantity;
 
     // Bina na kojoj se koristi resurs
-    @Field(name = "bina_id", type = FieldType.Keyword)
-    private String binaId;
+    @Field(name = "stage_id", type = FieldType.Keyword)
+    private String stageId;
 
-    @Field(name = "naziv_bine", type = FieldType.Text)
-    private String nazivBine;
+    @Field(name = "stage_name", type = FieldType.Text)
+    private String stageName;
 
-    @Field(name = "tip_bine", type = FieldType.Keyword)
-    private String tipBine;
+    @Field(name = "stage_type", type = FieldType.Keyword)
+    private String stageType;
 
     // Termin koriscenja
-    @Field(name = "termin_id", type = FieldType.Keyword)
-    private String terminId;
+    @Field(name = "time_slot_id", type = FieldType.Keyword)
+    private String timeSlotId;
 
-    @Field(name = "datum", type = FieldType.Date, format = DateFormat.date)
-    private LocalDate datum;
+    @Field(name = "date", type = FieldType.Date, format = DateFormat.date)
+    private LocalDate date;
 
-    @Field(name = "vreme_pocetka", type = FieldType.Integer)
-    private Integer vremePocetka;
+    @Field(name = "start_time", type = FieldType.Integer)
+    private Integer startTime;
 
-    @Field(name = "vreme_kraja", type = FieldType.Integer)
-    private Integer vremeKraja;
+    @Field(name = "end_time", type = FieldType.Integer)
+    private Integer endTime;
 
     // Pozajmica sa druge bine
-    @Field(name = "pozajmljeno_sa_bine", type = FieldType.Boolean)
-    private Boolean pozajmljenoSaBine;
+    @Field(name = "borrowed_from_stage", type = FieldType.Boolean)
+    private Boolean borrowedFromStage;
 
-    @Field(name = "naziv_bine_pozajmice", type = FieldType.Keyword)
-    private String nazivBinePozajmice;
+    @Field(name = "borrowing_stage_name", type = FieldType.Keyword)
+    private String borrowingStageName;
 
     // Veza sa zahtevom
-    @Field(name = "rezervacija_id", type = FieldType.Keyword)
-    private String rezervacijaId;
+    @Field(name = "reservation_id", type = FieldType.Keyword)
+    private String reservationId;
 }

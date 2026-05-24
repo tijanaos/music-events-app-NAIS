@@ -13,11 +13,11 @@ public interface ReservationRequestService {
 
     List<ReservationRequestResponse> findAll();
 
-    List<ReservationRequestResponse> findByBinaId(String binaId);
+    List<ReservationRequestResponse> findByStageId(String stageId);
 
     List<ReservationRequestResponse> findByStatus(String status);
 
-    List<ReservationRequestResponse> findByIzvodjacId(String izvodjacId);
+    List<ReservationRequestResponse> findByPerformerId(String performerId);
 
     List<ReservationRequestResponse> findWithTasks();
 
