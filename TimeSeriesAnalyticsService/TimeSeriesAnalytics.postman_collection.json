@@ -1,0 +1,299 @@
+{
+  "info": {
+    "name": "TimeSeriesAnalyticsService",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:9090", "type": "string" },
+    { "key": "gatewayUrl", "value": "http://localhost:9003/time-series-analytics-service", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Kupovine",
+      "item": [
+        {
+          "name": "GET sve kupovine",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/kupovine?start=-6mo&stop=now()",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kupovine"],
+              "query": [
+                { "key": "start", "value": "-6mo" },
+                { "key": "stop", "value": "now()" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST nova kupovina",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/kupovine",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kupovine"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"festivalId\": \"F001\",\n  \"nazivFestivala\": \"EXIT Festival\",\n  \"tipKarte\": \"VIP All Access\",\n  \"tierKupca\": \"GOLD\",\n  \"promoKoriscen\": false,\n  \"kolicina\": 2,\n  \"ukupnaCena\": 32000.0,\n  \"time\": \"2025-06-15T20:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST kupovina sa promo kodom",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/kupovine",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kupovine"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"festivalId\": \"F002\",\n  \"nazivFestivala\": \"Belgrade Beer Fest\",\n  \"tipKarte\": \"Regular\",\n  \"tierKupca\": \"BRONZE\",\n  \"promoKoriscen\": true,\n  \"kolicina\": 3,\n  \"ukupnaCena\": 11250.0,\n  \"time\": \"2025-08-10T18:30:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE kupovine po opsegu i filteru",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/kupovine",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kupovine"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"2025-06-01T00:00:00Z\",\n  \"stop\": \"2025-06-30T23:59:59Z\",\n  \"festivalId\": \"F001\",\n  \"tipKarte\": \"VIP All Access\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE kupovine ceo opseg (bez filtera)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/kupovine",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kupovine"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"2025-08-01T00:00:00Z\",\n  \"stop\": \"2025-08-31T23:59:59Z\",\n  \"festivalId\": null,\n  \"tipKarte\": null\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Promene Cene",
+      "item": [
+        {
+          "name": "GET sve promene cena",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/promene-cene?start=-1y&stop=now()",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "promene-cene"],
+              "query": [
+                { "key": "start", "value": "-1y" },
+                { "key": "stop", "value": "now()" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST nova promena cene",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/promene-cene",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "promene-cene"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"festivalId\": \"F001\",\n  \"nazivFestivala\": \"EXIT Festival\",\n  \"tipKarte\": \"VIP All Access\",\n  \"razlog\": \"POVECANJE_TRAZNJE\",\n  \"staraCena\": 15000.0,\n  \"novaCena\": 17500.0,\n  \"time\": \"2025-05-01T10:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST promena cene - promo akcija (snizenje)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/promene-cene",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "promene-cene"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"festivalId\": \"F003\",\n  \"nazivFestivala\": \"Guca Trumpet Festival\",\n  \"tipKarte\": \"Regular\",\n  \"razlog\": \"PROMO_AKCIJA\",\n  \"staraCena\": 5500.0,\n  \"novaCena\": 4700.0,\n  \"time\": \"2025-07-15T09:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE promene cene po festivalu",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/promene-cene",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "promene-cene"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"start\": \"2025-05-01T00:00:00Z\",\n  \"stop\": \"2025-05-31T23:59:59Z\",\n  \"festivalId\": \"F001\",\n  \"tipKarte\": null\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Upit 1 - Nedeljni prihod po tipu karte i tieru (sve kupovine)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/nedeljni-prihod?start=-6mo&stop=now()&ukljuciPromo=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "nedeljni-prihod"],
+              "query": [
+                { "key": "start", "value": "-6mo" },
+                { "key": "stop", "value": "now()" },
+                { "key": "ukljuciPromo", "value": "true" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upit 1 - Nedeljni prihod (bez promo kupovina)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/nedeljni-prihod?start=-1y&stop=now()&ukljuciPromo=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "nedeljni-prihod"],
+              "query": [
+                { "key": "start", "value": "-1y" },
+                { "key": "stop", "value": "now()" },
+                { "key": "ukljuciPromo", "value": "false" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upit 2 - Rang kupaca po ukupnoj potrosnji (svi tipovi)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/rang-kupaca?start=-1y&stop=now()",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "rang-kupaca"],
+              "query": [
+                { "key": "start", "value": "-1y" },
+                { "key": "stop", "value": "now()" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upit 2 - Rang kupaca filtrirano po tipu karte (VIP)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/rang-kupaca?start=-1y&stop=now()&tipKarte=VIP All Access",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "rang-kupaca"],
+              "query": [
+                { "key": "start", "value": "-1y" },
+                { "key": "stop", "value": "now()" },
+                { "key": "tipKarte", "value": "VIP All Access" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upit 3 - Mesecni rast cena (default: POVECANJE_TRAZNJE)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/rast-cena?start=-2y&stop=now()",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "rast-cena"],
+              "query": [
+                { "key": "start", "value": "-2y" },
+                { "key": "stop", "value": "now()" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upit 3 - Mesecni rast cena (SEZONSKI_FAKTOR)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/rast-cena?start=-2y&stop=now()&razlog=SEZONSKI_FAKTOR",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "rast-cena"],
+              "query": [
+                { "key": "start", "value": "-2y" },
+                { "key": "stop", "value": "now()" },
+                { "key": "razlog", "value": "SEZONSKI_FAKTOR" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Via Gateway",
+      "item": [
+        {
+          "name": "GET kupovine (via gateway)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gatewayUrl}}/api/kupovine?start=-6mo&stop=now()",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "kupovine"],
+              "query": [
+                { "key": "start", "value": "-6mo" },
+                { "key": "stop", "value": "now()" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET nedeljni prihod (via gateway)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gatewayUrl}}/api/analytics/nedeljni-prihod?start=-6mo&stop=now()&ukljuciPromo=true",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "analytics", "nedeljni-prihod"],
+              "query": [
+                { "key": "start", "value": "-6mo" },
+                { "key": "stop", "value": "now()" },
+                { "key": "ukljuciPromo", "value": "true" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
