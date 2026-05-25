@@ -8,6 +8,7 @@ from model.kampanja import (
 )
 from repositroy.kampanja_repository import kampanja_repository
 from services.embedding_service import embedding_service
+from services.redis_service import redis_service
 
 
 class KampanjaService:
@@ -244,6 +245,21 @@ class KampanjaService:
         max_budzet: Optional[float] = None,
         top_k: int = 10,
     ) -> list[dict]:
+        cache_key = redis_service.make_hash_key(
+            {
+                "query": query.strip(),
+                "status_kampanje": status_kampanje,
+                "kanal": kanal,
+                "ciljna_grupa": ciljna_grupa,
+                "min_budzet": min_budzet,
+                "max_budzet": max_budzet,
+                "top_k": top_k,
+            }
+        )
+        cached_response = redis_service.get_json("kampanja-semantic-search", cache_key)
+        if cached_response is not None:
+            return cached_response
+
         query_vector = embedding_service.encode_text_one(query)
 
         filter_expr = self._build_filter(
@@ -254,11 +270,13 @@ class KampanjaService:
             max_budzet=max_budzet,
         )
 
-        return kampanja_repository.search(
+        results = kampanja_repository.search(
             query_vector=query_vector,
             top_k=top_k,
             filter_expr=filter_expr,
         )
+        redis_service.set_json("kampanja-semantic-search", cache_key, results)
+        return results
 
     # ─────────────────────────────────────────────────────────────────────────
     # VECTOR SEARCH + FILTERING + ITERATOR
