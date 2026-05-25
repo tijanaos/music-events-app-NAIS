@@ -291,7 +291,8 @@ public class EventOrganisationAnalyticsRepository {
     private Query matchQuery(String field, String text) {
         return Query.of(query -> query.match(match -> match
                 .field(field)
-                .query(text)));
+                .query(text)
+                .fuzziness("AUTO")));
     }
 
     private Query termQuery(String field, String value) {
