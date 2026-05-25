@@ -36,7 +36,7 @@ public class EventOrganisationAnalyticsRepository {
 
     private final ElasticsearchClient elasticsearchClient;
 
-    // Upit 1 (TEXT SEARCH):
+    // Upit 1:
     // Pretraga zahteva za rezervaciju po imenu/prezimenu izvodjaca ili napomeni,
     // uz opcioni filter po statusu i zanru, sortiranje po popularnosti,
     // i agregaciju koja broji zahteve po statusu.
@@ -82,7 +82,7 @@ public class EventOrganisationAnalyticsRepository {
 
     // Upit 2:
     // Najkorisceniji resursi po bini - terms agregacija po nazivu bine,
-    // sa sub-agregacijom koja broji top 5 resursa po bini i sumira dodeljenu kolicinu.
+    // sa ugnjezdenim agregacijama koja broji top 5 resursa po bini i sumira dodeljenu kolicinu
     public List<ResourceUsageByStageResponse> getMostUsedResourcesByStage() throws IOException {
 
         SearchResponse<ResourceUsageDocument> response = elasticsearchClient.search(search -> search
@@ -131,17 +131,14 @@ public class EventOrganisationAnalyticsRepository {
     // Upit 3:
     // Termini sa najvecim brojem resursa - date histogram po datumu koriscenja
     // u zadatom periodu, sa sum agregacijom dodeljene kolicine,
-    // sortirani opadajuce po ukupnoj kolicini resursa.
+    // sortirani opadajuce po ukupnoj kolicini resursa
     public List<AggregationBucketResponse> getTimeSlotsWithMostResources(
             LocalDate from, LocalDate to) throws IOException {
 
         SearchResponse<ResourceUsageDocument> response = elasticsearchClient.search(search -> search
                         .index(RESOURCE_USAGE_INDEX)
                         .size(0)
-                        .query(query -> query.range(range -> range
-                                .field("date")
-                                .gte(JsonData.of(from.toString()))
-                                .lte(JsonData.of(to.toString()))))
+                        .query(dateRangeQuery("date", from, to))
                         .aggregations("by_date", agg -> agg
                                 .dateHistogram(dh -> dh
                                         .field("date")
@@ -172,9 +169,9 @@ public class EventOrganisationAnalyticsRepository {
     }
 
     // Upit 4:
-    // Rezervacije koje su zahtevale resurse koji ne postoje u sistemu (ima taskove),
+    // Rezervacije koje su zahtevale resurse koji ne postoje u sistemu (kreirani su taskovi),
     // grupisane po bini sa prosecnim brojem taskova po bini,
-    // sortirane opadajuce po broju takvih rezervacija.
+    // sortirane opadajuce po broju takvih rezervacija
     public List<AggregationBucketResponse> getReservationsWithMissingResourcesByStage() throws IOException {
 
         SearchResponse<ReservationRequestDocument> response = elasticsearchClient.search(search -> search
@@ -213,7 +210,7 @@ public class EventOrganisationAnalyticsRepository {
 
     // Upit 5:
     // Izvestaj o iskorisenosti resursa za zadati vremenski period i opcionalnu binu.
-    // Kombinuje dva upita: resource-usage (top resursi po frekvenciji i kolicini,
+    // Kombinuje dva upita: resource-usage (top resursi po pojavljivanju i kolicini,
     // date histogram zauzetosti) i reservation-requests (broj rezervacija sa taskovima u periodu).
     public ResourceUtilizationReportResponse getResourceUtilizationReport(
             LocalDate from, LocalDate to, String stageId) throws IOException {
