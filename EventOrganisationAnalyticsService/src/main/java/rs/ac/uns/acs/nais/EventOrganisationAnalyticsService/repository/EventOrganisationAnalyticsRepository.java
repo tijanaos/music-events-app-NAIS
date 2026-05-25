@@ -240,9 +240,14 @@ public class EventOrganisationAnalyticsRepository {
         SearchResponse<ReservationRequestDocument> reservationResponse = elasticsearchClient.search(search -> search
                         .index(RESERVATION_REQUESTS_INDEX)
                         .size(0)
-                        .query(query -> query.bool(bool -> bool
-                                .filter(termQuery("has_tasks", true))
-                                .filter(dateRangeQuery("performance_date", from, to)))),
+                        .query(query -> query.bool(bool -> {
+                            bool.filter(termQuery("has_tasks", true));
+                            bool.filter(dateRangeQuery("performance_date", from, to));
+                            if (stageId != null && !stageId.isBlank()) {
+                                bool.filter(termQuery("stage_id", stageId));
+                            }
+                            return bool;
+                        })),
                 ReservationRequestDocument.class);
 
         List<AggregationBucketResponse> resourcesByFrequency = Collections.emptyList();

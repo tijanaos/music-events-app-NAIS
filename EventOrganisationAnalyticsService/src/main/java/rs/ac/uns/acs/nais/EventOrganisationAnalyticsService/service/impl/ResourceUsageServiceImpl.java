@@ -1,7 +1,9 @@
 package rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config.CacheNames;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.request.ResourceUsageDto;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ResourceUsageResponse;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.exception.ResourceNotFoundException;
@@ -22,6 +24,13 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     private final ResourceUsageRepository repository;
 
     @Override
+    @CacheEvict(cacheNames = {
+            CacheNames.RESERVATION_SEARCH,
+            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
+            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
+            CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
+            CacheNames.RESOURCE_UTILIZATION_REPORTS
+    }, allEntries = true)
     public ResourceUsageResponse create(ResourceUsageDto dto) {
         ResourceUsageDocument doc = toDocument(dto);
         doc.setId(UUID.randomUUID().toString());
@@ -83,6 +92,13 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {
+            CacheNames.RESERVATION_SEARCH,
+            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
+            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
+            CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
+            CacheNames.RESOURCE_UTILIZATION_REPORTS
+    }, allEntries = true)
     public ResourceUsageResponse update(String id, ResourceUsageDto dto) {
         ResourceUsageDocument existing = getOrThrow(id);
         ResourceUsageDocument updated = toDocument(dto);
@@ -91,6 +107,13 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {
+            CacheNames.RESERVATION_SEARCH,
+            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
+            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
+            CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
+            CacheNames.RESOURCE_UTILIZATION_REPORTS
+    }, allEntries = true)
     public void delete(String id) {
         getOrThrow(id);
         repository.deleteById(id);

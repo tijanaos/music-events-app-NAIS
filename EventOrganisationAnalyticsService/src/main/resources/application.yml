@@ -6,6 +6,12 @@ spring:
     name: event-organisation-analytics-service
   elasticsearch:
     uris: http://localhost:9200
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 eureka:
   client:
