@@ -26,9 +26,6 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
 
     @Override
     @CacheEvict(cacheNames = {
-            CacheNames.RESERVATION_SEARCH,
-            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
             CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
             CacheNames.RESOURCE_UTILIZATION_REPORTS
     }, allEntries = true)
@@ -80,9 +77,6 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
 
     @Override
     @CacheEvict(cacheNames = {
-            CacheNames.RESERVATION_SEARCH,
-            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
             CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
             CacheNames.RESOURCE_UTILIZATION_REPORTS
     }, allEntries = true)
@@ -95,9 +89,6 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
 
     @Override
     @CacheEvict(cacheNames = {
-            CacheNames.RESERVATION_SEARCH,
-            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
             CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
             CacheNames.RESOURCE_UTILIZATION_REPORTS
     }, allEntries = true)

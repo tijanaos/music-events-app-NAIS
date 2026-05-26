@@ -22,9 +22,6 @@ public class EventOrganisationAnalyticsServiceImpl implements EventOrganisationA
     private final EventOrganisationAnalyticsRepository analyticsRepository;
 
     @Override
-    @Cacheable(
-            cacheNames = CacheNames.RESERVATION_SEARCH,
-            key = "#searchText + ':' + (#status == null || #status.isBlank() ? 'all' : #status) + ':' + (#genre == null || #genre.isBlank() ? 'all' : #genre)")
     public ReservationSearchQueryResponse searchReservationsByPerformerText(
             String searchText, String status, String genre) throws IOException {
         return analyticsRepository.searchReservationsByPerformerText(searchText, status, genre);
@@ -39,7 +36,8 @@ public class EventOrganisationAnalyticsServiceImpl implements EventOrganisationA
     @Override
     @Cacheable(
             cacheNames = CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
-            key = "#from + ':' + #to")
+            key = "T(rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config.CachePolicy).standardReportingPeriodKey(#from, #to)",
+            condition = "T(rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config.CachePolicy).isStandardReportingPeriod(#from, #to)")
     public List<AggregationBucketResponse> getTimeSlotsWithMostResources(
             LocalDate from, LocalDate to) throws IOException {
         return analyticsRepository.getTimeSlotsWithMostResources(from, to);
@@ -54,7 +52,8 @@ public class EventOrganisationAnalyticsServiceImpl implements EventOrganisationA
     @Override
     @Cacheable(
             cacheNames = CacheNames.RESOURCE_UTILIZATION_REPORTS,
-            key = "#from + ':' + #to + ':' + (#stageId == null || #stageId.isBlank() ? 'all' : #stageId)")
+            key = "T(rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config.CachePolicy).standardReportingPeriodKey(#from, #to) + ':' + T(rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config.CachePolicy).normalizeStageId(#stageId)",
+            condition = "T(rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config.CachePolicy).isStandardReportingPeriod(#from, #to)")
     public ResourceUtilizationReportResponse getResourceUtilizationReport(
             LocalDate from, LocalDate to, String stageId) throws IOException {
         return analyticsRepository.getResourceUtilizationReport(from, to, stageId);

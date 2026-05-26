@@ -38,11 +38,10 @@ public class RedisCacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer));
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-        cacheConfigurations.put(CacheNames.RESERVATION_SEARCH, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         cacheConfigurations.put(CacheNames.MOST_USED_RESOURCES_BY_STAGE, defaultConfig);
         cacheConfigurations.put(CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES, defaultConfig);
         cacheConfigurations.put(CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES, defaultConfig);
-        cacheConfigurations.put(CacheNames.RESOURCE_UTILIZATION_REPORTS, defaultConfig);
+        cacheConfigurations.put(CacheNames.RESOURCE_UTILIZATION_REPORTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
