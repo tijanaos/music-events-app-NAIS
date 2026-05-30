@@ -26,8 +26,7 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     @Override
     @CacheEvict(cacheNames = {
             CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
-            CacheNames.RESOURCE_UTILIZATION_REPORTS
+            CacheNames.PEAK_RESOURCE_HOURS
     }, allEntries = true)
     public ResourceUsageResponse create(ResourceUsageDto dto) {
         ResourceUsageDocument doc = toDocument(dto);
@@ -92,8 +91,7 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     @Override
     @CacheEvict(cacheNames = {
             CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
-            CacheNames.RESOURCE_UTILIZATION_REPORTS
+            CacheNames.PEAK_RESOURCE_HOURS
     }, allEntries = true)
     public ResourceUsageResponse update(String id, ResourceUsageDto dto) {
         ResourceUsageDocument existing = getOrThrow(id);
@@ -105,8 +103,7 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     @Override
     @CacheEvict(cacheNames = {
             CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
-            CacheNames.RESOURCE_UTILIZATION_REPORTS
+            CacheNames.PEAK_RESOURCE_HOURS
     }, allEntries = true)
     public void delete(String id) {
         getOrThrow(id);

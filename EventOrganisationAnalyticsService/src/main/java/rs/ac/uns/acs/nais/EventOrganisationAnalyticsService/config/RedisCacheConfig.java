@@ -26,7 +26,7 @@ public class RedisCacheConfig {
         cacheObjectMapper.activateDefaultTyping(
                 LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY);
+                JsonTypeInfo.As.WRAPPER_ARRAY);
 
         GenericJackson2JsonRedisSerializer valueSerializer =
                 new GenericJackson2JsonRedisSerializer(cacheObjectMapper);
@@ -39,9 +39,7 @@ public class RedisCacheConfig {
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         cacheConfigurations.put(CacheNames.MOST_USED_RESOURCES_BY_STAGE, defaultConfig);
-        cacheConfigurations.put(CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES, defaultConfig);
-        cacheConfigurations.put(CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES, defaultConfig);
-        cacheConfigurations.put(CacheNames.RESOURCE_UTILIZATION_REPORTS, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        cacheConfigurations.put(CacheNames.PEAK_RESOURCE_HOURS, defaultConfig);
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

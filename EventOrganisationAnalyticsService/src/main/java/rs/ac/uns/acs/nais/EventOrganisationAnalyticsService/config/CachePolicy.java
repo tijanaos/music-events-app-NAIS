@@ -6,7 +6,6 @@ public final class CachePolicy {
 
     private static final String LAST_MONTH = "last-month";
     private static final String LAST_YEAR = "last-year";
-    private static final String ALL_STAGES = "all";
 
     private CachePolicy() {
     }
@@ -33,7 +32,7 @@ public final class CachePolicy {
         return from + ":" + to;
     }
 
-    public static String normalizeStageId(String stageId) {
-        return stageId == null || stageId.isBlank() ? ALL_STAGES : stageId;
+    public static String normalizeResourceType(String resourceType) {
+        return resourceType == null ? "" : resourceType.trim().toUpperCase();
     }
 }
