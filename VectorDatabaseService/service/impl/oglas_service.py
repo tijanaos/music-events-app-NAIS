@@ -9,6 +9,7 @@ from model.oglas import (
 )
 from repositroy.oglas_repository import oglas_repository
 from services.embedding_service import embedding_service
+from services.redis_service import redis_service
 
 
 class OglasService:
@@ -236,6 +237,19 @@ class OglasService:
         self,
         request: OglasSemanticFilterRequest,
     ) -> list[dict]:
+        cache_key = redis_service.make_hash_key(
+            {
+                "query": request.query.strip(),
+                "tip_oglasa": request.tip_oglasa,
+                "status": request.status,
+                "kategorija": request.kategorija,
+                "top_k": request.top_k,
+            }
+        )
+        cached_response = redis_service.get_json("oglas-semantic-search", cache_key)
+        if cached_response is not None:
+            return cached_response
+
         query_vector = embedding_service.encode_text_one(request.query)
 
         filter_expr = self._build_filter(
@@ -244,11 +258,13 @@ class OglasService:
             kategorija=request.kategorija,
         )
 
-        return oglas_repository.search_by_text_embedding(
+        results = oglas_repository.search_by_text_embedding(
             text_vector=query_vector,
             top_k=request.top_k,
             filter_expr=filter_expr,
         )
+        redis_service.set_json("oglas-semantic-search", cache_key, results)
+        return results
 
     # ─────────────────────────────────────────────────────────────────────────
     # MULTI-VECTOR HYBRID SEARCH
