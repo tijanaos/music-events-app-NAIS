@@ -297,6 +297,26 @@ services:
     ports:
       - "9080:9080"
 
+  event-organisation-analytics-service:
+    build:
+      context: ./EventOrganisationAnalyticsService
+      dockerfile: Dockerfile
+    image: event-organisation-analytics-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "9072:9070"
+
 volumes:
   neo4j_data: {}
   neo4j_pricing_data: {}

@@ -1,0 +1,29 @@
+server:
+  port: 9070
+
+spring:
+  application:
+    name: event-organisation-analytics-service
+  elasticsearch:
+    uris: http://localhost:9200
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

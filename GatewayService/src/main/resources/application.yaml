@@ -34,4 +34,10 @@ spring:
             - Path=/advertising-search-service/**
           filters:
             - StripPrefix=1
-        
+        - id: event-organisation-analytics-service
+          uri: lb://event-organisation-analytics-service
+          predicates:
+            - Path=/event-organisation-analytics-service/**
+          filters:
+            - StripPrefix=1
+
