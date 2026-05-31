@@ -164,33 +164,16 @@
       "name": "Analytics",
       "item": [
         {
-          "name": "Upit 1 - Nedeljni prihod po tipu karte i tieru (sve kupovine)",
+          "name": "Upit 1 - Nedeljni prihod po tipu karte i tieru",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/api/analytics/nedeljni-prihod?start=-6mo&stop=now()&ukljuciPromo=true",
+              "raw": "{{baseUrl}}/api/analytics/nedeljni-prihod?start=-6mo&stop=now()",
               "host": ["{{baseUrl}}"],
               "path": ["api", "analytics", "nedeljni-prihod"],
               "query": [
                 { "key": "start", "value": "-6mo" },
-                { "key": "stop", "value": "now()" },
-                { "key": "ukljuciPromo", "value": "true" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Upit 1 - Nedeljni prihod (bez promo kupovina)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/analytics/nedeljni-prihod?start=-1y&stop=now()&ukljuciPromo=false",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "analytics", "nedeljni-prihod"],
-              "query": [
-                { "key": "start", "value": "-1y" },
-                { "key": "stop", "value": "now()" },
-                { "key": "ukljuciPromo", "value": "false" }
+                { "key": "stop", "value": "now()" }
               ]
             }
           }
@@ -282,13 +265,12 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{gatewayUrl}}/api/analytics/nedeljni-prihod?start=-6mo&stop=now()&ukljuciPromo=true",
+              "raw": "{{gatewayUrl}}/api/analytics/nedeljni-prihod?start=-6mo&stop=now()",
               "host": ["{{gatewayUrl}}"],
               "path": ["api", "analytics", "nedeljni-prihod"],
               "query": [
                 { "key": "start", "value": "-6mo" },
-                { "key": "stop", "value": "now()" },
-                { "key": "ukljuciPromo", "value": "true" }
+                { "key": "stop", "value": "now()" }
               ]
             }
           }

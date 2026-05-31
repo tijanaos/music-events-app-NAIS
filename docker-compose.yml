@@ -306,12 +306,16 @@ services:
         condition: service_healthy
       influxdb:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       INFLUXDB_URL: http://influxdb:8086
       INFLUXDB_TOKEN: music-events-admin-token
       INFLUXDB_ORG: music-events-org
       INFLUXDB_BUCKET: music_events_metrics
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     ports:
       - "9090:9090"
 

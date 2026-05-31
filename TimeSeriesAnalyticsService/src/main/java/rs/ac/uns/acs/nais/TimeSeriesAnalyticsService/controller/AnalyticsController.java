@@ -20,9 +20,8 @@ public class AnalyticsController {
     @GetMapping("/nedeljni-prihod")
     public ResponseEntity<List<NedeljniPrihodResponse>> getNedeljniPrihod(
             @RequestParam(defaultValue = "-6mo") String start,
-            @RequestParam(defaultValue = "now()") String stop,
-            @RequestParam(defaultValue = "true") boolean ukljuciPromo) {
-        return ResponseEntity.ok(analyticsService.getNedeljniPrihodPoTipuITieru(start, stop, ukljuciPromo));
+            @RequestParam(defaultValue = "now()") String stop) {
+        return ResponseEntity.ok(analyticsService.getNedeljniPrihodPoTipuITieru(start, stop));
     }
 
     @GetMapping("/rang-kupaca")

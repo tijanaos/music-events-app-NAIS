@@ -19,4 +19,5 @@ public class RastCenaResponse {
     private Double ukupnaDeltaCene;
     private Double prosecniProcenatPromene;
     private Long brojPromena;
+    private String smer;
 }

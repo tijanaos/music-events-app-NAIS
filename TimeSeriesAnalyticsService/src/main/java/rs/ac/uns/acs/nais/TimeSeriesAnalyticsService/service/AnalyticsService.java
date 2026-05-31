@@ -6,7 +6,9 @@ import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import rs.ac.uns.acs.nais.TimeSeriesAnalyticsService.config.CacheNames;
 import rs.ac.uns.acs.nais.TimeSeriesAnalyticsService.dto.response.analytics.NedeljniPrihodResponse;
 import rs.ac.uns.acs.nais.TimeSeriesAnalyticsService.dto.response.analytics.PeakSatiResponse;
 import rs.ac.uns.acs.nais.TimeSeriesAnalyticsService.dto.response.analytics.RastCenaResponse;
@@ -28,40 +30,25 @@ public class AnalyticsService {
     @Value("${influxdb.org}")
     private String org;
 
-    /*
-     * Upit 1: Nedeljni prihod po tipu karte i tieru kupca
-     *
-     * Kombinuje:
-     * - FILTRIRANJE: po opsegu datuma i isključenju promo kupovina
-     * - GRUPISANJE: po tipKarte, tierKupca i vremenskom prozoru od 1 nedelje
-     * - AGREGACIJA: suma ukupne cene (prihod) i suma količine (broj karata)
-     * - SORTIRANJE: po ukupnom prihodu opadajuće
-     */
-    public List<NedeljniPrihodResponse> getNedeljniPrihodPoTipuITieru(String start, String stop, boolean ukljuciPromo) {
-        String promoFilter = ukljuciPromo
-                ? ""
-                : "|> filter(fn: (r) => r.promoKoriscen == \"false\")";
-
+    @Cacheable(value = CacheNames.NEDELJNI_PRIHOD, key = "#start + ':' + #stop")
+    public List<NedeljniPrihodResponse> getNedeljniPrihodPoTipuITieru(String start, String stop) {
         String prihodFlux = String.format("""
                 from(bucket: "%s")
                   |> range(start: %s, stop: %s)
                   |> filter(fn: (r) => r._measurement == "kupovina" and r._field == "ukupnaCena")
-                  %s
                   |> aggregateWindow(every: 1w, fn: sum, createEmpty: false)
                   |> group(columns: ["tipKarte", "tierKupca", "_time"])
                   |> sum()
-                  |> sort(columns: ["_value"], desc: true)
-                """, bucket, start, stop, promoFilter);
+                """, bucket, start, stop);
 
         String kolicineFlux = String.format("""
                 from(bucket: "%s")
                   |> range(start: %s, stop: %s)
                   |> filter(fn: (r) => r._measurement == "kupovina" and r._field == "kolicina")
-                  %s
                   |> aggregateWindow(every: 1w, fn: sum, createEmpty: false)
                   |> group(columns: ["tipKarte", "tierKupca", "_time"])
                   |> sum()
-                """, bucket, start, stop, promoFilter);
+                """, bucket, start, stop);
 
         QueryApi queryApi = influxDBClient.getQueryApi();
         List<NedeljniPrihodResponse> results = new ArrayList<>();
@@ -90,18 +77,13 @@ public class AnalyticsService {
                         .build());
             }
         }
+        results.sort(Comparator.comparing(NedeljniPrihodResponse::getTipKarte)
+                .thenComparing(Comparator.comparingDouble(NedeljniPrihodResponse::getUkupanPrihod).reversed())
+                .thenComparing(NedeljniPrihodResponse::getNedelja));
         return results;
     }
 
-    /*
-     * Upit 2: Rang kupaca po ukupnoj potrošnji sa brojem transakcija po tipu karte
-     *
-     * Kombinuje:
-     * - FILTRIRANJE: po vremenskom opsegu i tipu karte (opciono)
-     * - GRUPISANJE: po tierKupca i tipKarte
-     * - AGREGACIJA: suma prihoda, broj transakcija (count), prosečna vrednost porudžbine
-     * - SORTIRANJE: po ukupnom prihodu opadajuće — pokazuje koji tier + tip karte donosi najviše prihoda
-     */
+    @Cacheable(value = CacheNames.RANG_KUPACA, key = "#start + ':' + #stop + ':' + (#tipKarte ?: 'all')")
     public List<PeakSatiResponse> getRangKupacaPoTrosnji(String start, String stop, String tipKarte) {
         String tipKarteFilter = (tipKarte != null && !tipKarte.isEmpty())
                 ? String.format("|> filter(fn: (r) => r.tipKarte == \"%s\")", tipKarte)
@@ -161,21 +143,11 @@ public class AnalyticsService {
         return results;
     }
 
-    /*
-     * Upit 3: Mesečni rast cena po tipu karte za promene uzrokovane povećanjem tražnje
-     *
-     * Kombinuje:
-     * - FILTRIRANJE: po vremenskom opsegu i razlogu promene cene (POVECANJE_TRAZNJE)
-     * - GRUPISANJE: po tipKarte, festivalId i mesečnom vremenskom prozoru
-     * - AGREGACIJA: suma delta cene, prosečan procenat promene, broj promena
-     * - SORTIRANJE: u Fluxu hronološki po mesecu unutar svake grupe (tipKarte+festival),
-     *               u Javi finalno sortiranje po tipKarte pa po mesecu — rezultat prikazuje
-     *               kompletnu vremensku istoriju promene cene za svaki tip karte redom
-     */
+    @Cacheable(value = CacheNames.RAST_CENA, key = "#start + ':' + #stop + ':' + (#razlog ?: 'all')")
     public List<RastCenaResponse> getMesecniRastCenaPoTipu(String start, String stop, String razlog) {
         String razlogFilter = (razlog != null && !razlog.isEmpty())
                 ? String.format("|> filter(fn: (r) => r.razlog == \"%s\")", razlog)
-                : "|> filter(fn: (r) => r.razlog == \"POVECANJE_TRAZNJE\")";
+                : "";
 
         String deltaFlux = String.format("""
                 from(bucket: "%s")
@@ -232,14 +204,21 @@ public class AnalyticsService {
                         ? toLong(countRecords.get(r).getValue())
                         : null;
 
+                Double delta = toDouble(dr.getValue());
+                String smer = delta == null ? null
+                        : delta > 0 ? "RAST"
+                        : delta < 0 ? "PAD"
+                        : "NEPROMENJENO";
+
                 results.add(RastCenaResponse.builder()
                         .tipKarte((String) dr.getValueByKey("tipKarte"))
                         .festivalId((String) dr.getValueByKey("festivalId"))
                         .nazivFestivala((String) dr.getValueByKey("nazivFestivala"))
                         .mesec(dr.getTime())
-                        .ukupnaDeltaCene(toDouble(dr.getValue()))
+                        .ukupnaDeltaCene(delta)
                         .prosecniProcenatPromene(procenat)
                         .brojPromena(broj)
+                        .smer(smer)
                         .build());
             }
         }

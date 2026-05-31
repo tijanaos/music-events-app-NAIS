@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: time-series-analytics-service
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 influxdb:
   url: ${INFLUXDB_URL:http://localhost:8086}
