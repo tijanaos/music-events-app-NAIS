@@ -6,8 +6,26 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import rs.ac.uns.acs.nais.AdvertisingSearchService.model.AdTypeDocument;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AdTypeRepository extends ElasticsearchRepository<AdTypeDocument, Long> {
+
+    @Query("""
+            {
+              "bool": {
+                "must": [
+                  { "match_phrase": { "name": "?0" } }
+                ],
+                "filter": [
+                  { "term": { "category": "?1" } },
+                  { "term": { "content_type": "?2" } }
+                ]
+              }
+            }
+            """)
+    List<AdTypeDocument> findByNaturalKey(String name, String category, String contentType);
+
+    Optional<AdTypeDocument> findTopByOrderByIdDesc();
 
     @Query("""
             {

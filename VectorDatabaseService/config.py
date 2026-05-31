@@ -68,3 +68,16 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 REDIS_DB = int(os.getenv("REDIS_DB", "0"))
 REDIS_RESPONSE_TTL_SECONDS = int(os.getenv("REDIS_RESPONSE_TTL_SECONDS", "300"))
 REDIS_RESPONSE_KEY_PREFIX = os.getenv("REDIS_RESPONSE_KEY_PREFIX", "search-response-cache")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RabbitMQ choreography saga
+# ─────────────────────────────────────────────────────────────────────────────
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", os.getenv("SPRING_RABBITMQ_HOST", "localhost"))
+RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", os.getenv("SPRING_RABBITMQ_PORT", "5672")))
+RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME", "guest")
+RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "guest")
+RABBITMQ_EXCHANGE = os.getenv("RABBITMQ_EXCHANGE", "ad.saga.choreography.exchange")
+AD_TYPE_READY_QUEUE = os.getenv("AD_TYPE_READY_QUEUE", "ad.type.ready.queue")
+AD_TYPE_READY_KEY = os.getenv("AD_TYPE_READY_KEY", "ad.type.ready")
+AD_CREATED_KEY = os.getenv("AD_CREATED_KEY", "ad.created")
+AD_CREATION_FAILED_KEY = os.getenv("AD_CREATION_FAILED_KEY", "ad.creation.failed")

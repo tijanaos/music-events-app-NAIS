@@ -80,6 +80,7 @@ class OglasService:
             "naziv": payload.naziv,
             "opis": payload.opis,
             "tip_oglasa": payload.tip_oglasa,
+            "ad_type_id": payload.ad_type_id,
             "content_url": payload.content_url or "",
             "status": payload.status,
             "kategorija": payload.kategorija,

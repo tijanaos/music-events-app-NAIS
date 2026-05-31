@@ -11,6 +11,7 @@ from controller.kampanja_controller import router as kampanja_router
 from model.common import RootResponse
 from service.impl.oglas_service import oglas_service
 from service.impl.kampanja_service import kampanja_service
+from services.rabbitmq_saga_consumer import rabbitmq_saga_consumer
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ app.add_middleware(
 async def startup():
     oglas_service.ensure_collection()
     kampanja_service.ensure_collection()
+    rabbitmq_saga_consumer.start_in_background()
 
     if not EUREKA_ENABLED:
         logger.info("Eureka registration is disabled.")
@@ -52,6 +54,8 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
+    rabbitmq_saga_consumer.stop()
+
     if not EUREKA_ENABLED:
         return
 

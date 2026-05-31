@@ -50,6 +50,17 @@ services:
     ports:
       - "5601:5601"
 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
   event-organisation-service:
     build:
       context: ./EventOrganisationService
@@ -216,6 +227,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       MILVUS_HOST: standalone
       MILVUS_PORT: 19530
@@ -226,6 +239,8 @@ services:
       REDIS_PORT: 6379
       REDIS_DB: 0
       REDIS_RESPONSE_TTL_SECONDS: 300
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     ports:
       - "8000:8000"
@@ -289,11 +304,16 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      VECTOR_SERVICE_BASE_URL: http://vector-database-service:8000
     ports:
       - "9080:9080"
 
