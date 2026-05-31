@@ -308,6 +308,44 @@ services:
     ports:
       - "9072:9070"
 
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: nais
+      DOCKER_INFLUXDB_INIT_PASSWORD: password
+      DOCKER_INFLUXDB_INIT_ORG: nais_org
+      DOCKER_INFLUXDB_INIT_BUCKET: negotiation_bucket
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  negotiation-analytics-service:
+    build:
+      context: ./NegotiationAnalyticsService
+      dockerfile: Dockerfile
+    image: negotiation-analytics-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_INFLUX_URL: http://influxdb:8086
+      SPRING_INFLUX_TOKEN: my-super-secret-auth-token
+      SPRING_INFLUX_ORG: nais_org
+      SPRING_INFLUX_BUCKET: negotiation_bucket
+    ports:
+      - "9075:9090"
+
 volumes:
   neo4j_data: {}
   neo4j_pricing_data: {}
@@ -317,3 +355,4 @@ volumes:
   milvus_data: {}
   elasticsearch_data: {}
   redis_data: {}
+  influxdb_data: {}
