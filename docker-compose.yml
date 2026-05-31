@@ -337,12 +337,16 @@ services:
         condition: service_healthy
       influxdb:
         condition: service_healthy
+      redis:                            
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_INFLUX_URL: http://influxdb:8086
       SPRING_INFLUX_TOKEN: my-super-secret-auth-token
       SPRING_INFLUX_ORG: nais_org
       SPRING_INFLUX_BUCKET: negotiation_bucket
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379  
     ports:
       - "9075:9090"
 

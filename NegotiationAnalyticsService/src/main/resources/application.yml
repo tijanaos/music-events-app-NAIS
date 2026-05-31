@@ -11,6 +11,10 @@ spring:
     url: http://influxdb:8086
     user: nais
     password: password
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
 
 eureka:
   client:

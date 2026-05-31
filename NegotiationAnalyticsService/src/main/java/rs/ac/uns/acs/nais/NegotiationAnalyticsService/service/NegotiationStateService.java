@@ -3,6 +3,8 @@ package rs.ac.uns.acs.nais.NegotiationAnalyticsService.service;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.NegotiationAnalyticsService.model.NegotiationStateHistory;
 import rs.ac.uns.acs.nais.NegotiationAnalyticsService.repository.NegotiationStateRepositoryImpl;
+import org.springframework.cache.annotation.Cacheable;
+import rs.ac.uns.acs.nais.NegotiationAnalyticsService.config.CacheNames;
 
 import java.util.List;
 import java.util.Map;
@@ -33,11 +35,13 @@ public class NegotiationStateService {
     }
 
     // Upit 1: identifikacija uskih grla
+    @Cacheable(value = CacheNames.BOTTLENECKS_BY_TEMPLATE, key = "#templateName")
     public List<Map<String, Object>> avgDurationPerStateByTemplate(String templateName) {
         return repository.avgDurationPerStateByTemplate(templateName);
     }
 
     // Upit 2: mesecni trendovi uspesno zakljuceni nasuprot propalih ugovora
+    @Cacheable(value = CacheNames.MONTHLY_SUCCESS_TREND)
     public List<Map<String, Object>> monthlyNegotiationSuccessTrend() {
         return repository.monthlyNegotiationSuccessTrend();
     }

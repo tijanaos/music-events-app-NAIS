@@ -3,6 +3,9 @@ package rs.ac.uns.acs.nais.NegotiationAnalyticsService.service;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.NegotiationAnalyticsService.model.OfferLifecycleEvent;
 import rs.ac.uns.acs.nais.NegotiationAnalyticsService.repository.OfferEventRepositoryImpl;
+import org.springframework.cache.annotation.Cacheable;
+import rs.ac.uns.acs.nais.NegotiationAnalyticsService.config.CacheNames;
+
 import java.util.Map;
 import java.util.List;
 
@@ -32,6 +35,7 @@ public class OfferEventService {
     }
 
     // Upit 3: prosecna cena ponude po tipu dogadjaja i lokaciji
+    @Cacheable(value = CacheNames.TOTAL_VALUE_BY_LOCATION)
     public List<Map<String, Object>> avgOfferPriceByEventTypeAndLocation() {
         return repository.avgOfferPriceByEventTypeAndLocation();
     }
