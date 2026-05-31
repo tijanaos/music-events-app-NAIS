@@ -6,6 +6,7 @@ OGLAS_SCALAR_OUTPUT_FIELDS = [
     "naziv",
     "opis",
     "tip_oglasa",
+    "ad_type_id",
     "content_url",
     "status",
     "kategorija",
@@ -38,6 +39,7 @@ def oglas_schema(client: MilvusClient):
     schema.add_field("naziv", DataType.VARCHAR, max_length=512)
     schema.add_field("opis", DataType.VARCHAR, max_length=4000)
     schema.add_field("tip_oglasa", DataType.VARCHAR, max_length=64)       # tekstualni | vizuelni
+    schema.add_field("ad_type_id", DataType.INT64)
     schema.add_field("content_url", DataType.VARCHAR, max_length=1024)
     schema.add_field("status", DataType.VARCHAR, max_length=64)           # aktivan | istekao | draft
     schema.add_field("kategorija", DataType.VARCHAR, max_length=128)
@@ -67,6 +69,7 @@ def oglas_index_params(client: MilvusClient):
 
     # Scalar indexes
     index_params.add_index("tip_oglasa", index_type="INVERTED")
+    index_params.add_index("ad_type_id", index_type="INVERTED")
     index_params.add_index("status", index_type="INVERTED")
     index_params.add_index("kategorija", index_type="INVERTED")
     index_params.add_index("kampanja_id", index_type="INVERTED")

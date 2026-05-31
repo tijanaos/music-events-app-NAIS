@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
-    private static final int TARGET_SIZE = 1200;
+    private static final int TARGET_SIZE = 1000;
 
     private final AdTypeRepository adTypeRepository;
     private final AdPhaseRepository adPhaseRepository;
@@ -36,41 +36,54 @@ public class DataSeeder implements CommandLineRunner {
 
     private List<AdTypeDocument> buildAdTypes() {
         String[] contentTypes = {"video", "image", "audio", "text"};
-        String[] categories = {"festival", "performer", "sponsor", "venue", "ticketing"};
-        String[] channels = {"social_media", "email", "billboard", "streaming_platform", "mobile_app"};
-        String[] campaignDescriptors = {
-                "video promocija", "brand awareness", "lead generation", "festival teaser", "community reach"
+        String[] categories = {"festival", "performer", "ticketing", "sponsor", "venue"};
+        String[] channels = {"social_media", "streaming_platform", "email", "mobile_app", "billboard"};
+        String[] descriptorPrefixes = {
+                "sunset lineup reveal",
+                "late-night stage teaser",
+                "weekend pass push",
+                "headline artist spotlight",
+                "cashless wristband onboarding",
+                "camping experience preview",
+                "food village showcase",
+                "sponsor activation highlight",
+                "VIP terrace invitation",
+                "opening day countdown"
+        };
+        String[] audienceAngles = {
+                "first-time festival visitors",
+                "electronic music fans",
+                "indie and alternative listeners",
+                "traveling friend groups",
+                "students planning summer trips",
+                "fans looking for premium access",
+                "families visiting daytime sets",
+                "brand partners and exhibitors",
+                "regional live music communities",
+                "mobile-first ticket buyers"
         };
 
         List<AdTypeDocument> documents = new ArrayList<>();
         for (long i = 1; i <= TARGET_SIZE; i++) {
-            String contentType = contentTypes[(int) (i % contentTypes.length)];
-            String category = categories[(int) (i % categories.length)];
-            String descriptor = campaignDescriptors[(int) (i % campaignDescriptors.length)];
-            String channel = channels[(int) (i % channels.length)];
-            boolean active = i % 9 != 0;
-            boolean requiresApproval = i % 3 != 0;
-
-            if (i % 10 == 1) {
-                contentType = "video";
-                category = "festival";
-                descriptor = "video promocija";
-                channel = "social_media";
-                active = true;
-                requiresApproval = true;
-            }
+            String contentType = contentTypes[(int) ((i - 1) % contentTypes.length)];
+            String category = categories[(int) ((i - 1) % categories.length)];
+            String channel = channels[(int) ((i - 1) % channels.length)];
+            String descriptor = descriptorPrefixes[(int) ((i - 1) % descriptorPrefixes.length)];
+            String audience = audienceAngles[(int) ((i * 3) % audienceAngles.length)];
+            boolean active = i % 11 != 0;
+            boolean requiresApproval = i % 4 != 0;
 
             documents.add(AdTypeDocument.builder()
                     .id(i)
-                    .name(capitalize(contentType) + " oglas " + i)
-                    .description("Oglas za " + descriptor + " kampanju u kategoriji " + category + " namenjen kanalu " + channel + ".")
+                    .name(buildAdTypeName(contentType, descriptor, i))
+                    .description(buildAdTypeDescription(contentType, category, channel, descriptor, audience))
                     .contentType(contentType)
                     .category(category)
                     .targetChannel(channel)
                     .isActive(active)
                     .requiresApproval(requiresApproval)
-                    .averageDurationDays((int) (7 + (i % 24)))
-                    .createdAt(LocalDate.of(2026, 5, 18).minusDays(i % 60))
+                    .averageDurationDays(5 + (int) (i % 18))
+                    .createdAt(LocalDate.of(2026, 5, 18).minusDays(i % 90))
                     .build());
         }
         return documents;
@@ -78,49 +91,62 @@ public class DataSeeder implements CommandLineRunner {
 
     private List<AdPhaseDocument> buildAdPhases() {
         String[] phaseNames = {
-                "Priprema briefa", "Početna provera", "Na čekanju za odobrenje", "Validacija budžeta",
-                "Zakazivanje objave", "Finalna aktivacija"
+                "Creative Brief",
+                "Asset Review",
+                "Budget and Legal Check",
+                "Audience Scheduling",
+                "Channel Activation",
+                "Post-Launch Monitoring"
         };
         String[] descriptions = {
-                "Faza u kojoj tim priprema detaljan brief za oglas.",
-                "Faza u kojoj se vrši provera sadržaja i tehničkih zahteva.",
-                "Faza u kojoj oglas čeka odobrenje odgovorne osobe.",
-                "Faza validacije budžeta i kanala distribucije.",
-                "Faza zakazivanja objave po kanalima oglašavanja.",
-                "Završna faza aktivacije i puštanja oglasa."
+                "The festival marketing team prepares the campaign goal, artist angle, and call to action.",
+                "Visuals, copy, and media assets are reviewed to ensure they match the festival identity and lineup tone.",
+                "Budget owners and legal stakeholders validate sponsor mentions, ticketing claims, and campaign constraints.",
+                "The campaign is scheduled by audience cluster, city, and timing around lineup reveals or ticket drops.",
+                "The ad is published across selected channels such as social media, streaming placements, and the festival app.",
+                "Performance is monitored after launch to optimize click-through rate, conversion, and audience engagement."
         };
         String[] roles = {
-                "Marketing menadžer", "Content specijalista", "Brand menadžer", "Koordinator kampanje", "Pravni tim"
+                "Marketing Manager",
+                "Content Producer",
+                "Partnership Lead",
+                "Ticketing Coordinator",
+                "Venue Operations Lead",
+                "Performance Analyst"
         };
 
         List<AdPhaseDocument> documents = new ArrayList<>();
         for (long i = 1; i <= TARGET_SIZE; i++) {
-            int order = (int) ((i - 1) % 6) + 1;
-            boolean finalPhase = order == 6;
-            boolean active = i % 8 != 0;
-            boolean requiresMail = order >= 2 && order <= 5;
-            String phaseName = phaseNames[order - 1];
-            String description = descriptions[order - 1];
-
-            if (order == 2 || order == 3 || order == 4) {
-                description += " Ova faza obuhvata proveru, odobrenje ili validaciju promotivnog materijala.";
-            }
+            int order = (int) ((i - 1) % phaseNames.length);
+            boolean finalPhase = order == phaseNames.length - 1;
+            boolean active = i % 9 != 0;
+            boolean requiresMail = order >= 1 && order <= 4;
 
             documents.add(AdPhaseDocument.builder()
                     .id(i)
-                    .adTypeId(((i - 1) % TARGET_SIZE) + 1)
-                    .phaseName(phaseName)
-                    .description(description)
-                    .phaseOrder(order)
-                    .responsibleRole(roles[(int) (i % roles.length)])
+                    .adTypeId(i)
+                    .phaseName(phaseNames[order])
+                    .description(descriptions[order] + " This workflow step is tailored to a music festival promotion lifecycle.")
+                    .phaseOrder(order + 1)
+                    .responsibleRole(roles[(int) ((i - 1) % roles.length)])
                     .requiresEmailNotification(requiresMail)
                     .isFinalPhase(finalPhase)
                     .isActive(active)
-                    .expectedDurationHours(6 + (int) ((i * 3) % 48))
-                    .createdAt(LocalDate.of(2026, 5, 18).minusDays(i % 45))
+                    .expectedDurationHours(8 + (int) ((i * 5) % 40))
+                    .createdAt(LocalDate.of(2026, 5, 18).minusDays(i % 60))
                     .build());
         }
         return documents;
+    }
+
+    private String buildAdTypeName(String contentType, String descriptor, long id) {
+        return capitalize(contentType) + " festival ad " + id + " - " + capitalizeWords(descriptor);
+    }
+
+    private String buildAdTypeDescription(String contentType, String category, String channel, String descriptor, String audience) {
+        return "A " + contentType + " campaign template for music festivals focused on " + descriptor
+                + ", built for the " + category + " segment and optimized for " + channel
+                + ". The messaging is designed for " + audience + " while staying close enough to similar festival promotions for meaningful semantic search.";
     }
 
     private String capitalize(String value) {
@@ -128,5 +154,17 @@ public class DataSeeder implements CommandLineRunner {
             return value;
         }
         return Character.toUpperCase(value.charAt(0)) + value.substring(1);
+    }
+
+    private String capitalizeWords(String value) {
+        String[] parts = value.split(" ");
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) {
+                builder.append(' ');
+            }
+            builder.append(capitalize(parts[i]));
+        }
+        return builder.toString();
     }
 }

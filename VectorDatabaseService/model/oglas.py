@@ -6,6 +6,7 @@ class OglasBase(BaseModel):
     naziv: str = Field(..., max_length=512, description="Naziv oglasa")
     opis: str = Field(..., max_length=4000, description="Opis oglasa")
     tip_oglasa: str = Field(..., max_length=64, description="tekstualni | vizuelni")
+    ad_type_id: int = Field(0, description="Referenca na tip oglasa iz Elasticsearch servisa")
     content_url: Optional[str] = Field(None, description="Putanja do slike ili tekstualnog fajla")
     status: str = Field(..., max_length=64, description="aktivan | istekao | draft")
     kategorija: str = Field(..., max_length=128, description="moda | tehnika | nekretnine | ...")
@@ -22,6 +23,7 @@ class OglasUpdate(BaseModel):
     naziv: Optional[str] = Field(None, max_length=512)
     opis: Optional[str] = Field(None, max_length=4000)
     tip_oglasa: Optional[str] = Field(None, max_length=64)
+    ad_type_id: Optional[int] = None
     content_url: Optional[str] = None
     status: Optional[str] = Field(None, max_length=64)
     kategorija: Optional[str] = Field(None, max_length=128)

@@ -24,6 +24,7 @@ class EmbeddingService:
     def __init__(self):
         self.model = None
         self._model_lock = threading.Lock()
+        self._max_text_words = 55
 
     def _get_model(self) -> SentenceTransformer:
         if self.model is None:
@@ -42,12 +43,13 @@ class EmbeddingService:
         if not text or not text.strip():
             raise ValueError("Tekst za embedding je prazan.")
 
-        normalized_text = text.strip()
+        normalized_text = self._normalize_text(text)
         embedding = self._get_model().encode(normalized_text, normalize_embeddings=True)
         return embedding.tolist()
 
     def encode_text_batch(self, texts: List[str]) -> List[List[float]]:
-        embeddings = self._get_model().encode(texts, normalize_embeddings=True)
+        normalized = [self._normalize_text(text) for text in texts]
+        embeddings = self._get_model().encode(normalized, normalize_embeddings=True)
         return [e.tolist() for e in embeddings]
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -113,6 +115,16 @@ class EmbeddingService:
 
         except Exception as e:
             raise ValueError(f"Greška pri učitavanju lokalne slike: {e}")
+
+    def _normalize_text(self, text: str) -> str:
+        normalized_text = " ".join(text.strip().split())
+        words = normalized_text.split(" ")
+
+        if len(words) <= self._max_text_words:
+            return normalized_text
+
+        shortened = " ".join(words[:self._max_text_words])
+        return shortened + "..."
 
 
 # Singleton instance
