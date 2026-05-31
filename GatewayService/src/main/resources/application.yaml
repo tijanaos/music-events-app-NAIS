@@ -40,4 +40,10 @@ spring:
             - Path=/event-organisation-analytics-service/**
           filters:
             - StripPrefix=1
+        - id: time-series-analytics-service
+          uri: lb://time-series-analytics-service
+          predicates:
+            - Path=/time-series-analytics-service/**
+          filters:
+            - StripPrefix=1
 

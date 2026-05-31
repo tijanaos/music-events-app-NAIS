@@ -1,6 +1,8 @@
 package rs.ac.uns.acs.nais.AdvertisingSearchService.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.AdvertisingSearchService.dto.request.AdPhaseRequest;
@@ -23,6 +25,7 @@ public class AdPhaseServiceImpl implements AdPhaseService {
     private final AdTypeRepository adTypeRepository;
 
     @Override
+    @Cacheable("adPhasesAll")
     public List<AdPhaseResponse> getAll() {
         return StreamSupport.stream(adPhaseRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).spliterator(), false)
                 .map(this::mapToResponse)
@@ -37,6 +40,7 @@ public class AdPhaseServiceImpl implements AdPhaseService {
     }
 
     @Override
+    @CacheEvict(value = "adPhasesAll", allEntries = true)
     public AdPhaseResponse create(AdPhaseRequest request) {
         ensureAdTypeExists(request.getAdTypeId());
         AdPhaseDocument saved = adPhaseRepository.save(mapToDocument(request, request.getId() != null ? request.getId() : nextId()));
@@ -44,6 +48,7 @@ public class AdPhaseServiceImpl implements AdPhaseService {
     }
 
     @Override
+    @CacheEvict(value = "adPhasesAll", allEntries = true)
     public AdPhaseResponse update(Long id, AdPhaseRequest request) {
         adPhaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ad phase not found: " + id));
@@ -53,6 +58,7 @@ public class AdPhaseServiceImpl implements AdPhaseService {
     }
 
     @Override
+    @CacheEvict(value = "adPhasesAll", allEntries = true)
     public void delete(Long id) {
         adPhaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ad phase not found: " + id));

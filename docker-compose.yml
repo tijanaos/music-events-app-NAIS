@@ -195,11 +195,13 @@ services:
 
   redis-insight:
     image: redis/redisinsight:latest
-    ports:
-      - "5540:5540"
     depends_on:
       redis:
         condition: service_healthy
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
 
   vector-database-service:
     build:
@@ -218,15 +220,18 @@ services:
       MILVUS_HOST: standalone
       MILVUS_PORT: 19530
       APP_PORT: 8000
+      HF_HOME: /cache/huggingface
+      SENTENCE_TRANSFORMERS_HOME: /cache/sentence_transformers
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB: 0
-      REDIS_EMBEDDING_TTL_SECONDS: 3600
+      REDIS_RESPONSE_TTL_SECONDS: 300
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     ports:
       - "8000:8000"
     volumes:
       - ./VectorDatabaseService/data:/app/data:ro
+      - huggingface_cache:/cache
 
   attu:
     image: zilliz/attu:v2.4
@@ -282,9 +287,13 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     ports:
       - "9080:9080"
 
@@ -309,9 +318,51 @@ services:
       - "9072:9070"
 
   influxdb:
-    image: influxdb:2.7
+    image: influxdb:2.7.6
     ports:
       - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword
+      DOCKER_INFLUXDB_INIT_ORG: music-events-org
+      DOCKER_INFLUXDB_INIT_BUCKET: music_events_metrics
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: music-events-admin-token
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  time-series-analytics-service:
+    build:
+      context: ./TimeSeriesAnalyticsService
+      dockerfile: Dockerfile
+    image: time-series-analytics-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: music-events-admin-token
+      INFLUXDB_ORG: music-events-org
+      INFLUXDB_BUCKET: music_events_metrics
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "9090:9090"
+
+  influxdb-negotiation:
+    image: influxdb:2.7
+    ports:
+      - "8087:8086"
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: nais
@@ -320,7 +371,7 @@ services:
       DOCKER_INFLUXDB_INIT_BUCKET: negotiation_bucket
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
     volumes:
-      - influxdb_data:/var/lib/influxdb2
+      - influxdb_negotiation_data:/var/lib/influxdb2
     healthcheck:
       test: ["CMD", "influx", "ping"]
       interval: 20s
@@ -335,18 +386,18 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
-      influxdb:
+      influxdb-negotiation:
         condition: service_healthy
-      redis:                            
+      redis:
         condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
-      SPRING_INFLUX_URL: http://influxdb:8086
+      SPRING_INFLUX_URL: http://influxdb-negotiation:8086
       SPRING_INFLUX_TOKEN: my-super-secret-auth-token
       SPRING_INFLUX_ORG: nais_org
       SPRING_INFLUX_BUCKET: negotiation_bucket
       SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379  
+      SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "9075:9090"
 
@@ -360,3 +411,6 @@ volumes:
   elasticsearch_data: {}
   redis_data: {}
   influxdb_data: {}
+  influxdb_negotiation_data: {}
+  redisinsight_data: {}
+  huggingface_cache: {}

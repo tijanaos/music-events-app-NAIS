@@ -1,6 +1,8 @@
 package rs.ac.uns.acs.nais.AdvertisingSearchService.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import rs.ac.uns.acs.nais.AdvertisingSearchService.dto.request.AdTypeRequest;
@@ -21,6 +23,7 @@ public class AdTypeServiceImpl implements AdTypeService {
     private final AdTypeRepository adTypeRepository;
 
     @Override
+    @Cacheable("adTypesAll")
     public List<AdTypeResponse> getAll() {
         return StreamSupport.stream(adTypeRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).spliterator(), false)
                 .map(this::mapToResponse)
@@ -35,12 +38,14 @@ public class AdTypeServiceImpl implements AdTypeService {
     }
 
     @Override
+    @CacheEvict(value = "adTypesAll", allEntries = true)
     public AdTypeResponse create(AdTypeRequest request) {
         AdTypeDocument saved = adTypeRepository.save(mapToDocument(request, request.getId() != null ? request.getId() : nextId()));
         return mapToResponse(saved);
     }
 
     @Override
+    @CacheEvict(value = "adTypesAll", allEntries = true)
     public AdTypeResponse update(Long id, AdTypeRequest request) {
         adTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ad type not found: " + id));
@@ -49,6 +54,7 @@ public class AdTypeServiceImpl implements AdTypeService {
     }
 
     @Override
+    @CacheEvict(value = "adTypesAll", allEntries = true)
     public void delete(Long id) {
         adTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ad type not found: " + id));
