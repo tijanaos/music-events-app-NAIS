@@ -1,0 +1,161 @@
+{
+  "info": {
+    "name": "NegotiationAnalyticsService",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Negotiation States",
+      "item": [
+        {
+          "name": "Create Negotiation State",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"negotiation_id\": \"neg-test-001\",\n  \"state_name\": \"INITIAL\",\n  \"template_name\": \"STANDARD\",\n  \"manager_id\": \"manager-001\",\n  \"negotiation_status\": \"ACTIVE\",\n  \"duration_seconds\": 3600,\n  \"performer_name\": \"Test Performer\",\n  \"entered_at\": \"2025-01-15T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:9075/api/negotiation-states",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "negotiation-states"]
+            }
+          }
+        },
+        {
+          "name": "Get Negotiation States by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:9075/api/negotiation-states/neg-test-001",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "negotiation-states", "neg-test-001"]
+            }
+          }
+        },
+        {
+          "name": "Delete Negotiation States by ID",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:9075/api/negotiation-states/neg-test-001",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "negotiation-states", "neg-test-001"]
+            }
+          }
+        },
+        {
+          "name": "Query 1 - Bottlenecks by Template",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:9075/api/negotiation-states/analytics/bottlenecks?templateName=STANDARD",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "negotiation-states", "analytics", "bottlenecks"],
+              "query": [
+                {
+                  "key": "templateName",
+                  "value": "STANDARD"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Query 2 - Monthly Success Trend",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:9075/api/negotiation-states/analytics/monthly-trend",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "negotiation-states", "analytics", "monthly-trend"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Offer Events",
+      "item": [
+        {
+          "name": "Create Offer Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"offer_id\": \"offer-test-001\",\n  \"event_type\": \"CREATED\",\n  \"manager_id\": \"manager-001\",\n  \"negotiation_id\": \"neg-test-001\",\n  \"price\": 15000.00,\n  \"location\": \"Novi Sad\",\n  \"occurred_at\": \"2025-01-15T12:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:9075/api/offer-events",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "offer-events"]
+            }
+          }
+        },
+        {
+          "name": "Get Offer Events by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:9075/api/offer-events/offer-test-001",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "offer-events", "offer-test-001"]
+            }
+          }
+        },
+        {
+          "name": "Delete Offer Events by ID",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:9075/api/offer-events/offer-test-001",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "offer-events", "offer-test-001"]
+            }
+          }
+        },
+        {
+          "name": "Query 3 - Avg Offer Price by Event Type and Location",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:9075/api/offer-events/analytics/avg-offer-price",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "9075",
+              "path": ["api", "offer-events", "analytics", "avg-offer-price"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

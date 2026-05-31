@@ -277,6 +277,46 @@ services:
     ports:
       - "9070:9051"
 
+  advertising-search-service:
+    build:
+      context: ./AdvertisingSearchService
+      dockerfile: Dockerfile
+    image: advertising-search-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "9080:9080"
+
+  event-organisation-analytics-service:
+    build:
+      context: ./EventOrganisationAnalyticsService
+      dockerfile: Dockerfile
+    image: event-organisation-analytics-service:latest
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "9072:9070"
+
   influxdb:
     image: influxdb:2.7.6
     ports:
@@ -319,45 +359,47 @@ services:
     ports:
       - "9090:9090"
 
-  advertising-search-service:
-    build:
-      context: ./AdvertisingSearchService
-      dockerfile: Dockerfile
-    image: advertising-search-service:latest
-    depends_on:
-      eureka-server:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
-      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+  influxdb-negotiation:
+    image: influxdb:2.7
     ports:
-      - "9080:9080"
+      - "8087:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: nais
+      DOCKER_INFLUXDB_INIT_PASSWORD: password
+      DOCKER_INFLUXDB_INIT_ORG: nais_org
+      DOCKER_INFLUXDB_INIT_BUCKET: negotiation_bucket
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+    volumes:
+      - influxdb_negotiation_data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
 
-  event-organisation-analytics-service:
+  negotiation-analytics-service:
     build:
-      context: ./EventOrganisationAnalyticsService
+      context: ./NegotiationAnalyticsService
       dockerfile: Dockerfile
-    image: event-organisation-analytics-service:latest
+    image: negotiation-analytics-service:latest
     depends_on:
       eureka-server:
         condition: service_healthy
-      elasticsearch:
+      influxdb-negotiation:
         condition: service_healthy
       redis:
         condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
-      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      SPRING_INFLUX_URL: http://influxdb-negotiation:8086
+      SPRING_INFLUX_TOKEN: my-super-secret-auth-token
+      SPRING_INFLUX_ORG: nais_org
+      SPRING_INFLUX_BUCKET: negotiation_bucket
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
     ports:
-      - "9072:9070"
+      - "9075:9090"
 
 volumes:
   neo4j_data: {}
@@ -369,5 +411,6 @@ volumes:
   elasticsearch_data: {}
   redis_data: {}
   influxdb_data: {}
+  influxdb_negotiation_data: {}
   redisinsight_data: {}
   huggingface_cache: {}
