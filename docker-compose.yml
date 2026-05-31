@@ -195,11 +195,13 @@ services:
 
   redis-insight:
     image: redis/redisinsight:latest
-    ports:
-      - "5540:5540"
     depends_on:
       redis:
         condition: service_healthy
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
 
   vector-database-service:
     build:
@@ -218,15 +220,18 @@ services:
       MILVUS_HOST: standalone
       MILVUS_PORT: 19530
       APP_PORT: 8000
+      HF_HOME: /cache/huggingface
+      SENTENCE_TRANSFORMERS_HOME: /cache/sentence_transformers
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_DB: 0
-      REDIS_EMBEDDING_TTL_SECONDS: 3600
+      REDIS_RESPONSE_TTL_SECONDS: 300
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     ports:
       - "8000:8000"
     volumes:
       - ./VectorDatabaseService/data:/app/data:ro
+      - huggingface_cache:/cache
 
   attu:
     image: zilliz/attu:v2.4
@@ -320,9 +325,13 @@ services:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     ports:
       - "9080:9080"
 
@@ -356,3 +365,5 @@ volumes:
   elasticsearch_data: {}
   redis_data: {}
   influxdb_data: {}
+  redisinsight_data: {}
+  huggingface_cache: {}

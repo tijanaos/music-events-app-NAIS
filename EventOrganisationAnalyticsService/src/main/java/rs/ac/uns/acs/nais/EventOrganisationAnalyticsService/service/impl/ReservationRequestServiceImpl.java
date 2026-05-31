@@ -1,9 +1,7 @@
 package rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
-import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config.CacheNames;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.request.ReservationRequestDto;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.request.RequestedResourceItemRequest;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.dto.response.ReservationRequestResponse;
@@ -25,13 +23,6 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
     private final ReservationRequestRepository repository;
 
     @Override
-    @CacheEvict(cacheNames = {
-            CacheNames.RESERVATION_SEARCH,
-            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
-            CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
-            CacheNames.RESOURCE_UTILIZATION_REPORTS
-    }, allEntries = true)
     public ReservationRequestResponse create(ReservationRequestDto dto) {
         ReservationRequestDocument doc = toDocument(dto);
         doc.setId(UUID.randomUUID().toString());
@@ -79,13 +70,6 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
     }
 
     @Override
-    @CacheEvict(cacheNames = {
-            CacheNames.RESERVATION_SEARCH,
-            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
-            CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
-            CacheNames.RESOURCE_UTILIZATION_REPORTS
-    }, allEntries = true)
     public ReservationRequestResponse update(String id, ReservationRequestDto dto) {
         ReservationRequestDocument existing = getOrThrow(id);
         ReservationRequestDocument updated = toDocument(dto);
@@ -94,13 +78,6 @@ public class ReservationRequestServiceImpl implements ReservationRequestService 
     }
 
     @Override
-    @CacheEvict(cacheNames = {
-            CacheNames.RESERVATION_SEARCH,
-            CacheNames.MOST_USED_RESOURCES_BY_STAGE,
-            CacheNames.TIME_SLOTS_WITH_MOST_RESOURCES,
-            CacheNames.RESERVATIONS_WITH_MISSING_RESOURCES,
-            CacheNames.RESOURCE_UTILIZATION_REPORTS
-    }, allEntries = true)
     public void delete(String id) {
         getOrThrow(id);
         repository.deleteById(id);
