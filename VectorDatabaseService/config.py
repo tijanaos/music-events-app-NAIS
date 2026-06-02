@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Milvus connection
@@ -59,6 +60,7 @@ MAX_TOP_K = 100
 # ─────────────────────────────────────────────────────────────────────────────
 IMAGE_DOWNLOAD_TIMEOUT = 10
 MAX_IMAGE_SIZE_PX = 1024
+REAL_DATA_ROOT = Path(os.getenv("REAL_DATA_ROOT", "/app/data/real"))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Redis cache

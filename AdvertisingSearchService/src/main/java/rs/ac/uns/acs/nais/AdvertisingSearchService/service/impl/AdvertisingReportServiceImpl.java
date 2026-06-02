@@ -65,6 +65,7 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
     public byte[] export(String text, String category, String contentType, Integer kampanjaId, String semanticQuery, Integer topK)
             throws IOException {
         ReportData reportData = collectReportData(text, category, contentType, kampanjaId, semanticQuery, topK);
+        List<AdTypeResponse> displayedAdTypes = safeAdTypeResults(reportData.activeAdTypes());
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         Document document = new Document(PageSize.A4.rotate(), 36, 36, 36, 36);
@@ -75,10 +76,8 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
         addFiltersSummary(document, text, category, contentType, kampanjaId, semanticQuery, topK);
 
         addSectionHeading(document, "Prosta sekcija 1: Aktivne vrste oglasa iz Elasticsearch baze");
-        addParagraph(document, String.format(Locale.ROOT,
-                "Pronadjeno je %d aktivnih vrsta oglasa za tekst '%s'.",
-                reportData.activeAdTypes().getTotalHits(), text));
-        addAdTypesTable(document, safeAdTypeResults(reportData.activeAdTypes()));
+        addParagraph(document, buildAdTypesSummary(reportData.activeAdTypes().getTotalHits(), displayedAdTypes.size(), text));
+        addAdTypesTable(document, displayedAdTypes);
 
         addSectionHeading(document, "Prosta sekcija 2: Aktivni oglasi kampanje iz vektorske baze");
         addParagraph(document, String.format(Locale.ROOT,
@@ -91,9 +90,11 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
                 "Ova sekcija najpre koristi Elasticsearch da odredi aktivne tipove oglasa i ciljne kanale, " +
                         "a zatim vrsi semanticku pretragu u Milvus bazi i zadrzava samo oglase kompatibilne sa tim pravilima.");
         addComplexResultsTable(document, reportData.recommendedAds(), reportData.allowedChannelsSummary());
+        addSectionHeading(document, "Grafikon: Semanticka relevantnost preporucenih oglasa");
+        addSemanticScoreChart(document, reportData.recommendedAds());
 
-        addSectionHeading(document, "Grafikon: Broj aktivnih vrsta oglasa po ciljnom kanalu");
-        addChart(document, safeAggregations(reportData.activeAdTypes()));
+        addSectionHeading(document, "Grafikon: Prosecno trajanje prikazanih vrsta oglasa");
+        addDurationChart(document, displayedAdTypes);
 
         addSectionHeading(document, "Zakljucak");
         addParagraph(document, buildConclusion(reportData, category, contentType, kampanjaId));
@@ -131,7 +132,7 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
     private List<VectorOglasResponse> fetchActiveAds(String category, Integer kampanjaId, String vectorTip) {
         String uri = UriComponentsBuilder.fromHttpUrl(vectorServiceBaseUrl + "/api/v1/oglasi")
                 .queryParam("tip_oglasa", vectorTip)
-                .queryParam("status", "aktivan")
+                .queryParam("status", "active")
                 .queryParam("kategorija", category)
                 .queryParam("kampanja_id", kampanjaId)
                 .queryParam("limit", 20)
@@ -152,7 +153,7 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
         VectorSemanticSearchRequest request = VectorSemanticSearchRequest.builder()
                 .query(semanticQuery)
                 .tipOglasa(vectorTip)
-                .status("aktivan")
+                .status("active")
                 .kategorija(category)
                 .topK(topK)
                 .build();
@@ -221,7 +222,7 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
         table.setWidthPercentage(100);
         addHeaderRow(table, "ID", "Naziv", "Kategorija", "Content type", "Kanal", "Trajanje");
 
-        for (AdTypeResponse adType : adTypes.stream().limit(12).toList()) {
+        for (AdTypeResponse adType : adTypes) {
             table.addCell(cell(String.valueOf(adType.getId())));
             table.addCell(cell(adType.getName()));
             table.addCell(cell(adType.getCategory()));
@@ -271,20 +272,33 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
         document.add(table);
     }
 
-    private void addChart(Document document, List<AggregationBucketResponse> groupedByTargetChannel) throws IOException {
-        if (groupedByTargetChannel == null || groupedByTargetChannel.isEmpty()) {
+    private void addDurationChart(Document document, List<AdTypeResponse> adTypes) throws IOException {
+        if (adTypes == null || adTypes.isEmpty()) {
             addParagraph(document, "Grafikon nije moguce prikazati jer nema agregiranih rezultata.");
             return;
         }
 
-        byte[] chartBytes = createBarChart(groupedByTargetChannel);
+        byte[] chartBytes = createDurationChart(adTypes.stream().limit(8).toList());
         Image image = Image.getInstance(chartBytes);
         image.scaleToFit(680, 260);
         image.setAlignment(Element.ALIGN_CENTER);
         document.add(image);
     }
 
-    private byte[] createBarChart(List<AggregationBucketResponse> groupedByTargetChannel) throws IOException {
+    private void addSemanticScoreChart(Document document, List<VectorOglasSearchResult> ads) throws IOException {
+        if (ads == null || ads.isEmpty()) {
+            addParagraph(document, "Semanticki grafikon nije moguce prikazati jer nema preporucenih oglasa.");
+            return;
+        }
+
+        byte[] chartBytes = createSemanticScoreChart(ads.stream().limit(8).toList());
+        Image image = Image.getInstance(chartBytes);
+        image.scaleToFit(680, 260);
+        image.setAlignment(Element.ALIGN_CENTER);
+        document.add(image);
+    }
+
+    private byte[] createDurationChart(List<AdTypeResponse> adTypes) throws IOException {
         int width = 900;
         int height = 320;
         int padding = 60;
@@ -302,33 +316,91 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
         graphics.drawLine(padding, height - padding, width - padding, height - padding);
         graphics.drawLine(padding, padding, padding, height - padding);
 
-        long maxValue = groupedByTargetChannel.stream()
-                .map(AggregationBucketResponse::getMatchingDocumentsCount)
-                .max(Long::compareTo)
-                .orElse(1L);
+        int maxValue = adTypes.stream()
+                .map(AdTypeResponse::getAverageDurationDays)
+                .filter(Objects::nonNull)
+                .max(Integer::compareTo)
+                .orElse(1);
 
-        int barWidth = Math.max(40, chartWidth / groupedByTargetChannel.size() - 20);
+        int barWidth = Math.max(40, chartWidth / adTypes.size() - 20);
         int gap = 20;
         int x = padding + 20;
 
         java.awt.Font labelFont = new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12);
         java.awt.Font titleFont = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16);
         graphics.setFont(titleFont);
-        graphics.drawString("Aktivne vrste oglasa po kanalu", padding, 30);
+        graphics.drawString("Displayed active ad types by average duration (days)", padding, 30);
         graphics.setFont(labelFont);
         FontMetrics metrics = graphics.getFontMetrics();
 
-        for (AggregationBucketResponse bucket : groupedByTargetChannel) {
-            int barHeight = (int) ((bucket.getMatchingDocumentsCount() * 1.0 / maxValue) * (chartHeight - 20));
+        for (AdTypeResponse adType : adTypes) {
+            int duration = adType.getAverageDurationDays() == null ? 0 : adType.getAverageDurationDays();
+            int barHeight = (int) ((duration * 1.0 / maxValue) * (chartHeight - 20));
             int y = height - padding - barHeight;
             graphics.setColor(BAR_COLOR);
             graphics.fillRect(x, y, barWidth, barHeight);
 
             graphics.setColor(Color.DARK_GRAY);
-            String countLabel = String.valueOf(bucket.getMatchingDocumentsCount());
+            String countLabel = String.valueOf(duration);
             graphics.drawString(countLabel, x + (barWidth - metrics.stringWidth(countLabel)) / 2, y - 6);
 
-            String key = bucket.getGroupValue().replace('_', ' ');
+            String key = abbreviateLabel(adType.getName());
+            graphics.drawString(key, x, height - padding + 18);
+            x += barWidth + gap;
+        }
+
+        graphics.dispose();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", outputStream);
+        return outputStream.toByteArray();
+    }
+
+    private byte[] createSemanticScoreChart(List<VectorOglasSearchResult> ads) throws IOException {
+        int width = 900;
+        int height = 320;
+        int padding = 60;
+        int chartHeight = height - 2 * padding;
+        int chartWidth = width - 2 * padding;
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, width, height);
+
+        graphics.setColor(Color.DARK_GRAY);
+        graphics.setStroke(new BasicStroke(2f));
+        graphics.drawLine(padding, height - padding, width - padding, height - padding);
+        graphics.drawLine(padding, padding, padding, height - padding);
+
+        double maxValue = ads.stream()
+                .map(AdvertisingReportServiceImpl::scoreOf)
+                .max(Double::compareTo)
+                .orElse(1.0);
+
+        int barWidth = Math.max(40, chartWidth / ads.size() - 20);
+        int gap = 20;
+        int x = padding + 20;
+
+        java.awt.Font labelFont = new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12);
+        java.awt.Font titleFont = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16);
+        graphics.setFont(titleFont);
+        graphics.drawString("Top recommended ads by semantic score", padding, 30);
+        graphics.setFont(labelFont);
+        FontMetrics metrics = graphics.getFontMetrics();
+
+        for (VectorOglasSearchResult ad : ads) {
+            double score = scoreOf(ad);
+            int barHeight = maxValue == 0.0 ? 0 : (int) ((score / maxValue) * (chartHeight - 20));
+            int y = height - padding - barHeight;
+            graphics.setColor(new Color(57, 181, 74));
+            graphics.fillRect(x, y, barWidth, barHeight);
+
+            graphics.setColor(Color.DARK_GRAY);
+            String scoreLabel = String.format(Locale.ROOT, "%.2f", score);
+            graphics.drawString(scoreLabel, x + (barWidth - metrics.stringWidth(scoreLabel)) / 2, y - 6);
+
+            String key = abbreviateLabel(ad.getNaziv());
             graphics.drawString(key, x, height - padding + 18);
             x += barWidth + gap;
         }
@@ -395,6 +467,34 @@ public class AdvertisingReportServiceImpl implements AdvertisingReportService {
 
     private List<AggregationBucketResponse> safeAggregations(AdTypeSearchQueryResponse response) {
         return response.getGroupedByTargetChannel() == null ? List.of() : response.getGroupedByTargetChannel();
+    }
+
+    private String buildAdTypesSummary(long totalHits, int displayedCount, String text) {
+        if (totalHits > displayedCount) {
+            return String.format(
+                    Locale.ROOT,
+                    "Upit za tekst '%s' vratio je %d aktivnih vrsta oglasa u okviru servisnog limita od 50 rezultata. U tabeli je prikazano prvih %d rezultata, sortiranih po prosecnom trajanju.",
+                    text,
+                    totalHits,
+                    displayedCount
+            );
+        }
+
+        return String.format(
+                Locale.ROOT,
+                "Upit za tekst '%s' vratio je %d aktivnih vrsta oglasa i svi rezultati su prikazani u tabeli.",
+                text,
+                totalHits
+        );
+    }
+
+    private String abbreviateLabel(String value) {
+        if (value == null || value.isBlank()) {
+            return "n/a";
+        }
+
+        String compact = value.length() <= 14 ? value : value.substring(0, 14) + "...";
+        return compact.replace(' ', '_');
     }
 
     private record ReportData(

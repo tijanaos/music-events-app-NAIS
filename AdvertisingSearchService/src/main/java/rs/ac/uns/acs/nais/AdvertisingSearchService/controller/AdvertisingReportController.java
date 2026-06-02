@@ -22,11 +22,11 @@ public class AdvertisingReportController {
 
     @GetMapping(value = "/export-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportPdf(
-            @RequestParam(defaultValue = "video promocija") String text,
+            @RequestParam(defaultValue = "festival lineup reveal") String text,
             @RequestParam(defaultValue = "festival") String category,
             @RequestParam(defaultValue = "video") String contentType,
-            @RequestParam(defaultValue = "12") Integer kampanjaId,
-            @RequestParam(defaultValue = "letnja promocija festivala") String semanticQuery,
+            @RequestParam(defaultValue = "1") Integer kampanjaId,
+            @RequestParam(defaultValue = "headline artist reveal main stage crowd and weekend festival energy") String semanticQuery,
             @RequestParam(defaultValue = "10") Integer topK) {
         try {
             byte[] pdfContents = advertisingReportService.export(text, category, contentType, kampanjaId, semanticQuery, topK);

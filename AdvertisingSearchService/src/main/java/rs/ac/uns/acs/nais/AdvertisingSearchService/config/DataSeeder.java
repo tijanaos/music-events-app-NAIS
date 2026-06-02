@@ -1,6 +1,7 @@
 package rs.ac.uns.acs.nais.AdvertisingSearchService.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import rs.ac.uns.acs.nais.AdvertisingSearchService.model.AdPhaseDocument;
@@ -18,12 +19,15 @@ public class DataSeeder implements CommandLineRunner {
 
     private static final int TARGET_SIZE = 1000;
 
+    @Value("${advertising.seed.force-reload:true}")
+    private boolean forceReload;
+
     private final AdTypeRepository adTypeRepository;
     private final AdPhaseRepository adPhaseRepository;
 
     @Override
     public void run(String... args) {
-        if (adTypeRepository.count() >= TARGET_SIZE && adPhaseRepository.count() >= TARGET_SIZE) {
+        if (!forceReload && adTypeRepository.count() >= TARGET_SIZE && adPhaseRepository.count() >= TARGET_SIZE) {
             return;
         }
 

@@ -1,6 +1,8 @@
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
+from config import REAL_DATA_ROOT
 from model.oglas import (
     OglasCreate,
     OglasUpdate,
@@ -67,12 +69,26 @@ class OglasService:
 
         return text_embedding, media_embedding
 
+    def _normalize_content_url(self, content_url: Optional[str]) -> Optional[str]:
+        if not content_url:
+            return content_url
+
+        if content_url.startswith(("http://", "https://")):
+            return content_url
+
+        content_path = Path(content_url)
+        if content_path.is_absolute():
+            return str(content_path)
+
+        return str((REAL_DATA_ROOT / content_path).as_posix())
+
     def _to_record(self, payload: OglasCreate) -> dict:
+        normalized_content_url = self._normalize_content_url(payload.content_url)
         text_embedding, media_embedding = self._create_embeddings(
             naziv=payload.naziv,
             opis=payload.opis,
             tip_oglasa=payload.tip_oglasa,
-            content_url=payload.content_url,
+            content_url=normalized_content_url,
         )
 
         return {
@@ -81,7 +97,7 @@ class OglasService:
             "opis": payload.opis,
             "tip_oglasa": payload.tip_oglasa,
             "ad_type_id": payload.ad_type_id,
-            "content_url": payload.content_url or "",
+            "content_url": normalized_content_url or "",
             "status": payload.status,
             "kategorija": payload.kategorija,
             "datum_kreiranja": payload.datum_kreiranja,
@@ -154,6 +170,7 @@ class OglasService:
         }
 
         merged["oglas_id"] = oglas_id
+        merged["content_url"] = self._normalize_content_url(merged.get("content_url"))
 
         if not merged.get("datum_poslednje_izmene"):
             merged["datum_poslednje_izmene"] = datetime.utcnow().isoformat()
