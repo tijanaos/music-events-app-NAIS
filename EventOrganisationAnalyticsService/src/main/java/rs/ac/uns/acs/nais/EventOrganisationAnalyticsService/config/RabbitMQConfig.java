@@ -1,0 +1,108 @@
+package rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.config;
+
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * RabbitMQ konfiguracija za EventOrganisationAnalyticsService (Elasticsearch
+ * strana orkestrisane sage).
+ *
+ * Deklarise isti orkestracioni exchange i queue-ove kao EventOrganisationService
+ * -- RabbitMQ tretira ponovljene deklaracije kao no-op ukoliko se parametri
+ * poklapaju, pa oba servisa mogu nezavisno da definisu istu topologiju.
+ *
+ * Vidi RabbitMQConfig u EventOrganisationService za pun opis toka sage.
+ */
+@Configuration
+public class RabbitMQConfig {
+
+    public static final String ORCHESTRATION_EXCHANGE = "reservation.saga.orchestration.exchange";
+
+    public static final String CREATE_RESERVATION_CMD_QUEUE = "create.reservation.command.queue";
+    public static final String CREATE_RESERVATION_CMD_KEY   = "create.reservation.command";
+
+    public static final String RESERVATION_CREATED_REPLY_QUEUE = "reservation.created.reply.queue";
+    public static final String RESERVATION_CREATED_REPLY_KEY   = "reservation.created.reply";
+
+    public static final String RECORD_RESOURCE_USAGE_CMD_QUEUE = "record.resource.usage.command.queue";
+    public static final String RECORD_RESOURCE_USAGE_CMD_KEY   = "record.resource.usage.command";
+
+    public static final String RESOURCE_USAGE_RECORDED_REPLY_QUEUE = "resource.usage.recorded.reply.queue";
+    public static final String RESOURCE_USAGE_RECORDED_REPLY_KEY   = "resource.usage.recorded.reply";
+
+    public static final String DELETE_RESERVATION_CMD_QUEUE = "delete.reservation.command.queue";
+    public static final String DELETE_RESERVATION_CMD_KEY   = "delete.reservation.command";
+
+    public static final String RESERVATION_DELETED_REPLY_QUEUE = "reservation.deleted.reply.queue";
+    public static final String RESERVATION_DELETED_REPLY_KEY   = "reservation.deleted.reply";
+
+    // =========================================================================
+    // Message converter i RabbitTemplate
+    // =========================================================================
+
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(jsonMessageConverter());
+        return template;
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(jsonMessageConverter());
+        return factory;
+    }
+
+    // =========================================================================
+    // Orkestracioni exchange, queue-ovi i bindinzi
+    // =========================================================================
+
+    @Bean
+    public DirectExchange orchestrationExchange() {
+        return new DirectExchange(ORCHESTRATION_EXCHANGE);
+    }
+
+    @Bean public Queue createReservationCmdQueue()       { return QueueBuilder.durable(CREATE_RESERVATION_CMD_QUEUE).build(); }
+    @Bean public Queue reservationCreatedReplyQueue()    { return QueueBuilder.durable(RESERVATION_CREATED_REPLY_QUEUE).build(); }
+
+    @Bean public Queue recordResourceUsageCmdQueue()     { return QueueBuilder.durable(RECORD_RESOURCE_USAGE_CMD_QUEUE).build(); }
+    @Bean public Queue resourceUsageRecordedReplyQueue() { return QueueBuilder.durable(RESOURCE_USAGE_RECORDED_REPLY_QUEUE).build(); }
+
+    @Bean public Queue deleteReservationCmdQueue()       { return QueueBuilder.durable(DELETE_RESERVATION_CMD_QUEUE).build(); }
+    @Bean public Queue reservationDeletedReplyQueue()    { return QueueBuilder.durable(RESERVATION_DELETED_REPLY_QUEUE).build(); }
+
+    @Bean public Binding createReservationCmdBinding() {
+        return BindingBuilder.bind(createReservationCmdQueue()).to(orchestrationExchange()).with(CREATE_RESERVATION_CMD_KEY);
+    }
+    @Bean public Binding reservationCreatedReplyBinding() {
+        return BindingBuilder.bind(reservationCreatedReplyQueue()).to(orchestrationExchange()).with(RESERVATION_CREATED_REPLY_KEY);
+    }
+
+    @Bean public Binding recordResourceUsageCmdBinding() {
+        return BindingBuilder.bind(recordResourceUsageCmdQueue()).to(orchestrationExchange()).with(RECORD_RESOURCE_USAGE_CMD_KEY);
+    }
+    @Bean public Binding resourceUsageRecordedReplyBinding() {
+        return BindingBuilder.bind(resourceUsageRecordedReplyQueue()).to(orchestrationExchange()).with(RESOURCE_USAGE_RECORDED_REPLY_KEY);
+    }
+
+    @Bean public Binding deleteReservationCmdBinding() {
+        return BindingBuilder.bind(deleteReservationCmdQueue()).to(orchestrationExchange()).with(DELETE_RESERVATION_CMD_KEY);
+    }
+    @Bean public Binding reservationDeletedReplyBinding() {
+        return BindingBuilder.bind(reservationDeletedReplyQueue()).to(orchestrationExchange()).with(RESERVATION_DELETED_REPLY_KEY);
+    }
+}

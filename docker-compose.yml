@@ -61,6 +61,25 @@ services:
       timeout: 10s
       retries: 5
 
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: kniepdennis-neo4j-datasource
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: kniepdennis-neo4j-datasource
+    volumes:
+      - grafana_storage:/var/lib/grafana
+      - ./Grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./Grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - neo4j
+      - elasticsearch
+
   event-organisation-service:
     build:
       context: ./EventOrganisationService
@@ -71,11 +90,15 @@ services:
         condition: service_healthy
       neo4j:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j:7687
       SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
       SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
     ports:
       - "9060:9050"
 
@@ -332,11 +355,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
     ports:
       - "9072:9070"
 
@@ -440,3 +467,4 @@ volumes:
   influxdb_negotiation_data: {}
   redisinsight_data: {}
   huggingface_cache: {}
+  grafana_storage: {}
