@@ -1,0 +1,50 @@
+apiVersion: 1
+
+datasources:
+  # ── Elasticsearch (resource-usage i reservation-requests indeksi) ──────────
+  - name: Elasticsearch
+    type: elasticsearch
+    uid: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    isDefault: true
+    jsonData:
+      index: "resource-usage"
+      timeField: "date"
+      esVersion: "8.14.3"
+      logMessageField: ""
+      logLevelField: ""
+
+  # ── Elasticsearch (reservation-requests index) ───────────────────────────────
+  - name: Elasticsearch-Reservations
+    type: elasticsearch
+    uid: elasticsearch-reservations
+    access: proxy
+    url: http://elasticsearch:9200
+    jsonData:
+      index: "reservation-requests"
+      timeField: "sent_date"
+      esVersion: "8.14.3"
+      logMessageField: ""
+      logLevelField: ""
+
+  # ── Neo4j (EventOrganisationService) ────────────────────────────────────────
+  - name: Neo4j
+    type: kniepdennis-neo4j-datasource
+    uid: neo4j
+    access: proxy
+    jsonData:
+      url: bolt://neo4j:7687
+      username: neo4j
+    secureJsonData:
+      password: password
+  # ── Neo4j (EventOrganisationService) ────────────────────────────────────────
+  - name: Neo4j
+    type: kniepdennis-neo4j-datasource
+    uid: neo4j
+    access: proxy
+    jsonData:
+      url: bolt://neo4j:7687
+      username: neo4j
+    secureJsonData:
+      password: password
