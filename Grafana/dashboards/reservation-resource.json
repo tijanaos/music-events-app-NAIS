@@ -1,0 +1,277 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "title": "Neo4j",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "kniepdennis-neo4j-datasource", "uid": "neo4j" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 80 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 1 },
+      "id": 3,
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": -30,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "cypherQuery": "MATCH (r:Reservation)-[req:REQUIRES_RESOURCE]->(res:Resource)\nWHERE req.requestedQuantity > 0\nWITH res.name AS resource, sum(req.requestedQuantity) AS total_quantity\nRETURN resource, total_quantity\nORDER BY total_quantity DESC\nLIMIT 10",
+          "datasource": { "type": "kniepdennis-neo4j-datasource", "uid": "neo4j" },
+          "refId": "A"
+        }
+      ],
+      "title": "Total Resource Usage",
+      "type": "barchart"
+    },
+    {
+      "datasource": { "type": "kniepdennis-neo4j-datasource", "uid": "neo4j" },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 1 },
+      "id": 1,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "right", "showLegend": true },
+        "pieType": "pie",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "APPROVED" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#73BF69", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "CREATED" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#5794F2", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "PENDING" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#FF9830", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "CANCELLED" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#F2495C", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "cypherQuery": "MATCH (r:Reservation) RETURN r.status AS status, count(r) AS count",
+          "datasource": { "type": "kniepdennis-neo4j-datasource", "uid": "neo4j" },
+          "hide": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Reservations by Status",
+      "type": "piechart"
+    },
+    {
+      "datasource": { "type": "kniepdennis-neo4j-datasource", "uid": "neo4j" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 10 },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "targets": [
+        {
+          "cypherQuery": "MATCH (r:Reservation)-[:ON_STAGE]->(s:Stage)\nRETURN r.id AS reservation_id, s.name AS stage, r.status AS status\nORDER BY r.status\nLIMIT 50",
+          "datasource": { "type": "kniepdennis-neo4j-datasource", "uid": "neo4j" },
+          "refId": "A"
+        }
+      ],
+      "title": "Reservations per Stage",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 19 },
+      "id": 11,
+      "title": "Elasticsearch",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "elasticsearch", "uid": "elasticsearch" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 20 },
+      "id": 4,
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": -30,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "resource_name",
+              "id": "2",
+              "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "1", "size": "10" },
+              "type": "terms"
+            }
+          ],
+          "datasource": { "type": "elasticsearch", "uid": "elasticsearch" },
+          "metrics": [
+            { "field": "allocated_quantity", "id": "1", "type": "sum" }
+          ],
+          "query": "",
+          "refId": "A",
+          "timeField": "date"
+        }
+      ],
+      "title": "Allocated Quantity per Resource (Elasticsearch)",
+      "type": "barchart"
+    },
+    {
+      "datasource": { "type": "elasticsearch", "uid": "elasticsearch-reservations" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 20 },
+      "id": 5,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "right", "showLegend": true },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "alias": "{{request_status}}",
+          "bucketAggs": [
+            {
+              "field": "request_status",
+              "id": "2",
+              "settings": { "min_doc_count": "1", "order": "desc", "orderBy": "_count", "size": "10" },
+              "type": "terms"
+            }
+          ],
+          "datasource": { "type": "elasticsearch", "uid": "elasticsearch-reservations" },
+          "metrics": [
+            { "id": "1", "type": "count" }
+          ],
+          "query": "",
+          "refId": "A",
+          "timeField": "sent_date"
+        }
+      ],
+      "title": "Reservation Requests by Status (Elasticsearch)",
+      "type": "piechart"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": { "list": [] },
+  "time": { "from": "now-1y", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Reservation and Resource Utilization",
+  "uid": "afpmbaf0py6tce",
+  "version": 3,
+  "weekStart": ""
+}
