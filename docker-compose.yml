@@ -89,11 +89,14 @@ services:
         condition: service_healthy
       neo4j-performer:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       SPRING_NEO4J_URI: bolt://neo4j-performer:7687
       SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
       SPRING_NEO4J_AUTHENTICATION_PASSWORD: password
+      SPRING_RABBITMQ_HOST: rabbitmq
     ports:
       - "9071:9070"
 
@@ -368,6 +371,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       INFLUXDB_URL: http://influxdb:8086
@@ -376,6 +381,7 @@ services:
       INFLUXDB_BUCKET: music_events_metrics
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
     ports:
       - "9090:9090"
 

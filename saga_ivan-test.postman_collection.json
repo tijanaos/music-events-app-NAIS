@@ -1,0 +1,183 @@
+{
+  "info": {
+    "name": "Performer Ticket Allocation Saga",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:9071" },
+    { "key": "negotiation_id", "value": "" },
+    { "key": "concluded_state_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Dohvati pregovaranja (auto-setuje negotiation_id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const negotiations = pm.response.json();",
+              "const target = negotiations.find(n =>",
+              "  n.performers && n.performers.length > 0 &&",
+              "  n.performers[0].performer.name === 'The Midnight'",
+              ");",
+              "if (target) {",
+              "  pm.collectionVariables.set('negotiation_id', target.id);",
+              "  console.log(' The Midnight ID postavljen:', target.id);",
+              "} else {",
+              "  console.log(' The Midnight nije pronađen');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/negotiations"
+      }
+    },
+    {
+      "name": "2. Dohvati stanja (auto-setuje concluded_state_id)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const states = pm.response.json();",
+              "const concluded = states.find(s => s.isFinal === true);",
+              "if (concluded) {",
+              "  pm.collectionVariables.set('concluded_state_id', concluded.id);",
+              "  console.log(' Concluded state ID postavljen:', concluded.id);",
+              "} else {",
+              "  console.log(' Final state nije pronađen');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/states"
+      }
+    },
+    {
+      "name": "3. Advance The Midnight do Concluded stanja",
+      "request": {
+        "method": "PATCH",
+        "url": {
+          "raw": "{{base_url}}/api/negotiations/{{negotiation_id}}/advance?newStateId={{concluded_state_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "negotiations", "{{negotiation_id}}", "advance"],
+          "query": [{ "key": "newStateId", "value": "{{concluded_state_id}}" }]
+        }
+      }
+    },
+    {
+      "name": "4. Pokreni sagu",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('concludedAt je setovan', () => pm.expect(body.concludedAt).to.not.be.null);",
+              "console.log(' Saga pokrenuta');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/api/negotiations/{{negotiation_id}}/conclude"
+      }
+    },
+    {
+      "name": "5. Verifikacija - Dohvati pregovaranje",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/negotiations/{{negotiation_id}}"
+      }
+    },
+    {
+      "name": "KOMPENZACIJA",
+      "item": [
+        {
+          "name": "K1. Dohvati Arctic Monkeys (auto-setuje kompenzacioni ID)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const negotiations = pm.response.json();",
+                  "const target = negotiations.find(n =>",
+                  "  n.performers && n.performers.length > 0 &&",
+                  "  n.performers[0].performer.name === 'Arctic Monkeys'",
+                  ");",
+                  "if (target) {",
+                  "  pm.collectionVariables.set('comp_negotiation_id', target.id);",
+                  "  console.log('Arctic Monkeys ID:', target.id);",
+                  "  console.log('SADA stopuj InfluxDB: docker stop <influxdb-container>');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/negotiations"
+          }
+        },
+        {
+          "name": "K2. CONCLUDE sa ugasenim InfluxDB (okida kompenzaciju)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('Saga pokrenuta sa ugasenim InfluxDB.');",
+                  "console.log('Sacekaj ~5s pa pokrni K3 da proveris da li je concludedAt=null.')"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/negotiations/{{comp_negotiation_id}}/conclude"
+          }
+        },
+        {
+          "name": "K3. Verifikacija kompenzacije (concludedAt treba da je null)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('concludedAt je null (kompenzacija uspela)', () => {",
+                  "  pm.expect(body.concludedAt).to.be.null;",
+                  "});",
+                  "if (body.concludedAt === null) {",
+                  "  console.log('Kompenzacija uspesna! concludedAt je revertovan.');",
+                  "} else {",
+                  "  console.log('concludedAt je jos uvek setovan — kompenzacija mozda nije stigla, sacekaj i ponovi.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/negotiations/{{comp_negotiation_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}

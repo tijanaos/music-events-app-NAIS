@@ -1,10 +1,13 @@
 package rs.ac.uns.acs.nais.PerformerManagementService.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import rs.ac.uns.acs.nais.PerformerManagementService.config.RabbitMQConfig;
 import rs.ac.uns.acs.nais.PerformerManagementService.dto.NegotiationDTO;
 import rs.ac.uns.acs.nais.PerformerManagementService.model.*;
 import rs.ac.uns.acs.nais.PerformerManagementService.model.enums.OfferStatus;
@@ -12,13 +15,16 @@ import rs.ac.uns.acs.nais.PerformerManagementService.model.relationship.CreatedF
 import rs.ac.uns.acs.nais.PerformerManagementService.model.relationship.InState;
 import rs.ac.uns.acs.nais.PerformerManagementService.model.relationship.PartOf;
 import rs.ac.uns.acs.nais.PerformerManagementService.repository.*;
+import rs.ac.uns.acs.nais.PerformerManagementService.saga.event.NegotiationConcludedEvent;
 import rs.ac.uns.acs.nais.PerformerManagementService.service.INegotiationService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NegotiationService implements INegotiationService {
@@ -28,6 +34,7 @@ public class NegotiationService implements INegotiationService {
     private final PerformerRepository performerRepository;
     private final StateRepository stateRepository;
     private final Neo4jClient neo4jClient;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public List<Negotiation> findAll() {
@@ -92,7 +99,36 @@ public class NegotiationService implements INegotiationService {
         }
         existing.setConcludedAt(LocalDateTime.now());
         existing.setUpdatedAt(LocalDateTime.now());
-        return negotiationRepository.save(existing);
+        Negotiation saved = negotiationRepository.save(existing);
+
+        try {
+            PartOf partOf = (existing.getPerformers() != null && !existing.getPerformers().isEmpty())
+                    ? existing.getPerformers().get(0) : null;
+            String performerId = partOf != null ? partOf.getPerformer().getId() : "unknown";
+            String performerName = partOf != null ? partOf.getPerformer().getName() : "unknown";
+            Double agreedFee = partOf != null ? partOf.getAgreedFee() : 0.0;
+
+            NegotiationConcludedEvent event = NegotiationConcludedEvent.builder()
+                    .sagaId(UUID.randomUUID().toString())
+                    .negotiationId(saved.getId())
+                    .performerId(performerId)
+                    .performerName(performerName)
+                    .agreedFee(agreedFee)
+                    .build();
+
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.CONCLUDED_KEY, event);
+            log.info("[SAGA][STARTED] sagaId={} negotiationId={} performerId={}",
+                    event.getSagaId(), event.getNegotiationId(), event.getPerformerId());
+        } catch (Exception ex) {
+            log.error("[SAGA][PUBLISH FAILED] negotiationId={} reverting conclusion: {}", id, ex.getMessage());
+            saved.setConcludedAt(null);
+            saved.setUpdatedAt(LocalDateTime.now());
+            negotiationRepository.save(saved);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Negotiation concluded but failed to start ticket allocation saga");
+        }
+
+        return saved;
     }
 
     @Override
