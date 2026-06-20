@@ -34,6 +34,6 @@ datasources:
     access: proxy
     jsonData:
       url: bolt://neo4j:7687
-      username: neo4j~
+      username: neo4j
     secureJsonData:
       password: password
