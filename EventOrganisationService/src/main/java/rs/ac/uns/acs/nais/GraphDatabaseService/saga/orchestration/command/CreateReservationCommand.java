@@ -8,11 +8,6 @@ import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ReservationDTO;
 
 import java.util.List;
 
-/**
- * Komanda koju SagaOrchestrator salje da bi Neo4j servis kreirao novu rezervaciju.
- * Nosi ReservationDTO (bina, termin, izvodjac) i listu trazenih resursa koje
- * treba povezati sa rezervacijom (REQUIRES_RESOURCE grane).
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

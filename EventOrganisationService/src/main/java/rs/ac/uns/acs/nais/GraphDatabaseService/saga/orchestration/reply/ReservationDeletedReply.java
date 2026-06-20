@@ -4,10 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Reply koji Neo4j CommandListener salje nazad orkestratoru nakon obrade
- * DeleteReservationCommand (kompenzaciona faza sage).
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
