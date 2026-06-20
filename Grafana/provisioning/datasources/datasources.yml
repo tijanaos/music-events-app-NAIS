@@ -16,6 +16,7 @@ datasources:
       logLevelField: ""
 
   # Elasticsearch (reservation-requests indeks)
+  - name: Elasticsearch-Reservations
     type: elasticsearch
     uid: elasticsearch-reservations
     access: proxy
