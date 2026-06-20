@@ -37,7 +37,7 @@ public class ReservationSagaController {
                     "message", "Saga za kreiranje rezervacije je pokrenuta."));
 
         } catch (Exception e) {
-            log.error("[CONTROLLER] GRESKA pri pokretanju sage: {}", e.getMessage(), e);
+            log.error("[CONTROLLER] Greska pri pokretanju sage: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }
