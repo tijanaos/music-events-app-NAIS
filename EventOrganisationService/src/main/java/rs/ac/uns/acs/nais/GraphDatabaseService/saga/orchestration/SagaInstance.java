@@ -5,15 +5,10 @@ import lombok.Setter;
 import rs.ac.uns.acs.nais.GraphDatabaseService.dto.ReservationDTO;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-/**
- * Predstavlja jednu aktivnu (ili zavrsenu) instancu sage kreiranja rezervacije.
- * Cuva se u memorijskom registru unutar SagaOrchestrator-a, kljucano po sagaId.
- *
- * Za produkcionu upotrebu, preporucljivo je zameniti in-memory registar
- * trajnim skladistem (npr. Redis ili relaciona baza), kako bi stanje sage
- * preživelo restart servisa.
- */
 @Getter
 @Setter
 public class SagaInstance {
@@ -23,12 +18,39 @@ public class SagaInstance {
 
     private SagaState state;
     private String reservationId;
+    private String errorMessage;
     private final LocalDateTime createdAt;
+    private final List<StateTransition> history = new ArrayList<>();
 
     public SagaInstance(String sagaId, ReservationDTO reservationRequest) {
         this.sagaId = sagaId;
         this.reservationRequest = reservationRequest;
-        this.state = SagaState.STARTED;
         this.createdAt = LocalDateTime.now();
+        setState(SagaState.STARTED);
+    }
+
+    public void setState(SagaState newState) {
+        this.state = newState;
+        this.history.add(new StateTransition(newState, LocalDateTime.now()));
+    }
+
+    public void failWith(SagaState failState, String reason) {
+        this.errorMessage = reason;
+        setState(failState);
+    }
+
+    public List<StateTransition> getHistory() {
+        return Collections.unmodifiableList(history);
+    }
+
+    @Getter
+    public static class StateTransition {
+        private final SagaState state;
+        private final LocalDateTime timestamp;
+
+        public StateTransition(SagaState state, LocalDateTime timestamp) {
+            this.state = state;
+            this.timestamp = timestamp;
+        }
     }
 }
