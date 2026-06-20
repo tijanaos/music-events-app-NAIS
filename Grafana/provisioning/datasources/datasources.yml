@@ -38,13 +38,27 @@ datasources:
       username: neo4j
     secureJsonData:
       password: password
-  # ── Neo4j (EventOrganisationService) ────────────────────────────────────────
-  - name: Neo4j
+
+  # ── InfluxDB (TimeSeriesAnalyticsService) ───────────────────────────────────
+  - name: InfluxDB-TimeSeries
+    type: influxdb
+    uid: influxdb-timeseries
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: music-events-org
+      defaultBucket: music_events_metrics
+    secureJsonData:
+      token: music-events-admin-token
+
+  # ── Neo4j-Pricing (DynamicPricingService) ───────────────────────────────────
+  - name: Neo4j-Pricing
     type: kniepdennis-neo4j-datasource
-    uid: neo4j
+    uid: neo4j-pricing
     access: proxy
     jsonData:
-      url: bolt://neo4j:7687
+      url: bolt://neo4j-pricing:7687
       username: neo4j
     secureJsonData:
       password: password
