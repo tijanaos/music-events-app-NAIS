@@ -20,20 +20,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Command listener za orkestrisanu sagu na Neo4j strani (EventOrganisationService).
- *
- * Obradjuje dve komande:
- *   - CreateReservationCommand: kreira Reservation cvor i povezuje ga sa
- *     trazenim resursima (REQUIRES_RESOURCE grane), zatim salje
- *     ReservationCreatedReply sa obogacenim podacima o resursima.
- *   - DeleteReservationCommand: kompenzacija -- brise rezervaciju kreiranu
- *     u prethodnom koraku sage.
- *
- * Napomena o idempotentnosti: za produkcionu upotrebu, preporucljivo je
- * pratiti obradjene sagaId vrednosti (npr. u Redis setu) kako bi se izbeglo
- * duplo kreiranje rezervacije pri ponovnoj isporuci poruke.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -42,36 +28,33 @@ public class CommandListener {
     private final IReservationService reservationService;
     private final RabbitTemplate rabbitTemplate;
 
-    // =========================================================================
-    // Korak 1: kreiranje rezervacije
-    // =========================================================================
-
+    // Kreiranje rezervacije
     @RabbitListener(queues = RabbitMQConfig.CREATE_RESERVATION_CMD_QUEUE)
     public void handleCreateReservationCommand(CreateReservationCommand cmd) {
         log.info("[ORCHESTRATION][Neo4j] Primljena CreateReservationCommand -- sagaId={}", cmd.getSagaId());
 
         ReservationCreatedReply reply;
         try {
-            // Kreiraj rezervaciju (bina, termin, izvodjac)
+            // Kreiranje rezervacije
             Reservation reservation = reservationService.create(cmd.getReservation());
 
-            // Poveži je sa svim traženim resursima
+            // Povezivanje rezervacije sa resursima
             if (cmd.getRequestedResources() != null) {
                 for (RequiresResourceDTO resourceDto : cmd.getRequestedResources()) {
                     reservation = reservationService.addResource(reservation.getId(), resourceDto);
                 }
             }
 
-            // Sastavi obogaćene zapise o iskorišćenosti resursa na osnovu finalnog stanja rezervacije
+            // Kreiranje ResourseUsageEntry-ja
             List<ResourceUsageEntry> usageEntries = buildResourceUsageEntries(reservation);
 
-            log.info("[ORCHESTRATION][Neo4j] sagaId={} -- Reservation kreirana, id={}, resursa={}",
+            log.info("[ORCHESTRATION][Neo4j] sagaId={} -- Reservacija kreirana, id={}, resursa={}",
                     cmd.getSagaId(), reservation.getId(), usageEntries.size());
 
             reply = new ReservationCreatedReply(cmd.getSagaId(), true, null, reservation.getId(), usageEntries);
 
         } catch (Exception e) {
-            log.error("[ORCHESTRATION][Neo4j] sagaId={} -- GRESKA pri kreiranju rezervacije: {}",
+            log.error("[ORCHESTRATION][Neo4j] sagaId={} -- Greska pri kreiranju rezervacije: {}",
                     cmd.getSagaId(), e.getMessage(), e);
             reply = new ReservationCreatedReply(cmd.getSagaId(), false, e.getMessage(), null, List.of());
         }
@@ -79,23 +62,20 @@ public class CommandListener {
         sendReply(RabbitMQConfig.RESERVATION_CREATED_REPLY_KEY, reply, cmd.getSagaId());
     }
 
-    // =========================================================================
-    // Kompenzacija: brisanje rezervacije
-    // =========================================================================
-
+    // Kompenzacija - brisanje rezervacije
     @RabbitListener(queues = RabbitMQConfig.DELETE_RESERVATION_CMD_QUEUE)
     public void handleDeleteReservationCommand(DeleteReservationCommand cmd) {
-        log.info("[ORCHESTRATION][Neo4j] Primljena DeleteReservationCommand (kompenzacija) -- sagaId={}, reservationId={}",
+        log.info("[ORCHESTRATION][Neo4j] Primljena kompenzaciona operacija DeleteReservationCommand  -- sagaId={}, reservationId={}",
                 cmd.getSagaId(), cmd.getReservationId());
 
         ReservationDeletedReply reply;
         try {
             reservationService.delete(cmd.getReservationId());
-            log.info("[ORCHESTRATION][Neo4j] sagaId={} -- Reservation id={} obrisana (kompenzacija izvrsena)",
+            log.info("[ORCHESTRATION][Neo4j] sagaId={} -- Reservacija id={} je obrisana",
                     cmd.getSagaId(), cmd.getReservationId());
             reply = new ReservationDeletedReply(cmd.getSagaId(), true, null);
         } catch (Exception e) {
-            log.error("[ORCHESTRATION][Neo4j] sagaId={} -- GRESKA pri brisanju rezervacije (kompenzacija nije uspela): {}",
+            log.error("[ORCHESTRATION][Neo4j] sagaId={} -- Greska pri brisanju rezervacije - kompenzacija nije uspela : {}",
                     cmd.getSagaId(), e.getMessage(), e);
             reply = new ReservationDeletedReply(cmd.getSagaId(), false, e.getMessage());
         }
@@ -103,15 +83,8 @@ public class CommandListener {
         sendReply(RabbitMQConfig.RESERVATION_DELETED_REPLY_KEY, reply, cmd.getSagaId());
     }
 
-    // =========================================================================
-    // Pomocne metode
-    // =========================================================================
+    // Helperi
 
-    /**
-     * Na osnovu trenutnog stanja rezervacije (bina, termin, povezani resursi)
-     * sastavlja listu ResourceUsageEntry objekata spremnih za slanje Analytics
-     * servisu.
-     */
     private List<ResourceUsageEntry> buildResourceUsageEntries(Reservation reservation) {
         List<ResourceUsageEntry> entries = new ArrayList<>();
 
@@ -160,7 +133,7 @@ public class CommandListener {
             rabbitTemplate.convertAndSend(RabbitMQConfig.ORCHESTRATION_EXCHANGE, routingKey, reply);
             log.info("[ORCHESTRATION][Neo4j] sagaId={} -- reply poslat na routing key '{}'", sagaId, routingKey);
         } catch (Exception e) {
-            log.error("[ORCHESTRATION][Neo4j] sagaId={} -- GRESKA pri slanju reply-a: {}", sagaId, e.getMessage(), e);
+            log.error("[ORCHESTRATION][Neo4j] sagaId={} -- Greska pri slanju reply-a: {}", sagaId, e.getMessage(), e);
         }
     }
 }

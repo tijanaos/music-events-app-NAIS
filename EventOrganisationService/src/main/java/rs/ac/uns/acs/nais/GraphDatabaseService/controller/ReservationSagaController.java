@@ -16,18 +16,6 @@ import rs.ac.uns.acs.nais.GraphDatabaseService.saga.orchestration.SagaOrchestrat
 import java.util.List;
 import java.util.Map;
 
-/**
- * REST kontroler koji izlaze endpoint-e za pokretanje transakcione obrade
- * (Saga, orkestracija) kreiranja rezervacije.
- *
- * Tok:
- *   1. SagaOrchestrator salje CreateReservationCommand Neo4j CommandListener-u.
- *   2. Neo4j kreira Reservation i povezane resurse, salje ReservationCreatedReply.
- *   3. SagaOrchestrator salje RecordResourceUsageCommand Analytics CommandListener-u.
- *   4. Analytics servis upisuje ResourceUsageDocument-e u Elasticsearch i salje reply.
- *   5a. Uspeh: stanje sage = COMPLETED.
- *   5b. Neuspeh: SagaOrchestrator salje DeleteReservationCommand (kompenzacija).
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/saga/reservation")
@@ -36,15 +24,6 @@ public class ReservationSagaController {
 
     private final SagaOrchestrator sagaOrchestrator;
 
-    /**
-     * Pokrece orkestrisanu sagu kreiranja rezervacije.
-     *
-     * Telo zahteva:
-     * {
-     *   "reservation": { ...ReservationDTO polja... },
-     *   "requestedResources": [ { ...RequiresResourceDTO polja... } ]
-     * }
-     */
     @PostMapping
     public ResponseEntity<Map<String, String>> startReservationSaga(@RequestBody StartSagaRequest request) {
         log.info("[CONTROLLER] POST /api/saga/reservation -- pokretanje sage");
@@ -55,7 +34,7 @@ public class ReservationSagaController {
             return ResponseEntity.ok(Map.of(
                     "sagaId", sagaId,
                     "status", "STARTED",
-                    "message", "Saga kreiranja rezervacije je pokrenuta. Status proveriti na GET /api/saga/reservation/status/" + sagaId));
+                    "message", "Saga za kreiranje rezervacije je pokrenuta."));
 
         } catch (Exception e) {
             log.error("[CONTROLLER] GRESKA pri pokretanju sage: {}", e.getMessage(), e);
@@ -64,10 +43,9 @@ public class ReservationSagaController {
         }
     }
 
-    /** Vraca trenutno stanje instance sage, za polling i debagovanje. */
     @GetMapping("/status/{sagaId}")
     public ResponseEntity<?> getSagaStatus(@PathVariable String sagaId) {
-        log.info("[CONTROLLER] GET /api/saga/reservation/status/{} -- citanje stanja sage", sagaId);
+        log.info("[CONTROLLER] GET /api/saga/reservation/status/{}", sagaId);
 
         SagaInstance instance = sagaOrchestrator.getSagaStatus(sagaId);
         if (instance == null) {
@@ -75,11 +53,42 @@ public class ReservationSagaController {
                     .body(Map.of("error", "Saga sa ID=" + sagaId + " nije pronadjena"));
         }
 
-        return ResponseEntity.ok(Map.of(
-                "sagaId", instance.getSagaId(),
-                "state", instance.getState().name(),
-                "reservationId", instance.getReservationId() == null ? "" : instance.getReservationId(),
-                "createdAt", instance.getCreatedAt().toString()));
+        var history = instance.getHistory().stream()
+                .map(t -> Map.of("state", t.getState().name(), "timestamp", t.getTimestamp().toString()))
+                .toList();
+
+        var response = new java.util.LinkedHashMap<String, Object>();
+        response.put("sagaId", instance.getSagaId());
+        response.put("currentState", instance.getState().name());
+        response.put("reservationId", instance.getReservationId() == null ? "" : instance.getReservationId());
+        response.put("createdAt", instance.getCreatedAt().toString());
+        response.put("history", history);
+        if (instance.getErrorMessage() != null) {
+            response.put("errorMessage", instance.getErrorMessage());
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllSagas() {
+        var result = sagaOrchestrator.getAllSagas().stream()
+                .map(instance -> {
+                    var history = instance.getHistory().stream()
+                            .map(t -> Map.of("state", t.getState().name(), "timestamp", t.getTimestamp().toString()))
+                            .toList();
+                    var entry = new java.util.LinkedHashMap<String, Object>();
+                    entry.put("sagaId", instance.getSagaId());
+                    entry.put("currentState", instance.getState().name());
+                    entry.put("reservationId", instance.getReservationId() == null ? "" : instance.getReservationId());
+                    entry.put("createdAt", instance.getCreatedAt().toString());
+                    entry.put("history", history);
+                    if (instance.getErrorMessage() != null) {
+                        entry.put("errorMessage", instance.getErrorMessage());
+                    }
+                    return entry;
+                })
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @Data

@@ -7,15 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-/**
- * Nosi sve podatke o iskoriscenosti jednog resursa u okviru rezervacije, vec
- * obogacene nazivima/tipovima iz Neo4j grafa (bina, termin, resurs), kako bi
- * Analytics servis mogao direktno da formira ResourceUsageDocument bez dodatnih
- * poziva nazad ka Neo4j servisu.
- *
- * Popunjava ga CommandListener u EventOrganisationService nakon sto uspesno
- * kreira Reservation cvor i poveze ga sa trazenim resursima.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
