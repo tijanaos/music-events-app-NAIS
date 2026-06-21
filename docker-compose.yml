@@ -409,6 +409,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       RABBITMQ_HOST: rabbitmq
+      SAGA_ESCALATION_FAIL-FOR-DEMO: "true"
     ports:
       - "9090:9090"
 
