@@ -1,0 +1,79 @@
+{
+  "info": {
+    "_postman_id": "97e0ef89-0195-44cd-8cda-1192e6cdb932",
+    "name": "SAGA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48358222",
+    "_collection_link": "https://go.postman.co/collection/48358222-97e0ef89-0195-44cd-8cda-1192e6cdb932?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "All negotiations",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9071/api/negotiations",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9071",
+          "path": [
+            "api",
+            "negotiations"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "escalate",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9071/api/negotiations/3b170c64-a71a-4cfc-a37d-3000d2921527/escalate?increasePercent=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9071",
+          "path": [
+            "api",
+            "negotiations",
+            "3b170c64-a71a-4cfc-a37d-3000d2921527",
+            "escalate"
+          ],
+          "query": [
+            {
+              "key": "increasePercent",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Promena cene",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9090/api/promene-cene",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9090",
+          "path": [
+            "api",
+            "promene-cene"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
