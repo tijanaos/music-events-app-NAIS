@@ -1,8 +1,0 @@
-apiVersion: 1
-
-providers:
-  - name: NAIS Projekat Dashboards
-    folder: NAIS Projekat
-    type: file
-    options:
-      path: /var/lib/grafana/dashboards
