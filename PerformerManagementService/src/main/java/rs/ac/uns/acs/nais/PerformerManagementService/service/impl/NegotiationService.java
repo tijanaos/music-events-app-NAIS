@@ -17,6 +17,8 @@ import rs.ac.uns.acs.nais.PerformerManagementService.model.relationship.PartOf;
 import rs.ac.uns.acs.nais.PerformerManagementService.repository.*;
 import rs.ac.uns.acs.nais.PerformerManagementService.saga.event.NegotiationConcludedEvent;
 import rs.ac.uns.acs.nais.PerformerManagementService.service.INegotiationService;
+import rs.ac.uns.acs.nais.PerformerManagementService.saga.event.EscalationInitiatedEvent;
+import rs.ac.uns.acs.nais.PerformerManagementService.saga.event.EscalationPriceFailedEvent;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -231,5 +233,56 @@ public class NegotiationService implements INegotiationService {
             "ORDER BY negotiationCount DESC";
 
         return new ArrayList<>(neo4jClient.query(query).fetch().all());
+    }
+
+    // dodato za sagu
+    @Override
+    public Negotiation escalate(String id, Double increasePercent) {
+        Negotiation existing = findById(id);
+
+        if (existing.getConcludedAt() != null || existing.getFailReason() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot escalate a closed negotiation");
+        }
+
+        State currentState = existing.getCurrentState().getState();
+        if (currentState.getIsFinal()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot escalate a negotiation in a final state");
+        }
+
+        Offer offer = existing.getOffer().getOffer();
+        Double staraCena = offer.getPrice();
+        Double novaCena = staraCena * (1 + increasePercent / 100.0);
+        offer.setPrice(novaCena);
+        offerRepository.save(offer);
+
+        existing.setUpdatedAt(LocalDateTime.now());
+        Negotiation saved = negotiationRepository.save(existing);
+
+        try {
+            PartOf partOf = (existing.getPerformers() != null && !existing.getPerformers().isEmpty())
+                    ? existing.getPerformers().get(0) : null;
+            String performerName = partOf != null ? partOf.getPerformer().getName() : "unknown";
+
+            EscalationInitiatedEvent event = EscalationInitiatedEvent.builder()
+                    .sagaId(UUID.randomUUID().toString())
+                    .negotiationId(saved.getId())
+                    .offerId(offer.getId())
+                    .performerName(performerName)
+                    .staraCena(staraCena)
+                    .novaCena(novaCena)
+                    .build();
+
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ESCALATION_INITIATED_KEY, event);
+            log.info("[SAGA][ESCALATION][STARTED] sagaId={} negotiationId={} staraCena={} novaCena={}",
+                    event.getSagaId(), event.getNegotiationId(), staraCena, novaCena);
+        } catch (Exception ex) {
+            log.error("[SAGA][ESCALATION][PUBLISH FAILED] Reverting price for offerId={}: {}", offer.getId(), ex.getMessage());
+            offer.setPrice(staraCena);
+            offerRepository.save(offer);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Offer price updated but failed to start escalation saga");
+        }
+
+        return saved;
     }
 }

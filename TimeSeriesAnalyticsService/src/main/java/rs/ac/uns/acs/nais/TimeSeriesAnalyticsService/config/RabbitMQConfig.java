@@ -24,6 +24,11 @@ public class RabbitMQConfig {
     public static final String KARTE_FAILED_QUEUE = "performer.karte.failed.queue";
     public static final String KARTE_FAILED_KEY = "performer.karte.failed";
 
+    public static final String ESCALATION_INITIATED_QUEUE = "negotiation.escalation.initiated.queue";
+    public static final String ESCALATION_INITIATED_KEY = "negotiation.escalation.initiated";
+    public static final String ESCALATION_FAILED_KEY = "escalation.price.failed";
+    public static final String ESCALATION_RECORDED_KEY = "escalation.price.recorded";
+
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
@@ -67,5 +72,15 @@ public class RabbitMQConfig {
     @Bean
     public Binding karteFailedBinding() {
         return BindingBuilder.bind(karteFailedQueue()).to(sagaExchange()).with(KARTE_FAILED_KEY);
+    }
+
+    @Bean
+    public Queue escalationInitiatedQueue() {
+        return QueueBuilder.durable(ESCALATION_INITIATED_QUEUE).build();
+    }
+
+    @Bean
+    public Binding escalationInitiatedBinding() {
+        return BindingBuilder.bind(escalationInitiatedQueue()).to(sagaExchange()).with(ESCALATION_INITIATED_KEY);
     }
 }

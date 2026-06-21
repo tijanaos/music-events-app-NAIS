@@ -96,4 +96,11 @@ public class NegotiationController {
     public ResponseEntity<List<Map<String, Object>>> getStagnant() {
         return ResponseEntity.ok(negotiationService.getStagnantNegotiations());
     }
+
+    @PostMapping("/{id}/escalate")
+    public ResponseEntity<Negotiation> escalate(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "10.0") Double increasePercent) {
+        return ResponseEntity.ok(negotiationService.escalate(id, increasePercent));
+    }
 }

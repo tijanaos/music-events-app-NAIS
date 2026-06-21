@@ -19,4 +19,5 @@ public interface INegotiationService {
     List<Map<String, Object>> getStagnantNegotiations();
     List<Map<String, Object>> getPerformerSuccessStats();
     List<Map<String, Object>> getGenreStats();
+    Negotiation escalate(String id, Double increasePercent);
 }

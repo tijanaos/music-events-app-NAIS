@@ -62,3 +62,27 @@ datasources:
       username: neo4j
     secureJsonData:
       password: password
+
+    # InfluxDB (NegotiationAnalyticsService)
+  - name: InfluxDB-Negotiation
+    type: influxdb
+    uid: influxdb-negotiation
+    access: proxy
+    url: http://influxdb-negotiation:8086
+    jsonData:
+      version: Flux
+      organization: nais_org
+      defaultBucket: negotiation_bucket
+    secureJsonData:
+      token: my-super-secret-auth-token
+ 
+  # Neo4j-Performer (PerformerManagementService)
+  - name: Neo4j-Performer
+    type: kniepdennis-neo4j-datasource
+    uid: neo4j-performer
+    access: proxy
+    jsonData:
+      url: bolt://neo4j-performer:7687
+      username: neo4j
+    secureJsonData:
+      password: password
