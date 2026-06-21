@@ -4,11 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Kompenzaciona komanda -- nalaze Neo4j servisu da obrise prethodno kreiranu
- * rezervaciju (i oslobodi pripadajuci TimeSlot) zato sto upis u Elasticsearch
- * (korak 2 sage) nije uspeo.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

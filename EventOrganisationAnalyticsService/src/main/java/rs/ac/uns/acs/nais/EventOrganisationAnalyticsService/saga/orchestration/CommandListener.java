@@ -12,18 +12,6 @@ import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.saga.orchestration.c
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.saga.orchestration.reply.ResourceUsageRecordedReply;
 import rs.ac.uns.acs.nais.EventOrganisationAnalyticsService.service.ResourceUsageService;
 
-/**
- * Command listener za orkestrisanu sagu na Elasticsearch strani
- * (EventOrganisationAnalyticsService) -- drugi korak sage kreiranja rezervacije.
- *
- * Obradjuje RecordResourceUsageCommand: za svaki ResourceUsageEntry iz komande
- * kreira po jedan ResourceUsageDocument u indeksu "resource-usage", a zatim
- * salje ResourceUsageRecordedReply orkestratoru.
- *
- * Ako upis bilo kog zapisa ne uspe, ceo korak se smatra neuspesnim i salje se
- * success=false, sto kod orkestratora pokrece kompenzaciju (brisanje
- * rezervacije u Neo4j).
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

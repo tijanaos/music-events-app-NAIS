@@ -18,35 +18,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Centralni orkestrator za Saga obrazac -- koordinise distribuiranu transakciju
- * kreiranja rezervacije, koja obuhvata Neo4j (EventOrganisationService) i
- * Elasticsearch (EventOrganisationAnalyticsService).
- *
- * Tok orkestracije:
- *   startSaga()
- *     -> salje CreateReservationCommand -> Neo4j CommandListener kreira Reservation
- *        i povezuje je sa trazenim resursima
- *     -> prima ReservationCreatedReply
- *   handleReservationCreatedReply() [uspeh]
- *     -> salje RecordResourceUsageCommand -> Analytics CommandListener upisuje
- *        ResourceUsageDocument-e u Elasticsearch
- *     -> prima ResourceUsageRecordedReply
- *   handleResourceUsageRecordedReply() [uspeh]
- *     -> stanje sage = COMPLETED
- *   handleResourceUsageRecordedReply() [neuspeh]
- *     -> salje DeleteReservationCommand -> Neo4j brise rezervaciju (kompenzacija)
- *     -> prima ReservationDeletedReply
- *   handleReservationDeletedReply()
- *     -> stanje sage = COMPENSATED / FAILED
- *
- * Aktivne instance sage cuvaju se u memorijskom ConcurrentHashMap-u (thread-safe).
- */
 @Slf4j
 @Component
 public class SagaOrchestrator {
 
-    /** Memorijski registar aktivnih instanci sage, kljucan po sagaId. */
+    // Mapa svih sagi
     private final ConcurrentHashMap<String, SagaInstance> sagaRegistry = new ConcurrentHashMap<>();
 
     private final RabbitTemplate rabbitTemplate;
@@ -55,18 +31,7 @@ public class SagaOrchestrator {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    // =========================================================================
     // Pokretanje sage
-    // =========================================================================
-
-    /**
-     * Kreira novu SagaInstance i salje CreateReservationCommand Neo4j servisu.
-     * Ovo je ulazna tacka orkestracije, poziva se iz REST kontrolera.
-     *
-     * @param reservation        podaci o rezervaciji (bina, termin, izvodjac...)
-     * @param requestedResources lista resursa koje rezervacija zahteva
-     * @return sagaId novokreirane instance sage
-     */
     public String startSaga(ReservationDTO reservation, List<RequiresResourceDTO> requestedResources) {
         String sagaId = UUID.randomUUID().toString();
         SagaInstance instance = new SagaInstance(sagaId, reservation);
@@ -85,15 +50,11 @@ public class SagaOrchestrator {
         } catch (Exception e) {
             log.error("[ORCHESTRATION] sagaId={} -- GRESKA pri slanju CreateReservationCommand: {}",
                     sagaId, e.getMessage(), e);
-            instance.setState(SagaState.FAILED);
+            instance.failWith(SagaState.FAILED, e.getMessage());
         }
 
         return sagaId;
     }
-
-    // =========================================================================
-    // Reply za korak 1 (Neo4j -- kreiranje rezervacije)
-    // =========================================================================
 
     @RabbitListener(queues = RabbitMQConfig.RESERVATION_CREATED_REPLY_QUEUE)
     public void handleReservationCreatedReply(ReservationCreatedReply reply) {
@@ -123,20 +84,16 @@ public class SagaOrchestrator {
             } catch (Exception e) {
                 log.error("[ORCHESTRATION] sagaId={} -- GRESKA pri slanju RecordResourceUsageCommand: {}",
                         reply.getSagaId(), e.getMessage(), e);
-                // Neo4j upis je uspeo, ali ES komanda ne moze da se posalje -- pokreni kompenzaciju
+                // Pokretanje kompenzacije: rezervacija je kreirana, ali ES komanda ne moze da se posalje
                 triggerCompensation(instance);
             }
 
         } else {
             log.error("[ORCHESTRATION] sagaId={} -- Neo4j korak NIJE uspeo: {}",
                     reply.getSagaId(), reply.getErrorMessage());
-            instance.setState(SagaState.FAILED);
+            instance.failWith(SagaState.FAILED, reply.getErrorMessage());
         }
     }
-
-    // =========================================================================
-    // Reply za korak 2 (Elasticsearch -- upis iskoriscenosti resursa)
-    // =========================================================================
 
     @RabbitListener(queues = RabbitMQConfig.RESOURCE_USAGE_RECORDED_REPLY_QUEUE)
     public void handleResourceUsageRecordedReply(ResourceUsageRecordedReply reply) {
@@ -155,15 +112,12 @@ public class SagaOrchestrator {
             log.info("[ORCHESTRATION] sagaId={} -> COMPLETED -- distribuirana transakcija uspesno zavrsena ({} zapisa upisano)",
                     reply.getSagaId(), reply.getRecordedCount());
         } else {
-            log.error("[ORCHESTRATION] sagaId={} -- ES korak NIJE uspeo: {}, pokrecem kompenzaciju",
+            log.error("[ORCHESTRATION] sagaId={} -- ES korak NIJE uspeo: {}, pokrece se kompenzacija",
                     reply.getSagaId(), reply.getErrorMessage());
+            instance.setErrorMessage(reply.getErrorMessage());
             triggerCompensation(instance);
         }
     }
-
-    // =========================================================================
-    // Potvrda kompenzacije (Neo4j -- brisanje rezervacije)
-    // =========================================================================
 
     @RabbitListener(queues = RabbitMQConfig.RESERVATION_DELETED_REPLY_QUEUE)
     public void handleReservationDeletedReply(ReservationDeletedReply reply) {
@@ -181,17 +135,13 @@ public class SagaOrchestrator {
             log.warn("[ORCHESTRATION] sagaId={} -> COMPENSATED -- rezervacija obrisana, saga otkazana",
                     reply.getSagaId());
         } else {
-            instance.setState(SagaState.FAILED);
-            log.error("[ORCHESTRATION] sagaId={} -> FAILED -- kompenzacija NIJE uspela! Sistem je u nekonzistentnom stanju!",
+            instance.failWith(SagaState.FAILED, "Kompenzacija nije uspela: " + reply.getSagaId());
+            log.error("[ORCHESTRATION] sagaId={} -> FAILED -- kompenzacija NIJE uspela.",
                     reply.getSagaId());
         }
     }
 
-    // =========================================================================
-    // Pomocne metode
-    // =========================================================================
-
-    /** Pokrece kompenzacionu fazu slanjem DeleteReservationCommand. */
+    // Helperi
     private void triggerCompensation(SagaInstance instance) {
         instance.setState(SagaState.COMPENSATING);
         log.warn("[ORCHESTRATION] sagaId={} -> COMPENSATING -- saljem DeleteReservationCommand",
@@ -205,17 +155,17 @@ public class SagaOrchestrator {
                     cmd);
             log.info("[ORCHESTRATION] sagaId={} -- DeleteReservationCommand poslata", instance.getSagaId());
         } catch (Exception e) {
-            log.error("[ORCHESTRATION] sagaId={} -- KRITICNO: DeleteReservationCommand nije mogla da se posalje: {}",
+            log.error("[ORCHESTRATION] sagaId={} -- GRESKA: DeleteReservationCommand nije mogla da se posalje: {}",
                     instance.getSagaId(), e.getMessage(), e);
             instance.setState(SagaState.FAILED);
         }
     }
 
-    /**
-     * Vraca trenutno stanje instance sage za dati sagaId.
-     * Korisno za polling statusa i debagovanje preko REST kontrolera.
-     */
     public SagaInstance getSagaStatus(String sagaId) {
         return sagaRegistry.get(sagaId);
+    }
+
+    public java.util.Collection<SagaInstance> getAllSagas() {
+        return sagaRegistry.values();
     }
 }

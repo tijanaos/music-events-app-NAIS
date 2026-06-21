@@ -1,7 +1,7 @@
 apiVersion: 1
 
 datasources:
-  # ── Elasticsearch (resource-usage i reservation-requests indeksi) ──────────
+  # Elasticsearch (resource-usage indeks)
   - name: Elasticsearch
     type: elasticsearch
     uid: elasticsearch
@@ -15,7 +15,7 @@ datasources:
       logMessageField: ""
       logLevelField: ""
 
-  # ── Elasticsearch (reservation-requests index) ───────────────────────────────
+  # Elasticsearch (reservation-requests indeks)
   - name: Elasticsearch-Reservations
     type: elasticsearch
     uid: elasticsearch-reservations
@@ -28,7 +28,7 @@ datasources:
       logMessageField: ""
       logLevelField: ""
 
-  # ── Neo4j (EventOrganisationService) ────────────────────────────────────────
+  # Neo4j (EventOrganisationService)
   - name: Neo4j
     type: kniepdennis-neo4j-datasource
     uid: neo4j
@@ -39,7 +39,7 @@ datasources:
     secureJsonData:
       password: password
 
-  # ── InfluxDB (TimeSeriesAnalyticsService) ───────────────────────────────────
+  # InfluxDB (TimeSeriesAnalyticsService)
   - name: InfluxDB-TimeSeries
     type: influxdb
     uid: influxdb-timeseries
@@ -52,7 +52,7 @@ datasources:
     secureJsonData:
       token: music-events-admin-token
 
-  # ── Neo4j-Pricing (DynamicPricingService) ───────────────────────────────────
+  # Neo4j-Pricing (DynamicPricingService)
   - name: Neo4j-Pricing
     type: kniepdennis-neo4j-datasource
     uid: neo4j-pricing

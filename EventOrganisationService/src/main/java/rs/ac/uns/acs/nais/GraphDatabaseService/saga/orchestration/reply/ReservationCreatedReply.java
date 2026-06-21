@@ -7,15 +7,6 @@ import rs.ac.uns.acs.nais.GraphDatabaseService.saga.orchestration.command.Resour
 
 import java.util.List;
 
-/**
- * Reply koji Neo4j CommandListener salje nazad orkestratoru nakon obrade
- * CreateReservationCommand.
- *
- * Na uspehu nosi id novokreirane rezervacije i listu obogacenih zapisa o
- * trazenim resursima (ResourceUsageEntry) -- orkestrator ih prosledjuje u
- * RecordResourceUsageCommand ka Analytics servisu, bez potrebe za dodatnim
- * upitom ka Neo4j bazi.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
