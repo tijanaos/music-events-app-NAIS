@@ -1,0 +1,610 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Izveštaj o pregovorima — InfluxDB (proste sekcije) + Neo4j (složena sekcija)",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 4,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "title": "Prosta sekcija 1 — Istorija stanja pregovora",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-negotiation"
+      },
+      "description": "Svaki slog predstavlja ulazak jednog pregovora u određeno stanje, sa trajanjem u sekundama. Filter po statusu pregovora.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration_seconds"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Trajanje (s)"
+              },
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "negotiation_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "ID pregovora"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "state_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Stanje"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "template_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Šablon"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "manager_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Menadžer"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_time"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Vreme ulaska"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "negotiation_status"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Status"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "CLOSED": {
+                        "color": "green",
+                        "index": 0
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "FAILED": {
+                        "color": "red",
+                        "index": 1
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "ACTIVE": {
+                        "color": "yellow",
+                        "index": 2
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Vreme ulaska"
+          }
+        ]
+      },
+      "pluginVersion": "10.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-negotiation"
+          },
+          "query": "from(bucket: \"negotiation_bucket\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"negotiation_state_history\")\n  |> filter(fn: (r) => r._field == \"duration_seconds\")\n  |> filter(fn: (r) => if \"${status_filter}\" == \"ALL\" then true else r.negotiation_status == \"${status_filter}\")\n  |> group()\n  |> pivot(rowKey: [\"_time\", \"negotiation_id\", \"state_name\", \"template_name\", \"manager_id\", \"negotiation_status\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> keep(columns: [\"_time\", \"negotiation_id\", \"state_name\", \"template_name\", \"manager_id\", \"negotiation_status\", \"duration_seconds\"])\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n: 200)",
+          "refId": "A"
+        }
+      ],
+      "title": "Istorija stanja pregovora",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 11,
+      "title": "Prosta sekcija 2 — Životni ciklus ponuda",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-negotiation"
+      },
+      "description": "Svaki slog predstavlja jedan događaj u životnom ciklusu ponude sa cenom i lokacijom. Filter po lokaciji.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "price"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cena (€)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "offer_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "ID ponude"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "event_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Tip događaja"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "manager_id"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Menadžer"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "location"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Lokacija"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_time"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Vreme događaja"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Vreme događaja"
+          }
+        ]
+      },
+      "pluginVersion": "10.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-negotiation"
+          },
+          "query": "from(bucket: \"negotiation_bucket\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"offer_lifecycle_events\")\n  |> filter(fn: (r) => r._field == \"price\")\n  |> filter(fn: (r) => if \"${location_filter}\" == \"ALL\" then true else r.location == \"${location_filter}\")\n  |> group()\n  |> pivot(rowKey: [\"_time\", \"offer_id\", \"event_type\", \"manager_id\", \"negotiation_id\", \"location\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> keep(columns: [\"_time\", \"offer_id\", \"event_type\", \"manager_id\", \"negotiation_id\", \"location\", \"price\"])\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n: 200)",
+          "refId": "A"
+        }
+      ],
+      "title": "Događaji životnog ciklusa ponuda",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Složena sekcija — Zaključeni pregovori po žanru izvođača",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "kniepdennis-neo4j-datasource",
+        "uid": "neo4j-performer"
+      },
+      "description": "Složen upit koji kroz graf relacije Performer→Negotiation→State pronalazi sve\npregovore i grupiše ih po muzičkom žanru izvođača.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 3,
+      "options": {
+        "displayLabels": [
+          "percent",
+          "name"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^cnt$/",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "cypherQuery": "MATCH (p:Performer)-[:PART_OF]->(n:Negotiation)-[:IN_STATE]->(s:State)\r\nWITH p.genre AS genre, count(n) AS cnt\r\nRETURN genre, cnt\r\nORDER BY cnt DESC",
+          "datasource": {
+            "type": "kniepdennis-neo4j-datasource",
+            "uid": "neo4j-performer"
+          },
+          "query": "MATCH (p:Performer)-[:PART_OF]->(n:Negotiation)-[:IN_STATE]->(s:State) WHERE s.isFinal = true RETURN p.genre AS genre, count(n) AS broj_pregovora ORDER BY broj_pregovora DESC",
+          "rawQuery": "MATCH (p:Performer)-[:PART_OF]->(n:Negotiation)-[:IN_STATE]->(s:State) WHERE s.isFinal = true RETURN p.genre AS genre, count(n) AS broj_pregovora ORDER BY broj_pregovora DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Broj pregovora po žanru izvođača",
+      "type": "piechart"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": [
+    "nais",
+    "negotiation",
+    "performer"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "ALL",
+          "value": "ALL"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Status pregovora",
+        "multi": false,
+        "name": "status_filter",
+        "options": [
+          {
+            "selected": true,
+            "text": "ALL",
+            "value": "ALL"
+          },
+          {
+            "selected": false,
+            "text": "CLOSED",
+            "value": "CLOSED"
+          },
+          {
+            "selected": false,
+            "text": "FAILED",
+            "value": "FAILED"
+          },
+          {
+            "selected": false,
+            "text": "ACTIVE",
+            "value": "ACTIVE"
+          }
+        ],
+        "query": "ALL,CLOSED,FAILED,ACTIVE",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "ALL",
+          "value": "ALL"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Lokacija",
+        "multi": false,
+        "name": "location_filter",
+        "options": [
+          {
+            "selected": true,
+            "text": "ALL",
+            "value": "ALL"
+          },
+          {
+            "selected": false,
+            "text": "Novi Sad",
+            "value": "Novi Sad"
+          },
+          {
+            "selected": false,
+            "text": "Beograd",
+            "value": "Beograd"
+          },
+          {
+            "selected": false,
+            "text": "Nis",
+            "value": "Nis"
+          },
+          {
+            "selected": false,
+            "text": "Subotica",
+            "value": "Subotica"
+          },
+          {
+            "selected": false,
+            "text": "Zagreb",
+            "value": "Zagreb"
+          },
+          {
+            "selected": false,
+            "text": "Ljubljana",
+            "value": "Ljubljana"
+          },
+          {
+            "selected": false,
+            "text": "Sarajevo",
+            "value": "Sarajevo"
+          },
+          {
+            "selected": false,
+            "text": "Skoplje",
+            "value": "Skoplje"
+          }
+        ],
+        "query": "ALL,Novi Sad,Beograd,Nis,Subotica,Zagreb,Ljubljana,Sarajevo,Skoplje",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "2026-04-09T02:26:18.251Z",
+    "to": "2026-06-21T09:55:18.251Z"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Pregovori i Izvođači — NAIS Izveštaj",
+  "uid": "nais-negotiation-report",
+  "version": 2,
+  "weekStart": ""
+}
